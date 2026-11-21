@@ -1,8 +1,8 @@
-use crate::internal::prelude::*;
 use super::Builder;
-use oxcord_rest::CacheHttp;
+use crate::internal::prelude::*;
 use oxcord_model::guild::automod::EventType;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// A builder for creating or editing guild AutoMod rules.
 ///

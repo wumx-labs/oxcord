@@ -4,12 +4,12 @@
 //! without requiring an external Redis or NATS server.
 
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
 use async_trait::async_trait;
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::{RwLock, broadcast};
 
 use crate::envelope::BrokerMessage;
 use crate::error::{BrokerError, Result};
@@ -31,7 +31,7 @@ impl Subscription for InProcessSubscription {
                 Err(broadcast::error::RecvError::Lagged(missed)) => {
                     tracing::warn!("InProcessSubscription lagged, missed {missed} messages");
                     continue;
-                }
+                },
                 Err(broadcast::error::RecvError::Closed) => return None,
             }
         }

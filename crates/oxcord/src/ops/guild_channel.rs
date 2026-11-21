@@ -1,10 +1,8 @@
 #[cfg(feature = "model")]
-use std::sync::Arc;
-#[cfg(feature = "model")]
 use crate::builder::{
-    Builder, CreateAttachment, CreateForumPost, CreateInvite, CreateMessage,
-    CreateStageInstance, CreateThread, CreateWebhook, EditChannel, EditMessage,
-    EditStageInstance, EditThread, EditVoiceState, GetMessages,
+    Builder, CreateAttachment, CreateForumPost, CreateInvite, CreateMessage, CreateStageInstance,
+    CreateThread, CreateWebhook, EditChannel, EditMessage, EditStageInstance, EditThread,
+    EditVoiceState, GetMessages,
 };
 #[cfg(feature = "cache")]
 use crate::cache::{self, Cache};
@@ -15,6 +13,8 @@ use crate::gateway::ShardMessenger;
 #[cfg(feature = "model")]
 use crate::http::{CacheHttp, Http, Typing};
 use crate::model::prelude::*;
+#[cfg(feature = "model")]
+use std::sync::Arc;
 #[allow(async_fn_in_trait)]
 pub trait GuildChannelExt: Sized {
     #[cfg(feature = "model")]
@@ -263,11 +263,7 @@ pub trait GuildChannelExt: Sized {
     ///
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     /// [Manage Roles]: Permissions::MANAGE_ROLES
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditChannel<'_>,
-    ) -> Result<()>;
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditChannel<'_>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Edits a [`Message`] in the channel given its Id.
     ///
@@ -544,11 +540,7 @@ pub trait GuildChannelExt: Sized {
     /// too many pinned messages.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
-    async fn pin(
-        &self,
-        http: impl AsRef<Http>,
-        message_id: impl Into<MessageId>,
-    ) -> Result<()>;
+    async fn pin(&self, http: impl AsRef<Http>, message_id: impl Into<MessageId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Gets all channel's pins.
     ///
@@ -599,11 +591,7 @@ pub trait GuildChannelExt: Sized {
     ///
     /// Returns a [`ModelError::MessageTooLong`] if the content length is over the above limit. See
     /// [`CreateMessage::execute`] for more details.
-    async fn say(
-        &self,
-        cache_http: impl CacheHttp,
-        content: impl Into<String>,
-    ) -> Result<Message>;
+    async fn say(&self, cache_http: impl CacheHttp, content: impl Into<String>) -> Result<Message>;
     #[cfg(feature = "model")]
     /// Sends file(s) along with optional message contents.
     ///
@@ -684,11 +672,7 @@ pub trait GuildChannelExt: Sized {
     /// Returns [`Error::Http`] if the current user lacks permission.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
-    async fn unpin(
-        &self,
-        http: impl AsRef<Http>,
-        message_id: impl Into<MessageId>,
-    ) -> Result<()>;
+    async fn unpin(&self, http: impl AsRef<Http>, message_id: impl Into<MessageId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Retrieves the channel's webhooks.
     ///
@@ -718,32 +702,20 @@ pub trait GuildChannelExt: Sized {
     /// Returns a builder which can be awaited to obtain a message or stream of messages sent in
     /// this guild channel.
     #[cfg(feature = "collector")]
-    fn await_reply(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector;
+    fn await_reply(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector;
     #[cfg(feature = "model")]
     /// Same as [`Self::await_reply`].
     #[cfg(feature = "collector")]
-    fn await_replies(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector;
+    fn await_replies(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector;
     #[cfg(feature = "model")]
     /// Returns a stream builder which can be awaited to obtain a reaction or stream of reactions
     /// sent by this guild channel.
     #[cfg(feature = "collector")]
-    fn await_reaction(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector;
+    fn await_reaction(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector;
     #[cfg(feature = "model")]
     /// Same as [`Self::await_reaction`].
     #[cfg(feature = "collector")]
-    fn await_reactions(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector;
+    fn await_reactions(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector;
     #[cfg(feature = "model")]
     /// Creates a webhook in the channel.
     ///
@@ -843,9 +815,14 @@ impl GuildChannelExt for GuildChannel {
     #[cfg(feature = "model")]
     fn is_text_based(&self) -> bool {
         matches!(
-            self.kind, ChannelType::Text | ChannelType::News | ChannelType::Voice |
-            ChannelType::Stage | ChannelType::PublicThread | ChannelType::PrivateThread |
-            ChannelType::NewsThread
+            self.kind,
+            ChannelType::Text
+                | ChannelType::News
+                | ChannelType::Voice
+                | ChannelType::Stage
+                | ChannelType::PublicThread
+                | ChannelType::PrivateThread
+                | ChannelType::NewsThread
         )
     }
     #[cfg(feature = "model")]
@@ -877,11 +854,7 @@ impl GuildChannelExt for GuildChannel {
         #[cfg(feature = "cache")]
         {
             if let Some(cache) = cache_http.cache() {
-                crate::utils::user_has_perms_cache(
-                    cache,
-                    self.id,
-                    Permissions::MANAGE_CHANNELS,
-                )?;
+                crate::utils::user_has_perms_cache(cache, self.id, Permissions::MANAGE_CHANNELS)?;
             }
         }
         let channel = self.id.delete(cache_http.http()).await?;
@@ -926,11 +899,7 @@ impl GuildChannelExt for GuildChannel {
         self.id.delete_reactions(http, message_id).await
     }
     #[cfg(feature = "model")]
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditChannel<'_>,
-    ) -> Result<()> {
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditChannel<'_>) -> Result<()> {
         let channel = builder.execute(cache_http, self.id).await?;
         *self = channel;
         Ok(())
@@ -964,7 +933,10 @@ impl GuildChannelExt for GuildChannel {
         if self.kind != ChannelType::Stage {
             return Err(Error::from(ModelError::InvalidChannelType));
         }
-        builder.execute(cache_http, (self.guild_id, self.id, Some(user_id.into()))).await.map_err(From::from)
+        builder
+            .execute(cache_http, (self.guild_id, self.id, Some(user_id.into())))
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
     async fn edit_own_voice_state(
@@ -1030,10 +1002,8 @@ impl GuildChannelExt for GuildChannel {
         user_id: impl Into<UserId>,
     ) -> Result<Permissions> {
         let guild = self.guild(&cache).ok_or(Error::Model(ModelError::GuildNotFound))?;
-        let member = guild
-            .members
-            .get(&user_id.into())
-            .ok_or(Error::Model(ModelError::MemberNotFound))?;
+        let member =
+            guild.members.get(&user_id.into()).ok_or(Error::Model(ModelError::MemberNotFound))?;
         Ok(guild.user_permissions_in(self, member))
     }
     #[cfg(feature = "model")]
@@ -1046,19 +1016,13 @@ impl GuildChannelExt for GuildChannel {
         role_id: impl Into<RoleId>,
     ) -> Result<Permissions> {
         let guild = self.guild(&cache).ok_or(Error::Model(ModelError::GuildNotFound))?;
-        let role = guild
-            .roles
-            .get(&role_id.into())
-            .ok_or(Error::Model(ModelError::RoleNotFound))?;
+        let role =
+            guild.roles.get(&role_id.into()).ok_or(Error::Model(ModelError::RoleNotFound))?;
         guild.role_permissions_in(self, role)
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn pin(
-        &self,
-        http: impl AsRef<Http>,
-        message_id: impl Into<MessageId>,
-    ) -> Result<()> {
+    async fn pin(&self, http: impl AsRef<Http>, message_id: impl Into<MessageId>) -> Result<()> {
         self.id.pin(http, message_id).await
     }
     #[cfg(feature = "model")]
@@ -1079,11 +1043,7 @@ impl GuildChannelExt for GuildChannel {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn say(
-        &self,
-        cache_http: impl CacheHttp,
-        content: impl Into<String>,
-    ) -> Result<Message> {
+    async fn say(&self, cache_http: impl CacheHttp, content: impl Into<String>) -> Result<Message> {
         self.id.say(cache_http, content).await
     }
     #[cfg(feature = "model")]
@@ -1111,11 +1071,7 @@ impl GuildChannelExt for GuildChannel {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn unpin(
-        &self,
-        http: impl AsRef<Http>,
-        message_id: impl Into<MessageId>,
-    ) -> Result<()> {
+    async fn unpin(&self, http: impl AsRef<Http>, message_id: impl Into<MessageId>) -> Result<()> {
         self.id.unpin(http, message_id).await
     }
     #[cfg(feature = "model")]
@@ -1130,71 +1086,44 @@ impl GuildChannelExt for GuildChannel {
         let cache = cache.as_ref();
         let guild = cache.guild(self.guild_id).ok_or(ModelError::GuildNotFound)?;
         match self.kind {
-            ChannelType::Voice | ChannelType::Stage => {
-                Ok(
-                    guild
-                        .voice_states
-                        .values()
-                        .filter_map(|v| {
-                            v.channel_id
-                                .and_then(|c| {
-                                    if c == self.id {
-                                        guild.members.get(&v.user_id).cloned()
-                                    } else {
-                                        None
-                                    }
-                                })
-                        })
-                        .collect(),
-                )
-            }
-            ChannelType::News | ChannelType::Text => {
-                Ok(
-                    guild
-                        .members
-                        .values()
-                        .filter(|member| {
-                            guild
-                                .user_permissions_in(self, member)
-                                .contains(Permissions::VIEW_CHANNEL)
-                        })
-                        .cloned()
-                        .collect::<Vec<Member>>(),
-                )
-            }
+            ChannelType::Voice | ChannelType::Stage => Ok(guild
+                .voice_states
+                .values()
+                .filter_map(|v| {
+                    v.channel_id.and_then(|c| {
+                        if c == self.id { guild.members.get(&v.user_id).cloned() } else { None }
+                    })
+                })
+                .collect()),
+            ChannelType::News | ChannelType::Text => Ok(guild
+                .members
+                .values()
+                .filter(|member| {
+                    guild.user_permissions_in(self, member).contains(Permissions::VIEW_CHANNEL)
+                })
+                .cloned()
+                .collect::<Vec<Member>>()),
             _ => Err(Error::from(ModelError::InvalidChannelType)),
         }
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reply(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector {
+    fn await_reply(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector {
         MessageCollector::new(shard_messenger).channel_id(self.id)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_replies(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector {
+    fn await_replies(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector {
         self.await_reply(shard_messenger)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reaction(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector {
+    fn await_reaction(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector {
         ReactionCollector::new(shard_messenger).channel_id(self.id)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reactions(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector {
+    fn await_reactions(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector {
         self.await_reaction(shard_messenger)
     }
     #[cfg(feature = "model")]

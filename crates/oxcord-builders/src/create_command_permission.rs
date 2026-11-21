@@ -1,7 +1,7 @@
-use crate::internal::prelude::*;
 use super::Builder;
-use oxcord_rest::CacheHttp;
+use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// A builder for creating several [`CommandPermission`].
 ///
@@ -17,9 +17,7 @@ pub struct EditCommandPermissions {
 
 impl EditCommandPermissions {
     pub fn new(permissions: Vec<CreateCommandPermission>) -> Self {
-        Self {
-            permissions,
-        }
+        Self { permissions }
     }
 }
 
@@ -40,7 +38,7 @@ impl Builder for EditCommandPermissions {
     /// May also return [`Error::Json`] if there is an error in deserializing the API response.
     ///
     /// [Discord's docs]: https://docs.discord.com/developers/interactions/application-commands#slash-commands
-        async fn execute(
+    async fn execute(
         self,
         cache_http: impl CacheHttp,
         ctx: Self::Context<'_>,

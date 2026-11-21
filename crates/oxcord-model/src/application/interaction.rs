@@ -2,19 +2,16 @@ use serde::de::{Deserialize, Deserializer, Error as DeError};
 use serde::ser::{Serialize, Serializer};
 
 use super::{
-    CommandInteraction,
-    ComponentInteraction,
-    InstallationContext,
-    ModalInteraction,
+    CommandInteraction, ComponentInteraction, InstallationContext, ModalInteraction,
     PingInteraction,
 };
 use crate::internal::prelude::*;
 use crate::json::from_value;
+use crate::model::Permissions;
 use crate::model::id::{ApplicationId, GuildId, InteractionId, MessageId, UserId};
 use crate::model::monetization::Entitlement;
 use crate::model::user::User;
-use crate::model::utils::{deserialize_val, remove_from_map, StrOrInt};
-use crate::model::Permissions;
+use crate::model::utils::{StrOrInt, deserialize_val, remove_from_map};
 
 /// [Discord docs](https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-object)
 #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
@@ -494,10 +491,7 @@ impl serde::Serialize for MessageInteractionMetadata {
             val: T,
             kind: InteractionType,
         ) -> StdResult<S::Ok, S::Error> {
-            let wrapper = WithType {
-                kind,
-                val,
-            };
+            let wrapper = WithType { kind, val };
 
             wrapper.serialize(serializer)
         }
@@ -513,7 +507,10 @@ impl serde::Serialize for MessageInteractionMetadata {
                 serialize_with_type(serializer, val, InteractionType::Modal)
             },
             &MessageInteractionMetadata::Unknown(kind) => {
-                tracing::warn!("Tried to serialize MessageInteractionMetadata::Unknown({}), serialising null instead", u8::from(kind));
+                tracing::warn!(
+                    "Tried to serialize MessageInteractionMetadata::Unknown({}), serialising null instead",
+                    u8::from(kind)
+                );
                 serializer.serialize_none()
             },
         }

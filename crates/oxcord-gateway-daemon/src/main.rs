@@ -40,16 +40,15 @@ impl RawEventHandler for GatewayDaemonForwarder {
 
         match serde_json::to_vec(&event) {
             Ok(payload) => {
-                let msg = BrokerMessage::new(&topic, payload)
-                    .with_event_name(event_name);
+                let msg = BrokerMessage::new(&topic, payload).with_event_name(event_name);
 
                 if let Err(e) = self.broker.publish_message(&msg).await {
                     error!("[Gateway Daemon] Failed to publish event {event_name} to broker: {e}");
                 }
-            }
+            },
             Err(e) => {
                 warn!("[Gateway Daemon] Failed to serialize event {event_name}: {e}");
-            }
+            },
         }
     }
 }
@@ -149,9 +148,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let intents = GatewayIntents::all();
     let handler = GatewayDaemonForwarder { broker };
 
-    let mut client = Client::builder(&token, intents)
-        .event_handler(handler)
-        .await?;
+    let mut client = Client::builder(&token, intents).event_handler(handler).await?;
 
     tokio::select! {
         res = client.start() => {

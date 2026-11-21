@@ -1,7 +1,7 @@
-use crate::internal::prelude::*;
 use super::Builder;
-use oxcord_rest::CacheHttp;
+use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// A builder which edits the properties of a [`Member`], to be used in conjunction with
 /// [`Member::edit`].

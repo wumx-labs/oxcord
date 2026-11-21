@@ -226,11 +226,10 @@ fn clean_mention(
     match mention {
         Mention::Channel(id) => {
             #[allow(deprecated)] // This is reworked on next already.
-            match id.to_channel_cached(cache) { Some(channel) => {
-                format!("#{}", channel.name).into()
-            } _ => {
-                "#deleted-channel".into()
-            }}
+            match id.to_channel_cached(cache) {
+                Some(channel) => format!("#{}", channel.name).into(),
+                _ => "#deleted-channel".into(),
+            }
         },
         Mention::Role(id) => options
             .guild_reference
@@ -295,15 +294,9 @@ mod tests {
             ..Default::default()
         };
 
-        let mut guild = Guild {
-            id: GuildId::new(381880193251409931),
-            ..Default::default()
-        };
+        let mut guild = Guild { id: GuildId::new(381880193251409931), ..Default::default() };
 
-        let member = Member {
-            nick: Some("Ferris".to_string()),
-            ..Default::default()
-        };
+        let member = Member { nick: Some("Ferris".to_string()), ..Default::default() };
 
         let role = Role {
             id: RoleId::new(333333333333333333),

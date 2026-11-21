@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use async_trait::async_trait;
 use futures::channel::mpsc::UnboundedSender as Sender;
@@ -115,11 +115,7 @@ impl VoiceStateTracker {
 
     /// Returns `true` if the bot is currently in a voice channel in the specified guild.
     pub async fn is_connected(&self, guild_id: GuildId) -> bool {
-        self.states
-            .read()
-            .await
-            .get(&guild_id)
-            .is_some_and(|s| s.channel_id.is_some())
+        self.states.read().await.get(&guild_id).is_some_and(|s| s.channel_id.is_some())
     }
 
     /// Returns `true` if all credentials (`session_id`, `token`, `endpoint`) have arrived
@@ -232,10 +228,9 @@ impl VoiceGatewayManager for VoiceStateTracker {
 
     async fn server_update(&self, guild_id: GuildId, endpoint: &Option<String>, token: &str) {
         let mut states = self.states.write().await;
-        let entry = states.entry(guild_id).or_insert_with(|| VoiceConnectionState {
-            guild_id,
-            ..Default::default()
-        });
+        let entry = states
+            .entry(guild_id)
+            .or_insert_with(|| VoiceConnectionState { guild_id, ..Default::default() });
 
         entry.endpoint.clone_from(endpoint);
         entry.token = Some(token.to_string());
@@ -251,10 +246,9 @@ impl VoiceGatewayManager for VoiceStateTracker {
         }
 
         let mut states = self.states.write().await;
-        let entry = states.entry(guild_id).or_insert_with(|| VoiceConnectionState {
-            guild_id,
-            ..Default::default()
-        });
+        let entry = states
+            .entry(guild_id)
+            .or_insert_with(|| VoiceConnectionState { guild_id, ..Default::default() });
 
         entry.channel_id = voice_state.channel_id;
         entry.session_id = Some(voice_state.session_id.clone());

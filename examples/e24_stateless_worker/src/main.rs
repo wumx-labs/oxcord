@@ -41,9 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let broker = InProcessBroker::new();
     let state_engine = StateEngine::new(InMemoryBackend::new());
 
-    let mut event_sub = broker
-        .subscribe("discord.events.guild_create")
-        .await?;
+    let mut event_sub = broker.subscribe("discord.events.guild_create").await?;
 
     info!("[Worker Node] Subscribed to 'discord.events.guild_create'. Ready to process…");
 
@@ -63,7 +61,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .with_shard(3)
             .with_event_name("GUILD_CREATE");
 
-        info!("[Gateway Daemon Sim] Emitting GUILD_CREATE for guild '{}' on Shard 3…", payload.name);
+        info!(
+            "[Gateway Daemon Sim] Emitting GUILD_CREATE for guild '{}' on Shard 3…",
+            payload.name
+        );
         gateway_sim.publish_message(&msg).await.unwrap();
     });
 

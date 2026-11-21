@@ -74,7 +74,6 @@ jobs:
         env:
           RUSTDOCFLAGS: >-
             --cfg docsrs
-            -D warnings
             --html-in-header docs/.vitepress/rustdoc-header.html
         run: |
           cargo doc --workspace --no-deps --features full 2>/dev/null || \

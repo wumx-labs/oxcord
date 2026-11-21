@@ -56,11 +56,7 @@ pub trait StickerExt: Sized {
     ///
     /// [Create Guild Expressions]: Permissions::CREATE_GUILD_EXPRESSIONS
     /// [Manage Guild Expressions]: Permissions::MANAGE_GUILD_EXPRESSIONS
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditSticker<'_>,
-    ) -> Result<()>;
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditSticker<'_>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Retrieves the URL to the sticker image.
     ///
@@ -80,11 +76,7 @@ impl StickerExt for Sticker {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditSticker<'_>,
-    ) -> Result<()> {
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditSticker<'_>) -> Result<()> {
         if let Some(guild_id) = self.guild_id {
             *self = guild_id.edit_sticker(cache_http, self.id, builder).await?;
             Ok(())
@@ -114,11 +106,7 @@ pub trait StickerIdExt: Sized {
     /// [Create Guild Expressions]: Permissions::CREATE_GUILD_EXPRESSIONS
     /// [Manage Guild Expressions]: Permissions::MANAGE_GUILD_EXPRESSIONS
     #[deprecated = "use `GuildId::delete_sticker` instead"]
-    async fn delete(
-        self,
-        http: impl AsRef<Http>,
-        guild_id: impl Into<GuildId>,
-    ) -> Result<()>;
+    async fn delete(self, http: impl AsRef<Http>, guild_id: impl Into<GuildId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Requests the sticker via the REST API to get a [`Sticker`] with all details.
     ///
@@ -150,11 +138,7 @@ pub trait StickerIdExt: Sized {
 }
 impl StickerIdExt for StickerId {
     #[cfg(feature = "model")]
-    async fn delete(
-        self,
-        http: impl AsRef<Http>,
-        guild_id: impl Into<GuildId>,
-    ) -> Result<()> {
+    async fn delete(self, http: impl AsRef<Http>, guild_id: impl Into<GuildId>) -> Result<()> {
         guild_id.into().delete_sticker(http, self).await
     }
     #[cfg(feature = "model")]

@@ -122,7 +122,11 @@ impl StateBackend for InMemoryBackend {
         self.messages.insert((message.channel_id, message.id), message);
     }
 
-    async fn remove_message(&self, channel_id: ChannelId, message_id: MessageId) -> Option<Message> {
+    async fn remove_message(
+        &self,
+        channel_id: ChannelId,
+        message_id: MessageId,
+    ) -> Option<Message> {
         self.messages.remove(&(channel_id, message_id)).map(|(_, m)| m)
     }
 

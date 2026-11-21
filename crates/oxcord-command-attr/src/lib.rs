@@ -6,7 +6,7 @@ use quote::quote;
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
-use syn::{parse_macro_input, parse_quote, Ident, Lit, Token};
+use syn::{Ident, Lit, Token, parse_macro_input, parse_quote};
 
 pub(crate) mod attributes;
 pub(crate) mod consts;

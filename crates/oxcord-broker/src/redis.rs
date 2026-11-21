@@ -2,8 +2,8 @@
 //!
 //! Available when the `redis` feature is enabled.
 
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
 use async_trait::async_trait;
@@ -45,18 +45,14 @@ pub struct RedisBroker {
 impl RedisBroker {
     /// Connects to a Redis server with the given URL (e.g. `"redis://127.0.0.1:6379"`).
     pub async fn new(redis_url: &str) -> Result<Self> {
-        let client = redis::Client::open(redis_url)
-            .map_err(|e| BrokerError::Transport(e.to_string()))?;
+        let client =
+            redis::Client::open(redis_url).map_err(|e| BrokerError::Transport(e.to_string()))?;
         let conn = client
             .get_multiplexed_async_connection()
             .await
             .map_err(|e| BrokerError::Transport(e.to_string()))?;
 
-        Ok(Self {
-            client,
-            conn,
-            correlation_seq: Arc::new(AtomicU64::new(1)),
-        })
+        Ok(Self { client, conn, correlation_seq: Arc::new(AtomicU64::new(1)) })
     }
 }
 
@@ -77,17 +73,11 @@ impl Broker for RedisBroker {
             .await
             .map_err(|e| BrokerError::Transport(e.to_string()))?;
 
-        pubsub
-            .subscribe(topic)
-            .await
-            .map_err(|e| BrokerError::Transport(e.to_string()))?;
+        pubsub.subscribe(topic).await.map_err(|e| BrokerError::Transport(e.to_string()))?;
 
         let stream = pubsub.into_on_message();
 
-        Ok(Box::new(RedisSubscription {
-            topic: topic.to_string(),
-            stream: Mutex::new(stream),
-        }))
+        Ok(Box::new(RedisSubscription { topic: topic.to_string(), stream: Mutex::new(stream) }))
     }
 
     async fn request(&self, topic: &str, payload: &[u8], timeout: Duration) -> Result<Vec<u8>> {

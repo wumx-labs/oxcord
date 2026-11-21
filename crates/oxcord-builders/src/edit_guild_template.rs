@@ -1,7 +1,7 @@
-use crate::internal::prelude::*;
 use super::Builder;
-use oxcord_rest::CacheHttp;
+use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// Builder for modifying a guild template.
 ///
@@ -59,7 +59,9 @@ mod tests {
 
     #[test]
     fn test_edit_guild_template_serialization() {
-        let builder = EditGuildTemplate::new().name("Updated Name").description(Some("Updated Desc".to_string()));
+        let builder = EditGuildTemplate::new()
+            .name("Updated Name")
+            .description(Some("Updated Desc".to_string()));
         let json = serde_json::to_string(&builder).unwrap();
         assert_eq!(json, r#"{"name":"Updated Name","description":"Updated Desc"}"#);
 
@@ -68,4 +70,3 @@ mod tests {
         assert_eq!(json_clear, r#"{"description":null}"#);
     }
 }
-

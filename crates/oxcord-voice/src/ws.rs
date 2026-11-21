@@ -4,7 +4,7 @@ use futures::{SinkExt, StreamExt};
 use tokio::net::TcpStream;
 use tokio::time::timeout;
 use tokio_tungstenite::tungstenite::Message;
-use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::{MaybeTlsStream, WebSocketStream, connect_async};
 use tracing::{debug, instrument};
 use url::Url;
 
@@ -28,8 +28,9 @@ impl VoiceWsClient {
     /// Returns [`VoiceError`] if WebSocket connection fails or URL is invalid.
     #[instrument(skip(gateway_url))]
     pub async fn connect(gateway_url: &str) -> Result<Self> {
-        let url = Url::parse(gateway_url)
-            .map_err(|e| VoiceError::Protocol(format!("invalid voice gateway URL '{gateway_url}': {e}")))?;
+        let url = Url::parse(gateway_url).map_err(|e| {
+            VoiceError::Protocol(format!("invalid voice gateway URL '{gateway_url}': {e}"))
+        })?;
 
         debug!("Connecting to Voice Gateway: {}", url);
         let (ws, _response) = connect_async(url).await?;
@@ -47,18 +48,20 @@ impl VoiceWsClient {
     /// Returns [`VoiceError`] on WebSocket disconnection or deserialization error.
     pub async fn recv_event(&mut self) -> Result<Event> {
         loop {
-            let msg = self
-                .ws
-                .next()
-                .await
-                .ok_or_else(|| VoiceError::ConnectionClosed("Voice Gateway connection closed".into()))??;
+            let msg = self.ws.next().await.ok_or_else(|| {
+                VoiceError::ConnectionClosed("Voice Gateway connection closed".into())
+            })??;
 
             match msg {
                 Message::Text(text) => {
                     let event = serde_json::from_str::<Event>(&text)?;
                     if let Event::Hello(hello) = &event {
-                        self.heartbeat_interval = Duration::from_secs_f64(hello.heartbeat_interval / 1000.0);
-                        debug!("Voice Gateway Hello received; interval: {:?}", self.heartbeat_interval);
+                        self.heartbeat_interval =
+                            Duration::from_secs_f64(hello.heartbeat_interval / 1000.0);
+                        debug!(
+                            "Voice Gateway Hello received; interval: {:?}",
+                            self.heartbeat_interval
+                        );
                     }
                     return Ok(event);
                 },
@@ -70,7 +73,8 @@ impl VoiceWsClient {
                     self.ws.send(Message::Pong(data)).await?;
                 },
                 Message::Close(frame) => {
-                    let reason = frame.map_or("unknown".into(), |f| format!("{}: {}", f.code, f.reason));
+                    let reason =
+                        frame.map_or("unknown".into(), |f| format!("{}: {}", f.code, f.reason));
                     return Err(VoiceError::ConnectionClosed(reason));
                 },
                 _ => {},
@@ -104,11 +108,7 @@ impl VoiceWsClient {
 
     /// Sends a [`Speaking`] event to notify the server of the bot's speaking status.
     pub async fn send_speaking(&mut self, ssrc: u32, speaking: bool) -> Result<()> {
-        let state = if speaking {
-            SpeakingState::MICROPHONE
-        } else {
-            SpeakingState::empty()
-        };
+        let state = if speaking { SpeakingState::MICROPHONE } else { SpeakingState::empty() };
 
         self.send_event(&Event::Speaking(Speaking {
             delay: Some(0),

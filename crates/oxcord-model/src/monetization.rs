@@ -111,7 +111,6 @@ impl Entitlement {
             self.application_id, self.sku_id
         )
     }
-
 }
 
 enum_number! {

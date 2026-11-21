@@ -53,9 +53,9 @@ pub use traits::{Broker, Subscription, SubscriptionStream};
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
-    use serde::{Deserialize, Serialize};
     use super::*;
+    use serde::{Deserialize, Serialize};
+    use std::time::Duration;
 
     #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
     struct PingPayload {
@@ -70,10 +70,7 @@ mod tests {
 
         let mut sub = broker.subscribe(topic).await.expect("subscribe failed");
 
-        let payload = PingPayload {
-            nonce: 12345,
-            msg: "Guild Created".into(),
-        };
+        let payload = PingPayload { nonce: 12345, msg: "Guild Created".into() };
 
         let msg = BrokerMessage::from_json(topic, &payload)
             .expect("from_json failed")
@@ -103,10 +100,7 @@ mod tests {
         tokio::spawn(async move {
             if let Some(req) = responder_sub.next_message().await {
                 // Reply with 42 ms latency
-                responder_broker
-                    .reply(&req, b"42ms")
-                    .await
-                    .expect("reply failed");
+                responder_broker.reply(&req, b"42ms").await.expect("reply failed");
             }
         });
 
@@ -125,9 +119,7 @@ mod tests {
         let topic = "rpc.unresponsive.shard";
 
         // Nobody responds to this topic
-        let result = broker
-            .request(topic, b"ping", Duration::from_millis(50))
-            .await;
+        let result = broker.request(topic, b"ping", Duration::from_millis(50)).await;
 
         assert!(matches!(result, Err(BrokerError::Timeout(_))));
     }
@@ -150,10 +142,8 @@ mod tests {
         // Give the listener task a millisecond to yield
         tokio::task::yield_now().await;
 
-        let reply = broker
-            .request(topic, b"user_1001", Duration::from_secs(2))
-            .await
-            .expect("call failed");
+        let reply =
+            broker.request(topic, b"user_1001", Duration::from_secs(2)).await.expect("call failed");
 
         assert_eq!(String::from_utf8_lossy(&reply), "Kicked user: user_1001");
     }

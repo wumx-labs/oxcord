@@ -8,14 +8,8 @@ use tracing::{debug, error, info, instrument, trace, warn};
 use url::Url;
 
 use super::{
-    ActivityData,
-    ChunkGuildFilter,
-    ConnectionStage,
-    GatewayError,
-    PresenceData,
-    ReconnectType,
-    ShardAction,
-    WsClient,
+    ActivityData, ChunkGuildFilter, ConnectionStage, GatewayError, PresenceData, ReconnectType,
+    ShardAction, WsClient,
 };
 use crate::internal::prelude::*;
 use oxcord_model::constants::{self, close_codes};
@@ -489,9 +483,7 @@ impl Shard {
             },
             Ok(GatewayEvent::Reconnect) => Ok(Some(ShardAction::Reconnect(ReconnectType::Resume))),
             Ok(_) => Ok(None),
-            Err(GatewayError::Closed(data)) => {
-                self.handle_gateway_closed(data.as_ref())
-            },
+            Err(GatewayError::Closed(data)) => self.handle_gateway_closed(data.as_ref()),
             Err(Error::Tungstenite(why)) => {
                 info!("[{:?}] Websocket error: {:?}", self.info, why);
                 info!("[{:?}] Will attempt to auto-reconnect", self.info);
@@ -582,11 +574,7 @@ impl Shard {
     }
 
     pub fn reconnection_type(&self) -> ReconnectType {
-        if self.session_id().is_some() {
-            ReconnectType::Resume
-        } else {
-            ReconnectType::Reidentify
-        }
+        if self.session_id().is_some() { ReconnectType::Resume } else { ReconnectType::Reidentify }
     }
 
     /// Requests that one or multiple [`Guild`]s be chunked.

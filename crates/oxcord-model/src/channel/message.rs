@@ -1,8 +1,7 @@
 //! Models relating to Discord channels.
 
-
 use crate::model::prelude::*;
-use crate::model::utils::{deserialize_components, discord_colours, StrOrInt};
+use crate::model::utils::{StrOrInt, deserialize_components, discord_colours};
 
 /// A representation of a message over a guild's text channel, a group, or a private channel.
 ///
@@ -349,13 +348,7 @@ pub struct MessageReference {
 impl MessageReference {
     #[must_use]
     pub fn new(kind: MessageReferenceKind, channel_id: ChannelId) -> Self {
-        Self {
-            kind,
-            channel_id,
-            message_id: None,
-            guild_id: None,
-            fail_if_not_exists: None,
-        }
+        Self { kind, channel_id, message_id: None, guild_id: None, fail_if_not_exists: None }
     }
 
     #[must_use]
@@ -443,7 +436,9 @@ pub struct MessageSnapshot {
 }
 
 /// Custom deserialization function to handle the nested "message" field
-pub(crate) fn deserialize_snapshots<'de, D>(deserializer: D) -> Result<Vec<MessageSnapshot>, D::Error>
+pub(crate) fn deserialize_snapshots<'de, D>(
+    deserializer: D,
+) -> Result<Vec<MessageSnapshot>, D::Error>
 where
     D: Deserializer<'de>,
 {

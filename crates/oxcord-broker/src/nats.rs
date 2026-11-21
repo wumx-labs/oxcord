@@ -68,24 +68,19 @@ impl Broker for NatsBroker {
             .await
             .map_err(|e| BrokerError::Transport(e.to_string()))?;
 
-        Ok(Box::new(NatsSubscription {
-            subscriber,
-            topic: topic.to_string(),
-        }))
+        Ok(Box::new(NatsSubscription { subscriber, topic: topic.to_string() }))
     }
 
     async fn request(&self, topic: &str, payload: &[u8], timeout: Duration) -> Result<Vec<u8>> {
         // Native NATS request-reply with built-in timeout
-        let fut = self
-            .client
-            .request(topic.to_string(), payload.to_vec().into());
+        let fut = self.client.request(topic.to_string(), payload.to_vec().into());
 
         match tokio::time::timeout(timeout, fut).await {
             Ok(Ok(response)) => Ok(response.payload.to_vec()),
             Ok(Err(e)) => Err(BrokerError::Transport(e.to_string())),
-            Err(_) => Err(BrokerError::Timeout(format!(
-                "timeout waiting for NATS reply on {topic}"
-            ))),
+            Err(_) => {
+                Err(BrokerError::Timeout(format!("timeout waiting for NATS reply on {topic}")))
+            },
         }
     }
 }

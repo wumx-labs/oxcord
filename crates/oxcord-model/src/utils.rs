@@ -249,13 +249,7 @@ pub fn deserialize_buttons<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> StdResult<Vec<ActivityButton>, D::Error> {
     Vec::deserialize(deserializer).map(|labels| {
-        labels
-            .into_iter()
-            .map(|l| ActivityButton {
-                label: l,
-                url: String::new(),
-            })
-            .collect()
+        labels.into_iter().map(|l| ActivityButton { label: l, url: String::new() }).collect()
     })
 }
 
@@ -392,10 +386,7 @@ pub(crate) struct SequenceToMapVisitor<F, V> {
 
 impl<F, V> SequenceToMapVisitor<F, V> {
     pub fn new(key: F) -> Self {
-        Self {
-            key,
-            marker: PhantomData,
-        }
+        Self { key, marker: PhantomData }
     }
 }
 

@@ -29,11 +29,7 @@ pub struct BrokerMessage {
 impl BrokerMessage {
     /// Creates a new message envelope with empty headers.
     pub fn new(topic: impl Into<String>, payload: impl Into<Vec<u8>>) -> Self {
-        Self {
-            topic: topic.into(),
-            payload: payload.into(),
-            headers: HashMap::new(),
-        }
+        Self { topic: topic.into(), payload: payload.into(), headers: HashMap::new() }
     }
 
     /// Serializes a Rust type into JSON as the message payload.
@@ -111,6 +107,7 @@ impl BrokerMessage {
     /// Checks if this message represents an RPC request expecting a reply.
     #[must_use]
     pub fn is_rpc_request(&self) -> bool {
-        self.headers.contains_key(HEADER_REPLY_TO) && self.headers.contains_key(HEADER_CORRELATION_ID)
+        self.headers.contains_key(HEADER_REPLY_TO)
+            && self.headers.contains_key(HEADER_CORRELATION_ID)
     }
 }

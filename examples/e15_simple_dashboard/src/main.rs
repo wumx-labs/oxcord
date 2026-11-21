@@ -18,14 +18,14 @@ use std::sync::atomic::*;
 use std::sync::Arc;
 use std::time::Instant;
 
-use rillrate::prime::table::{Col, Row};
-use rillrate::prime::*;
 use oxcord::async_trait;
 use oxcord::framework::standard::macros::{command, group, hook};
 use oxcord::framework::standard::{CommandResult, Configuration, StandardFramework};
 use oxcord::gateway::ShardManager;
 use oxcord::model::prelude::*;
 use oxcord::prelude::*;
+use rillrate::prime::table::{Col, Row};
+use rillrate::prime::*;
 use tokio::time::{sleep, Duration};
 
 // Name used to group dashboards.
@@ -397,10 +397,8 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         command_usage_table.add_row(Row(idx as u64));
         command_usage_table.set_cell(Row(idx as u64), Col(0), i.options.names[0]);
         command_usage_table.set_cell(Row(idx as u64), Col(1), 0);
-        command_usage_values.insert(i.options.names[0], CommandUsageValue {
-            index: idx,
-            use_count: 0,
-        });
+        command_usage_values
+            .insert(i.options.names[0], CommandUsageValue { index: idx, use_count: 0 });
     }
 
     let components = Arc::new(Components {

@@ -1,7 +1,7 @@
-use crate::internal::prelude::*;
 use super::Builder;
-use oxcord_rest::CacheHttp;
+use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// A builder to edit the status of a voice channel.
 ///

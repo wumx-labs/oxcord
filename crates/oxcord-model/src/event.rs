@@ -6,19 +6,14 @@
 // Just for MessageUpdateEvent (for some reason the #[allow] doesn't work when placed directly)
 #![allow(clippy::option_option)]
 
-use serde::de::Error as DeError;
 use serde::Serialize;
+use serde::de::Error as DeError;
 
 use crate::constants::Opcode;
 use crate::model::prelude::*;
 use crate::model::utils::{
-    deserialize_val,
-    emojis,
-    members,
-    optional_deserialize_components,
-    remove_from_map,
-    remove_from_map_opt,
-    stickers,
+    deserialize_val, emojis, members, optional_deserialize_components, remove_from_map,
+    remove_from_map_opt, stickers,
 };
 
 /// Requires no gateway intents.
@@ -177,9 +172,7 @@ impl<'de> Deserialize<'de> for GuildCreateEvent {
         guild.channels.values_mut().for_each(|x| x.guild_id = guild.id);
         guild.members.values_mut().for_each(|x| x.guild_id = guild.id);
         guild.roles.values_mut().for_each(|x| x.guild_id = guild.id);
-        Ok(Self {
-            guild,
-        })
+        Ok(Self { guild })
     }
 }
 
@@ -388,9 +381,7 @@ impl<'de> Deserialize<'de> for GuildRoleCreateEvent {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> StdResult<Self, D::Error> {
         let mut event = RoleEventHelper::deserialize(deserializer)?;
         event.role.guild_id = event.guild_id;
-        Ok(Self {
-            role: event.role,
-        })
+        Ok(Self { role: event.role })
     }
 }
 
@@ -420,9 +411,7 @@ impl<'de> Deserialize<'de> for GuildRoleUpdateEvent {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> StdResult<Self, D::Error> {
         let mut event = RoleEventHelper::deserialize(deserializer)?;
         event.role.guild_id = event.guild_id;
-        Ok(Self {
-            role: event.role,
-        })
+        Ok(Self { role: event.role })
     }
 }
 
@@ -853,7 +842,6 @@ pub struct VoiceChannelEffectSendEvent {
     pub sound_volume: Option<f64>,
 }
 
-
 /// Requires [`GatewayIntents::GUILD_WEBHOOKS`].
 ///
 /// [Discord docs](https://docs.discord.com/developers/events/gateway-events#webhooks-update).
@@ -1212,9 +1200,7 @@ impl<'de> Deserialize<'de> for GatewayEvent {
                 seq.ok_or_else(|| DeError::missing_field("s"))?,
                 deserialize_val(Value::from(map))?,
             ),
-            Opcode::Heartbeat => {
-                GatewayEvent::Heartbeat
-            },
+            Opcode::Heartbeat => GatewayEvent::Heartbeat,
             Opcode::InvalidSession => {
                 GatewayEvent::InvalidateSession(remove_from_map(&mut map, "d")?)
             },

@@ -1,8 +1,8 @@
 #[cfg(feature = "model")]
 use crate::builder::{
     CreateChannel, CreateCommand, CreateSoundboard, CreateSticker, EditAutoModRule,
-    EditCommandPermissions, EditGuild, EditGuildWelcomeScreen, EditGuildWidget,
-    EditMember, EditRole, EditSoundboard, EditSticker,
+    EditCommandPermissions, EditGuild, EditGuildWelcomeScreen, EditGuildWidget, EditMember,
+    EditRole, EditSoundboard, EditSticker,
 };
 #[cfg(all(feature = "cache", feature = "utils", feature = "client"))]
 use crate::cache::Cache;
@@ -117,12 +117,7 @@ pub trait PartialGuildExt: Sized {
     /// Also may return [`Error::Http`] if the current user lacks permission.
     ///
     /// [Ban Members]: Permissions::BAN_MEMBERS
-    async fn ban(
-        &self,
-        http: impl AsRef<Http>,
-        user: impl Into<UserId>,
-        dmd: u8,
-    ) -> Result<()>;
+    async fn ban(&self, http: impl AsRef<Http>, user: impl Into<UserId>, dmd: u8) -> Result<()>;
     #[cfg(feature = "model")]
     /// Ban a [`User`] from the guild with a reason. Refer to [`Self::ban`] to further
     /// documentation.
@@ -166,11 +161,7 @@ pub trait PartialGuildExt: Sized {
     /// Returns [`Error::Http`] if the current user lacks permission.
     ///
     /// [Ban Members]: Permissions::BAN_MEMBERS
-    async fn get_ban(
-        &self,
-        http: impl AsRef<Http>,
-        user_id: UserId,
-    ) -> Result<Option<Ban>>;
+    async fn get_ban(&self, http: impl AsRef<Http>, user_id: UserId) -> Result<Option<Ban>>;
     #[cfg(feature = "model")]
     /// Gets a list of the guild's audit log entries
     ///
@@ -197,10 +188,7 @@ pub trait PartialGuildExt: Sized {
     ///
     /// Returns [`Error::Http`] if the current user is not in the guild or if the guild is
     /// otherwise unavailable.
-    async fn channels(
-        &self,
-        http: impl AsRef<Http>,
-    ) -> Result<HashMap<ChannelId, GuildChannel>>;
+    async fn channels(&self, http: impl AsRef<Http>) -> Result<HashMap<ChannelId, GuildChannel>>;
     #[cfg(feature = "model")]
     #[cfg(feature = "cache")]
     #[deprecated = "Use Cache::guild and Guild::channels"]
@@ -270,12 +258,7 @@ pub trait PartialGuildExt: Sized {
     ///
     /// [`EditProfile::avatar`]: crate::builder::EditProfile::avatar
     /// [Create Guild Expressions]: Permissions::CREATE_GUILD_EXPRESSIONS
-    async fn create_emoji(
-        &self,
-        http: impl AsRef<Http>,
-        name: &str,
-        image: &str,
-    ) -> Result<Emoji>;
+    async fn create_emoji(&self, http: impl AsRef<Http>, name: &str, image: &str) -> Result<Emoji>;
     #[cfg(feature = "model")]
     /// Creates an integration for the guild.
     ///
@@ -347,21 +330,15 @@ pub trait PartialGuildExt: Sized {
     /// # Errors
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
-    async fn get_commands_with_localizations(
-        &self,
-        http: impl AsRef<Http>,
-    ) -> Result<Vec<Command>>;
+    async fn get_commands_with_localizations(&self, http: impl AsRef<Http>)
+    -> Result<Vec<Command>>;
     #[cfg(feature = "model")]
     /// Get a specific guild application command by its Id.
     ///
     /// # Errors
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
-    async fn get_command(
-        &self,
-        http: impl AsRef<Http>,
-        command_id: CommandId,
-    ) -> Result<Command>;
+    async fn get_command(&self, http: impl AsRef<Http>, command_id: CommandId) -> Result<Command>;
     #[cfg(feature = "model")]
     /// Edit a guild application command, given its Id.
     ///
@@ -382,11 +359,7 @@ pub trait PartialGuildExt: Sized {
     /// # Errors
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
-    async fn delete_command(
-        &self,
-        http: impl AsRef<Http>,
-        command_id: CommandId,
-    ) -> Result<()>;
+    async fn delete_command(&self, http: impl AsRef<Http>, command_id: CommandId) -> Result<()>;
     #[cfg(feature = "model")]
     /// Get all guild application commands permissions only.
     ///
@@ -421,11 +394,7 @@ pub trait PartialGuildExt: Sized {
     /// lacks permission. Otherwise returns [`Error::Http`], as well as if invalid data is given.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
-    async fn create_role(
-        &self,
-        cache_http: impl CacheHttp,
-        builder: EditRole<'_>,
-    ) -> Result<Role>;
+    async fn create_role(&self, cache_http: impl CacheHttp, builder: EditRole<'_>) -> Result<Role>;
     #[cfg(feature = "model")]
     /// Creates a new sticker in the guild with the data set, if any.
     ///
@@ -501,11 +470,7 @@ pub trait PartialGuildExt: Sized {
     /// does not exist in the Guild.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
-    async fn delete_role(
-        &self,
-        http: impl AsRef<Http>,
-        role_id: impl Into<RoleId>,
-    ) -> Result<()>;
+    async fn delete_role(&self, http: impl AsRef<Http>, role_id: impl Into<RoleId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Deletes a [`Sticker`] by Id from the guild.
     ///
@@ -536,11 +501,7 @@ pub trait PartialGuildExt: Sized {
     /// lacks permission. Otherwise returns [`Error::Http`], as well as if invalid data is given.
     ///
     /// [Manage Guild]: Permissions::MANAGE_GUILD
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditGuild<'_>,
-    ) -> Result<()>;
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditGuild<'_>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Edits an [`Emoji`]'s name in the guild.
     ///
@@ -609,11 +570,8 @@ pub trait PartialGuildExt: Sized {
     /// Returns [`Error::Http`] if the current user lacks permission to change their nickname.
     ///
     /// [Change Nickname]: Permissions::CHANGE_NICKNAME
-    async fn edit_nickname(
-        &self,
-        http: impl AsRef<Http>,
-        new_nickname: Option<&str>,
-    ) -> Result<()>;
+    async fn edit_nickname(&self, http: impl AsRef<Http>, new_nickname: Option<&str>)
+    -> Result<()>;
     #[cfg(feature = "model")]
     /// Edits a role, optionally setting its fields.
     ///
@@ -735,10 +693,7 @@ pub trait PartialGuildExt: Sized {
     ///
     /// Returns [`Error::Http`] if the current user is not
     /// in the guild.
-    async fn get(
-        cache_http: impl CacheHttp,
-        guild_id: impl Into<GuildId>,
-    ) -> Result<PartialGuild>;
+    async fn get(cache_http: impl CacheHttp, guild_id: impl Into<GuildId>) -> Result<PartialGuild>;
     #[cfg(feature = "model")]
     /// Returns which of two [`User`]s has a higher [`Member`] hierarchy.
     ///
@@ -777,11 +732,7 @@ pub trait PartialGuildExt: Sized {
     ///
     /// Panics if the passed [`UserId`] does not match the [`PartialMember`] id, if user is Some.
     #[must_use]
-    fn partial_member_permissions(
-        &self,
-        member_id: UserId,
-        member: &PartialMember,
-    ) -> Permissions;
+    fn partial_member_permissions(&self, member_id: UserId, member: &PartialMember) -> Permissions;
     #[cfg(feature = "model")]
     /// Calculate a [`PartialMember`]'s permissions in a given channel in a guild.
     ///
@@ -851,11 +802,7 @@ pub trait PartialGuildExt: Sized {
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     /// [`Error::Http`]: crate::error::Error::Http
     /// [`Error::Json`]: crate::error::Error::Json
-    async fn start_prune(
-        &self,
-        cache_http: impl CacheHttp,
-        days: u8,
-    ) -> Result<GuildPrune>;
+    async fn start_prune(&self, cache_http: impl CacheHttp, days: u8) -> Result<GuildPrune>;
     #[cfg(feature = "model")]
     /// Kicks a [`Member`] from the guild.
     ///
@@ -866,11 +813,7 @@ pub trait PartialGuildExt: Sized {
     /// Returns [`Error::Http`] if the member cannot be kicked by the current user.
     ///
     /// [Kick Members]: Permissions::KICK_MEMBERS
-    async fn kick(
-        &self,
-        http: impl AsRef<Http>,
-        user_id: impl Into<UserId>,
-    ) -> Result<()>;
+    async fn kick(&self, http: impl AsRef<Http>, user_id: impl Into<UserId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// # Errors
     ///
@@ -996,11 +939,7 @@ pub trait PartialGuildExt: Sized {
     #[cfg(feature = "model")]
     /// Calculate a [`Member`]'s permissions in a given channel in the guild.
     #[must_use]
-    fn user_permissions_in(
-        &self,
-        channel: &GuildChannel,
-        member: &Member,
-    ) -> Permissions;
+    fn user_permissions_in(&self, channel: &GuildChannel, member: &Member) -> Permissions;
     #[cfg(feature = "model")]
     /// Calculate a [`Role`]'s permissions in a given channel in the guild.
     ///
@@ -1008,11 +947,7 @@ pub trait PartialGuildExt: Sized {
     ///
     /// Returns [`Error::Model`] if the [`Role`] or [`Channel`] is not from this [`Guild`].
     #[deprecated = "this function ignores other roles the user may have as well as user-specific permissions; use user_permissions_in instead"]
-    fn role_permissions_in(
-        &self,
-        channel: &GuildChannel,
-        role: &Role,
-    ) -> Result<Permissions>;
+    fn role_permissions_in(&self, channel: &GuildChannel, role: &Role) -> Result<Permissions>;
     #[cfg(feature = "model")]
     /// Gets the number of [`Member`]s that would be pruned with the given number of days.
     ///
@@ -1092,11 +1027,7 @@ pub trait PartialGuildExt: Sized {
     ///
     /// [Ban Members]: Permissions::BAN_MEMBERS
     /// [`Guild::unban`]: crate::model::guild::Guild::unban
-    async fn unban(
-        &self,
-        http: impl AsRef<Http>,
-        user_id: impl Into<UserId>,
-    ) -> Result<()>;
+    async fn unban(&self, http: impl AsRef<Http>, user_id: impl Into<UserId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Retrieve's the guild's vanity URL.
     ///
@@ -1155,32 +1086,20 @@ pub trait PartialGuildExt: Sized {
     /// Returns a builder which can be awaited to obtain a message or stream of messages in this
     /// guild.
     #[cfg(feature = "collector")]
-    fn await_reply(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector;
+    fn await_reply(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector;
     #[cfg(feature = "model")]
     /// Same as [`Self::await_reply`].
     #[cfg(feature = "collector")]
-    fn await_replies(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector;
+    fn await_replies(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector;
     #[cfg(feature = "model")]
     /// Returns a builder which can be awaited to obtain a message or stream of reactions sent in
     /// this guild.
     #[cfg(feature = "collector")]
-    fn await_reaction(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector;
+    fn await_reaction(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector;
     #[cfg(feature = "model")]
     /// Same as [`Self::await_reaction`].
     #[cfg(feature = "collector")]
-    fn await_reactions(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector;
+    fn await_reactions(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector;
     #[cfg(feature = "model")]
     /// Gets the guild active threads.
     ///
@@ -1196,11 +1115,7 @@ pub trait PartialGuildExt: Sized {
     ///
     /// Returns [`Error::Http`] if there is an error in the deserialization, or if the bot issuing
     /// the request is not in the guild.
-    async fn get_soundboard(
-        self,
-        http: impl AsRef<Http>,
-        sound_id: SoundId,
-    ) -> Result<Soundboard>;
+    async fn get_soundboard(self, http: impl AsRef<Http>, sound_id: SoundId) -> Result<Soundboard>;
     #[cfg(feature = "model")]
     /// Gets all soundboard sounds from the guild.
     ///
@@ -1295,12 +1210,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn ban(
-        &self,
-        http: impl AsRef<Http>,
-        user: impl Into<UserId>,
-        dmd: u8,
-    ) -> Result<()> {
+    async fn ban(&self, http: impl AsRef<Http>, user: impl Into<UserId>, dmd: u8) -> Result<()> {
         self.ban_with_reason(http, user, dmd, "").await
     }
     #[cfg(feature = "model")]
@@ -1326,11 +1236,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn get_ban(
-        &self,
-        http: impl AsRef<Http>,
-        user_id: UserId,
-    ) -> Result<Option<Ban>> {
+    async fn get_ban(&self, http: impl AsRef<Http>, user_id: UserId) -> Result<Option<Ban>> {
         self.id.get_ban(http, user_id).await
     }
     #[cfg(feature = "model")]
@@ -1347,10 +1253,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn channels(
-        &self,
-        http: impl AsRef<Http>,
-    ) -> Result<HashMap<ChannelId, GuildChannel>> {
+    async fn channels(&self, http: impl AsRef<Http>) -> Result<HashMap<ChannelId, GuildChannel>> {
         self.id.channels(http).await
     }
     #[cfg(feature = "model")]
@@ -1362,7 +1265,8 @@ impl PartialGuildExt for PartialGuild {
     ) -> Option<ChannelId> {
         let cache = cache.as_ref();
         let guild = cache.guild(self.id)?;
-        #[allow(deprecated)] guild.channel_id_from_name(cache, name)
+        #[allow(deprecated)]
+        guild.channel_id_from_name(cache, name)
     }
     #[cfg(feature = "model")]
     async fn create_channel(
@@ -1374,12 +1278,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn create_emoji(
-        &self,
-        http: impl AsRef<Http>,
-        name: &str,
-        image: &str,
-    ) -> Result<Emoji> {
+    async fn create_emoji(&self, http: impl AsRef<Http>, name: &str, image: &str) -> Result<Emoji> {
         self.id.create_emoji(http, name, image).await
     }
     #[cfg(feature = "model")]
@@ -1430,11 +1329,7 @@ impl PartialGuildExt for PartialGuild {
         self.id.get_commands_with_localizations(http).await
     }
     #[cfg(feature = "model")]
-    async fn get_command(
-        &self,
-        http: impl AsRef<Http>,
-        command_id: CommandId,
-    ) -> Result<Command> {
+    async fn get_command(&self, http: impl AsRef<Http>, command_id: CommandId) -> Result<Command> {
         self.id.get_command(http, command_id).await
     }
     #[cfg(feature = "model")]
@@ -1447,11 +1342,7 @@ impl PartialGuildExt for PartialGuild {
         self.id.edit_command(cache_http, command_id, builder).await
     }
     #[cfg(feature = "model")]
-    async fn delete_command(
-        &self,
-        http: impl AsRef<Http>,
-        command_id: CommandId,
-    ) -> Result<()> {
+    async fn delete_command(&self, http: impl AsRef<Http>, command_id: CommandId) -> Result<()> {
         self.id.delete_command(http, command_id).await
     }
     #[cfg(feature = "model")]
@@ -1471,11 +1362,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn create_role(
-        &self,
-        cache_http: impl CacheHttp,
-        builder: EditRole<'_>,
-    ) -> Result<Role> {
+    async fn create_role(&self, cache_http: impl CacheHttp, builder: EditRole<'_>) -> Result<Role> {
         self.id.create_role(cache_http, builder).await
     }
     #[cfg(feature = "model")]
@@ -1511,11 +1398,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn delete_role(
-        &self,
-        http: impl AsRef<Http>,
-        role_id: impl Into<RoleId>,
-    ) -> Result<()> {
+    async fn delete_role(&self, http: impl AsRef<Http>, role_id: impl Into<RoleId>) -> Result<()> {
         self.id.delete_role(http, role_id).await
     }
     #[cfg(feature = "model")]
@@ -1528,11 +1411,7 @@ impl PartialGuildExt for PartialGuild {
         self.id.delete_sticker(http, sticker_id).await
     }
     #[cfg(feature = "model")]
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditGuild<'_>,
-    ) -> Result<()> {
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditGuild<'_>) -> Result<()> {
         let guild = self.id.edit(cache_http, builder).await?;
         self.afk_metadata = guild.afk_metadata;
         self.default_message_notifications = guild.default_message_notifications;
@@ -1633,10 +1512,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn get(
-        cache_http: impl CacheHttp,
-        guild_id: impl Into<GuildId>,
-    ) -> Result<PartialGuild> {
+    async fn get(cache_http: impl CacheHttp, guild_id: impl Into<GuildId>) -> Result<PartialGuild> {
         guild_id.into().to_partial_guild(cache_http).await
     }
     #[cfg(feature = "model")]
@@ -1666,15 +1542,9 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    fn partial_member_permissions(
-        &self,
-        member_id: UserId,
-        member: &PartialMember,
-    ) -> Permissions {
+    fn partial_member_permissions(&self, member_id: UserId, member: &PartialMember) -> Permissions {
         if let Some(user) = &member.user {
-            assert_eq!(
-                user.id, member_id, "User::id does not match provided PartialMember"
-            );
+            assert_eq!(user.id, member_id, "User::id does not match provided PartialMember");
         }
         Guild::user_permissions_in_(
             None,
@@ -1693,9 +1563,7 @@ impl PartialGuildExt for PartialGuild {
         member: &PartialMember,
     ) -> Permissions {
         if let Some(user) = &member.user {
-            assert_eq!(
-                user.id, member_id, "User::id does not match provided PartialMember"
-            );
+            assert_eq!(user.id, member_id, "User::id does not match provided PartialMember");
         }
         Guild::user_permissions_in_(
             Some(channel),
@@ -1726,20 +1594,12 @@ impl PartialGuildExt for PartialGuild {
         self.id.search_members(http, query, limit).await
     }
     #[cfg(feature = "model")]
-    async fn start_prune(
-        &self,
-        cache_http: impl CacheHttp,
-        days: u8,
-    ) -> Result<GuildPrune> {
+    async fn start_prune(&self, cache_http: impl CacheHttp, days: u8) -> Result<GuildPrune> {
         self.id.start_prune(cache_http.http(), days).await
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn kick(
-        &self,
-        http: impl AsRef<Http>,
-        user_id: impl Into<UserId>,
-    ) -> Result<()> {
+    async fn kick(&self, http: impl AsRef<Http>, user_id: impl Into<UserId>) -> Result<()> {
         self.id.kick(http, user_id).await
     }
     #[cfg(feature = "model")]
@@ -1821,11 +1681,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    fn user_permissions_in(
-        &self,
-        channel: &GuildChannel,
-        member: &Member,
-    ) -> Permissions {
+    fn user_permissions_in(&self, channel: &GuildChannel, member: &Member) -> Permissions {
         Guild::user_permissions_in_(
             Some(channel),
             member.user.id,
@@ -1837,11 +1693,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    fn role_permissions_in(
-        &self,
-        channel: &GuildChannel,
-        role: &Role,
-    ) -> Result<Permissions> {
+    fn role_permissions_in(&self, channel: &GuildChannel, role: &Role) -> Result<Permissions> {
         Guild::role_permissions_in_(channel, role, self.id).map_err(From::from)
     }
     #[cfg(feature = "model")]
@@ -1864,9 +1716,7 @@ impl PartialGuildExt for PartialGuild {
     #[cfg(feature = "model")]
     #[inline]
     fn splash_url(&self) -> Option<String> {
-        self.splash
-            .as_ref()
-            .map(|splash| cdn!("/splashes/{}/{}.webp?size=4096", self.id, splash))
+        self.splash.as_ref().map(|splash| cdn!("/splashes/{}/{}.webp?size=4096", self.id, splash))
     }
     #[cfg(feature = "model")]
     #[inline]
@@ -1879,11 +1729,7 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn unban(
-        &self,
-        http: impl AsRef<Http>,
-        user_id: impl Into<UserId>,
-    ) -> Result<()> {
+    async fn unban(&self, http: impl AsRef<Http>, user_id: impl Into<UserId>) -> Result<()> {
         self.id.unban(http, user_id).await
     }
     #[cfg(feature = "model")]
@@ -1903,34 +1749,22 @@ impl PartialGuildExt for PartialGuild {
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reply(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector {
+    fn await_reply(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector {
         MessageCollector::new(shard_messenger).guild_id(self.id)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_replies(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector {
+    fn await_replies(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector {
         self.await_reply(shard_messenger)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reaction(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector {
+    fn await_reaction(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector {
         ReactionCollector::new(shard_messenger).guild_id(self.id)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reactions(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector {
+    fn await_reactions(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector {
         self.await_reaction(shard_messenger)
     }
     #[cfg(feature = "model")]
@@ -1938,11 +1772,7 @@ impl PartialGuildExt for PartialGuild {
         self.id.get_active_threads(http).await
     }
     #[cfg(feature = "model")]
-    async fn get_soundboard(
-        self,
-        http: impl AsRef<Http>,
-        sound_id: SoundId,
-    ) -> Result<Soundboard> {
+    async fn get_soundboard(self, http: impl AsRef<Http>, sound_id: SoundId) -> Result<Soundboard> {
         self.id.get_soundboard(http, sound_id).await
     }
     #[cfg(feature = "model")]

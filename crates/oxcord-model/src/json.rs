@@ -5,10 +5,10 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::hash::{BuildHasher, Hash};
 
-use serde::de::DeserializeOwned;
 #[cfg(test)]
 use serde::Deserialize;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 use crate::error::Result;
 
@@ -18,7 +18,7 @@ mod export {
     pub type JsonMap = serde_json::Map<String, Value>;
     pub const NULL: Value = Value::Null;
 
-    pub use serde_json::{json, Error as JsonError};
+    pub use serde_json::{Error as JsonError, json};
 }
 
 #[cfg(feature = "simd_json")]
@@ -28,17 +28,12 @@ mod export {
     pub const NULL: Value = Value::Static(simd_json::StaticNode::Null);
 
     pub use simd_json::prelude::{
-        TypedContainerValue,
-        ValueAsContainer,
-        ValueAsMutContainer,
-        ValueAsScalar,
+        TypedContainerValue, ValueAsContainer, ValueAsMutContainer, ValueAsScalar,
     };
-    pub use simd_json::{json, Error as JsonError, StaticNode};
+    pub use simd_json::{Error as JsonError, StaticNode, json};
 }
 
 pub use export::*;
-
-
 
 /// Converts a HashMap into a final [`JsonMap`] representation.
 pub fn hashmap_to_json_map<H, T>(map: HashMap<T, Value, H>) -> JsonMap

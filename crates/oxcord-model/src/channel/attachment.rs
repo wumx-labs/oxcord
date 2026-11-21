@@ -74,4 +74,3 @@ pub struct Attachment {
     #[serde(default, deserialize_with = "base64_bytes")]
     pub waveform: Option<Vec<u8>>,
 }
-

@@ -109,4 +109,3 @@ pub struct WebhookChannel {
     /// The name of the channel.
     pub name: String,
 }
-

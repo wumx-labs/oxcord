@@ -67,12 +67,7 @@ impl RtpHeader {
     /// Creates a new RTP header with the given sequence, timestamp, and SSRC.
     #[must_use]
     pub fn new(sequence: u16, timestamp: u32, ssrc: u32) -> Self {
-        Self {
-            sequence,
-            timestamp,
-            ssrc,
-            ..Default::default()
-        }
+        Self { sequence, timestamp, ssrc, ..Default::default() }
     }
 
     /// Serializes this header into a 12-byte array.
@@ -156,11 +151,7 @@ impl RtpPacketizer {
     /// Creates a new packetizer with the given SSRC. Sequence and timestamp start at 0.
     #[must_use]
     pub fn new(ssrc: u32) -> Self {
-        Self {
-            ssrc,
-            sequence: 0,
-            timestamp: 0,
-        }
+        Self { ssrc, sequence: 0, timestamp: 0 }
     }
 
     /// Produces the next [`RtpHeader`] and advances sequence and timestamp counters.
@@ -194,7 +185,7 @@ mod tests {
         let bytes = header.to_bytes();
 
         assert_eq!(bytes[0], 0x80); // V=2
-        assert_eq!(bytes[1], 120);  // Opus PT
+        assert_eq!(bytes[1], 120); // Opus PT
         assert_eq!(&bytes[2..4], &42u16.to_be_bytes());
         assert_eq!(&bytes[4..8], &9600u32.to_be_bytes());
         assert_eq!(&bytes[8..12], &0xCAFE_BABEu32.to_be_bytes());

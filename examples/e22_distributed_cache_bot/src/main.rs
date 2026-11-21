@@ -44,9 +44,7 @@ struct BotState {
 
 impl BotState {
     fn new() -> Self {
-        Self {
-            state: StateEngine::new(InMemoryBackend::new()),
-        }
+        Self { state: StateEngine::new(InMemoryBackend::new()) }
     }
 }
 
@@ -64,10 +62,7 @@ struct Handler;
 #[async_trait]
 impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
-        info!(
-            "Logged in as {} (id: {})",
-            ready.user.name, ready.user.id,
-        );
+        info!("Logged in as {} (id: {})", ready.user.name, ready.user.id,);
 
         // Cache the current user via StateEngine.
         let data = ctx.data.read().await;
@@ -102,7 +97,7 @@ impl EventHandler for Handler {
             "guild" => handle_guild(&ctx, &msg).await,
             "member" => handle_member(&ctx, &msg, arg).await,
             "channel" => handle_channel(&ctx, &msg, arg).await,
-            _ => {}
+            _ => {},
         }
     }
 }
@@ -152,15 +147,17 @@ async fn handle_guild(ctx: &Context, msg: &Message) {
                          • ID    : `{}`\n\
                          • Owner : `{}`\n\
                          • Members cached : `{}`",
-                        g.name, g.id, g.owner_id,
+                        g.name,
+                        g.id,
+                        g.owner_id,
                         g.members.len(),
                     ),
                 )
                 .await;
-        }
+        },
         None => {
             let _ = msg.reply(ctx, "⚠️ Guild not found in cache (not yet received?).").await;
-        }
+        },
     }
 }
 
@@ -175,7 +172,7 @@ async fn handle_member(ctx: &Context, msg: &Message, arg: &str) {
         _ => {
             let _ = msg.reply(ctx, "Usage: `~member <user_id>`").await;
             return;
-        }
+        },
     };
     let user_id = UserId::new(raw_id);
 
@@ -199,10 +196,10 @@ async fn handle_member(ctx: &Context, msg: &Message, arg: &str) {
                     ),
                 )
                 .await;
-        }
+        },
         None => {
             let _ = msg.reply(ctx, format!("⚠️ Member `{raw_id}` not found in cache.")).await;
-        }
+        },
     }
 }
 
@@ -212,7 +209,7 @@ async fn handle_channel(ctx: &Context, msg: &Message, arg: &str) {
         _ => {
             let _ = msg.reply(ctx, "Usage: `~channel <channel_id>`").await;
             return;
-        }
+        },
     };
     let channel_id = ChannelId::new(raw_id);
 
@@ -235,10 +232,10 @@ async fn handle_channel(ctx: &Context, msg: &Message, arg: &str) {
                     ),
                 )
                 .await;
-        }
+        },
         None => {
             let _ = msg.reply(ctx, format!("⚠️ Channel `{raw_id}` not found in cache.")).await;
-        }
+        },
     }
 }
 

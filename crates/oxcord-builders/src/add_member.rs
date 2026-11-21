@@ -1,7 +1,7 @@
-use crate::internal::prelude::*;
 use super::Builder;
-use oxcord_rest::CacheHttp;
+use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// A builder to add parameters when using [`GuildId::add_member`].
 ///
@@ -23,13 +23,7 @@ pub struct AddMember {
 impl AddMember {
     /// Constructs a new builder with the given access token, leaving all other fields empty.
     pub fn new(access_token: String) -> Self {
-        Self {
-            access_token,
-            nick: None,
-            roles: Vec::new(),
-            mute: None,
-            deaf: None,
-        }
+        Self { access_token, nick: None, roles: Vec::new(), mute: None, deaf: None }
     }
 
     /// Sets the OAuth2 access token for this request, replacing the current one.

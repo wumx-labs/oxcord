@@ -1,8 +1,8 @@
 use std::collections::{HashMap, VecDeque};
-use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
 #[cfg(feature = "framework")]
 use std::sync::OnceLock;
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
 
 use futures::channel::mpsc::{self, UnboundedReceiver as Receiver, UnboundedSender as Sender};
@@ -274,9 +274,9 @@ impl ShardManager {
                 Ok(Some(shutdown_shard_id)) => {
                     if shutdown_shard_id != shard_id {
                         warn!(
-                        "Failed to cleanly shutdown shard {}: Shutdown channel sent incorrect ID",
-                        shard_id,
-                    );
+                            "Failed to cleanly shutdown shard {}: Shutdown channel sent incorrect ID",
+                            shard_id,
+                        );
                     }
                 },
                 Ok(None) => (),

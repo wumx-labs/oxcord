@@ -11,7 +11,7 @@ use std::env;
 use std::sync::Arc;
 use std::time::Duration;
 
-use reqwest::header::{HeaderName, HeaderValue, AUTHORIZATION};
+use reqwest::header::{AUTHORIZATION, HeaderName, HeaderValue};
 use tiny_http::{Header, Response, Server, StatusCode};
 use tracing::{error, info, warn};
 
@@ -26,10 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .init();
 
-    let port: u16 = env::var("PORT")
-        .ok()
-        .and_then(|p| p.parse().ok())
-        .unwrap_or(8080);
+    let port: u16 = env::var("PORT").ok().and_then(|p| p.parse().ok()).unwrap_or(8080);
 
     let token = env::var("DISCORD_TOKEN").unwrap_or_else(|_| {
         warn!("DISCORD_TOKEN not set; proxy running in transparent forwarding mode.");
@@ -40,9 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server = Arc::new(Server::http(&addr).map_err(|e| format!("Failed to bind {addr}: {e}"))?);
     info!("OXCORD Central REST Rate Limiter Proxy listening on http://{addr}");
 
-    let http_client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()?;
+    let http_client = reqwest::Client::builder().timeout(Duration::from_secs(30)).build()?;
 
     let token_arc = Arc::new(token);
 
@@ -58,7 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Err(e) => {
                 error!("Error accepting HTTP connection: {e}");
                 continue;
-            }
+            },
         };
 
         tokio::spawn(async move {
@@ -116,22 +111,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             );
 
                             for (k, v) in &resp_headers {
-                                if let Ok(h) = Header::from_bytes(k.as_str().as_bytes(), v.as_bytes()) {
+                                if let Ok(h) =
+                                    Header::from_bytes(k.as_str().as_bytes(), v.as_bytes())
+                                {
                                     response.add_header(h);
                                 }
                             }
 
                             let _ = request.respond(response);
-                        }
+                        },
                         Err(e) => {
-                            let _ = request.respond(Response::from_string(format!("Proxy read error: {e}")).with_status_code(502));
-                        }
+                            let _ = request.respond(
+                                Response::from_string(format!("Proxy read error: {e}"))
+                                    .with_status_code(502),
+                            );
+                        },
                     }
-                }
+                },
                 Err(e) => {
                     error!("Proxy request to Discord failed: {e}");
-                    let _ = request.respond(Response::from_string(format!("Proxy Gateway error: {e}")).with_status_code(502));
-                }
+                    let _ = request.respond(
+                        Response::from_string(format!("Proxy Gateway error: {e}"))
+                            .with_status_code(502),
+                    );
+                },
             }
         });
     }

@@ -1,10 +1,10 @@
-use crate::model::prelude::*;
 #[cfg(feature = "model")]
 use crate::builder::CreateInvite;
 #[cfg(all(feature = "cache", feature = "model"))]
 use crate::cache::Cache;
 #[cfg(feature = "model")]
 use crate::http::{CacheHttp, Http};
+use crate::model::prelude::*;
 #[allow(async_fn_in_trait)]
 pub trait InviteExt: Sized {
     #[cfg(feature = "model")]
@@ -146,7 +146,10 @@ impl InviteExt for Invite {
         {
             invite = crate::utils::parse_invite(invite);
         }
-        http.as_ref().get_invite(invite, member_counts, expiration, event_id).await.map_err(From::from)
+        http.as_ref()
+            .get_invite(invite, member_counts, expiration, event_id)
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
     fn url(&self) -> String {

@@ -143,7 +143,8 @@ pub trait StateBackend: Send + Sync {
     /// Inserts or updates a message in a channel.
     async fn set_message(&self, message: Message);
     /// Removes a message and returns the previous value if it existed.
-    async fn remove_message(&self, channel_id: ChannelId, message_id: MessageId) -> Option<Message>;
+    async fn remove_message(&self, channel_id: ChannelId, message_id: MessageId)
+    -> Option<Message>;
 
     // --- Current Bot User ---
     /// Retrieves the current logged in bot user.
@@ -226,7 +227,11 @@ impl<T: StateBackend + ?Sized> StateBackend for Arc<T> {
     async fn set_message(&self, message: Message) {
         (**self).set_message(message).await;
     }
-    async fn remove_message(&self, channel_id: ChannelId, message_id: MessageId) -> Option<Message> {
+    async fn remove_message(
+        &self,
+        channel_id: ChannelId,
+        message_id: MessageId,
+    ) -> Option<Message> {
         (**self).remove_message(channel_id, message_id).await
     }
 

@@ -1,5 +1,3 @@
-#[cfg(feature = "cache")]
-use std::cmp::Reverse;
 #[cfg(feature = "model")]
 use crate::builder::EditMember;
 #[cfg(feature = "cache")]
@@ -9,6 +7,8 @@ use crate::http::{CacheHttp, Http};
 use crate::model::prelude::*;
 #[cfg(feature = "model")]
 use crate::model::utils::{avatar_url, user_banner_url};
+#[cfg(feature = "cache")]
+use std::cmp::Reverse;
 #[allow(async_fn_in_trait)]
 pub trait MemberExt: Sized {
     #[cfg(feature = "model")]
@@ -22,11 +22,7 @@ pub trait MemberExt: Sized {
     /// Id does not exist.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
-    async fn add_role(
-        &self,
-        http: impl AsRef<Http>,
-        role_id: impl Into<RoleId>,
-    ) -> Result<()>;
+    async fn add_role(&self, http: impl AsRef<Http>, role_id: impl Into<RoleId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Adds one or multiple [`Role`]s to the member.
     ///
@@ -118,11 +114,7 @@ pub trait MemberExt: Sized {
     /// # Errors
     ///
     /// Returns [`Error::Http`] if the current user lacks necessary permissions.
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditMember<'_>,
-    ) -> Result<()>;
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditMember<'_>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Allow a user to communicate, removing their timeout, if there is one.
     ///
@@ -210,11 +202,7 @@ pub trait MemberExt: Sized {
     /// the given reason is too long.
     ///
     /// [Kick Members]: Permissions::KICK_MEMBERS
-    async fn kick_with_reason(
-        &self,
-        cache_http: impl CacheHttp,
-        reason: &str,
-    ) -> Result<()>;
+    async fn kick_with_reason(&self, cache_http: impl CacheHttp, reason: &str) -> Result<()>;
     #[cfg(feature = "model")]
     /// Moves the member to a voice channel.
     ///
@@ -280,11 +268,7 @@ pub trait MemberExt: Sized {
     /// lacks permission.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
-    async fn remove_role(
-        &self,
-        http: impl AsRef<Http>,
-        role_id: impl Into<RoleId>,
-    ) -> Result<()>;
+    async fn remove_role(&self, http: impl AsRef<Http>, role_id: impl Into<RoleId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Removes one or multiple [`Role`]s from the member.
     ///
@@ -296,11 +280,7 @@ pub trait MemberExt: Sized {
     /// lacks permission.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
-    async fn remove_roles(
-        &self,
-        http: impl AsRef<Http>,
-        role_ids: &[RoleId],
-    ) -> Result<()>;
+    async fn remove_roles(&self, http: impl AsRef<Http>, role_ids: &[RoleId]) -> Result<()>;
     #[cfg(feature = "model")]
     /// Retrieves the full role data for the user's roles.
     ///
@@ -345,21 +325,14 @@ pub trait MemberExt: Sized {
 impl MemberExt for Member {
     #[cfg(feature = "model")]
     #[inline]
-    async fn add_role(
-        &self,
-        http: impl AsRef<Http>,
-        role_id: impl Into<RoleId>,
-    ) -> Result<()> {
+    async fn add_role(&self, http: impl AsRef<Http>, role_id: impl Into<RoleId>) -> Result<()> {
         http.as_ref()
             .add_member_role(self.guild_id, self.user.id, role_id.into(), None)
-            .await.map_err(From::from)
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
-    async fn add_roles(
-        &self,
-        http: impl AsRef<Http>,
-        role_ids: &[RoleId],
-    ) -> Result<()> {
+    async fn add_roles(&self, http: impl AsRef<Http>, role_ids: &[RoleId]) -> Result<()> {
         for role_id in role_ids {
             self.add_role(http.as_ref(), role_id).await?;
         }
@@ -418,7 +391,7 @@ impl MemberExt for Member {
             Ok(_) => {
                 self.communication_disabled_until = Some(time);
                 Ok(())
-            }
+            },
             Err(why) => Err(why),
         }
     }
@@ -437,11 +410,7 @@ impl MemberExt for Member {
         }
     }
     #[cfg(feature = "model")]
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditMember<'_>,
-    ) -> Result<()> {
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditMember<'_>) -> Result<()> {
         *self = self.guild_id.edit_member(cache_http, self.user.id, builder).await?;
         Ok(())
     }
@@ -467,11 +436,7 @@ impl MemberExt for Member {
         self.kick_with_reason(cache_http, "").await
     }
     #[cfg(feature = "model")]
-    async fn kick_with_reason(
-        &self,
-        cache_http: impl CacheHttp,
-        reason: &str,
-    ) -> Result<()> {
+    async fn kick_with_reason(&self, cache_http: impl CacheHttp, reason: &str) -> Result<()> {
         #[cfg(feature = "cache")]
         {
             if let Some(cache) = cache_http.cache() {
@@ -499,28 +464,19 @@ impl MemberExt for Member {
     #[cfg(feature = "model")]
     #[cfg(feature = "cache")]
     fn permissions(&self, cache: impl AsRef<Cache>) -> Result<Permissions> {
-        let guild = cache
-            .as_ref()
-            .guild(self.guild_id)
-            .ok_or(ModelError::GuildNotFound)?;
-        #[allow(deprecated)] Ok(guild.member_permissions(self))
+        let guild = cache.as_ref().guild(self.guild_id).ok_or(ModelError::GuildNotFound)?;
+        #[allow(deprecated)]
+        Ok(guild.member_permissions(self))
     }
     #[cfg(feature = "model")]
-    async fn remove_role(
-        &self,
-        http: impl AsRef<Http>,
-        role_id: impl Into<RoleId>,
-    ) -> Result<()> {
+    async fn remove_role(&self, http: impl AsRef<Http>, role_id: impl Into<RoleId>) -> Result<()> {
         http.as_ref()
             .remove_member_role(self.guild_id, self.user.id, role_id.into(), None)
-            .await.map_err(From::from)
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
-    async fn remove_roles(
-        &self,
-        http: impl AsRef<Http>,
-        role_ids: &[RoleId],
-    ) -> Result<()> {
+    async fn remove_roles(&self, http: impl AsRef<Http>, role_ids: &[RoleId]) -> Result<()> {
         for role_id in role_ids {
             self.remove_role(http.as_ref(), role_id).await?;
         }

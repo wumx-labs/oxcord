@@ -1,17 +1,13 @@
-use crate::internal::prelude::*;
-use super::{check_overflow, Builder};
+use super::{Builder, check_overflow};
 use super::{
-    CreateActionRow,
-    CreateAllowedMentions,
-    CreateAttachment,
-    CreateComponent,
-    CreateEmbed,
+    CreateActionRow, CreateAllowedMentions, CreateAttachment, CreateComponent, CreateEmbed,
     EditAttachments,
 };
-use serde::Serialize;
+use crate::internal::prelude::*;
 use oxcord_model::constants;
-use oxcord_rest::CacheHttp;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
+use serde::Serialize;
 
 /// A builder to specify the fields to edit in an existing message.
 ///
@@ -81,7 +77,7 @@ impl EditMessage {
         Self::default()
     }
 
-        fn check_length(&self) -> Result<()> {
+    fn check_length(&self) -> Result<()> {
         if let Some(content) = &self.content {
             check_overflow(content.chars().count(), constants::MESSAGE_CODE_LIMIT)
                 .map_err(|overflow| Error::Model(ModelError::MessageTooLong(overflow)))?;

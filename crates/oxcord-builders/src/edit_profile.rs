@@ -1,8 +1,8 @@
 use super::Builder;
 use super::CreateAttachment;
-use oxcord_rest::CacheHttp;
 use crate::internal::prelude::*;
 use oxcord_model::user::CurrentUser;
+use oxcord_rest::CacheHttp;
 
 /// A builder to edit the current user's settings, to be used in conjunction with
 /// [`CurrentUser::edit`].

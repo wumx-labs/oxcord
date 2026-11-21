@@ -1,11 +1,11 @@
 //! Representations of voice information.
 
-use serde::de::{Deserialize, Deserializer};
 use serde::Serialize;
+use serde::de::{Deserialize, Deserializer};
 
+use crate::model::Timestamp;
 use crate::model::guild::Member;
 use crate::model::id::{ChannelId, GuildId, UserId};
-use crate::model::Timestamp;
 
 /// Information about an available voice region.
 ///
@@ -86,4 +86,3 @@ enum_number! {
         _ => Unknown(u8),
     }
 }
-

@@ -22,7 +22,12 @@ pub trait KeyValueStore: Send + Sync {
     async fn get_raw(&self, key: &str) -> Result<Option<Vec<u8>>, StateBackendError>;
 
     /// Stores raw bytes under the specified key, with an optional TTL in seconds.
-    async fn set_raw(&self, key: &str, value: &[u8], ttl_secs: Option<u64>) -> Result<(), StateBackendError>;
+    async fn set_raw(
+        &self,
+        key: &str,
+        value: &[u8],
+        ttl_secs: Option<u64>,
+    ) -> Result<(), StateBackendError>;
 
     /// Deletes a key and returns `true` if it existed.
     async fn del_raw(&self, key: &str) -> Result<bool, StateBackendError>;
@@ -67,7 +72,12 @@ impl KeyValueStore for MemoryKeyValueStore {
         Ok(self.data.get(key).map(|v| v.clone()))
     }
 
-    async fn set_raw(&self, key: &str, value: &[u8], _ttl_secs: Option<u64>) -> Result<(), StateBackendError> {
+    async fn set_raw(
+        &self,
+        key: &str,
+        value: &[u8],
+        _ttl_secs: Option<u64>,
+    ) -> Result<(), StateBackendError> {
         self.data.insert(key.to_string(), value.to_vec());
         Ok(())
     }
@@ -81,21 +91,13 @@ impl KeyValueStore for MemoryKeyValueStore {
             .data
             .iter()
             .filter_map(|entry| {
-                if entry.key().starts_with(prefix) {
-                    Some(entry.key().clone())
-                } else {
-                    None
-                }
+                if entry.key().starts_with(prefix) { Some(entry.key().clone()) } else { None }
             })
             .collect())
     }
 
     async fn count_prefix(&self, prefix: &str) -> Result<usize, StateBackendError> {
-        Ok(self
-            .data
-            .iter()
-            .filter(|entry| entry.key().starts_with(prefix))
-            .count())
+        Ok(self.data.iter().filter(|entry| entry.key().starts_with(prefix)).count())
     }
 }
 
@@ -123,10 +125,7 @@ impl<KV: KeyValueStore> KeyValueStateBackend<KV> {
 
     /// Creates a new `KeyValueStateBackend` with a custom namespace prefix.
     pub fn with_prefix(store: KV, prefix: impl Into<String>) -> Self {
-        Self {
-            store: Arc::new(store),
-            prefix: prefix.into(),
-        }
+        Self { store: Arc::new(store), prefix: prefix.into() }
     }
 
     fn key_guild(&self, id: GuildId) -> String {
@@ -286,7 +285,11 @@ impl<KV: KeyValueStore> StateBackend for KeyValueStateBackend<KV> {
         self.set_json(&self.key_msg(message.channel_id, message.id), &message, None).await;
     }
 
-    async fn remove_message(&self, channel_id: ChannelId, message_id: MessageId) -> Option<Message> {
+    async fn remove_message(
+        &self,
+        channel_id: ChannelId,
+        message_id: MessageId,
+    ) -> Option<Message> {
         let key = self.key_msg(channel_id, message_id);
         let existing = self.get_json(&key).await;
         let _ = self.store.del_raw(&key).await;

@@ -2,8 +2,8 @@ use crate::internal::prelude::*;
 use std::collections::HashMap;
 
 use super::Builder;
-use oxcord_rest::CacheHttp;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// A builder for creating a new [`CommandOption`].
 ///

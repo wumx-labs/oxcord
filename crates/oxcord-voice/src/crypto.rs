@@ -1,7 +1,7 @@
-use ring::aead::{Aad, LessSafeKey, Nonce, UnboundKey, AES_256_GCM, CHACHA20_POLY1305};
+use ring::aead::{AES_256_GCM, Aad, CHACHA20_POLY1305, LessSafeKey, Nonce, UnboundKey};
 
 use crate::error::{Result, VoiceError};
-use crate::rtp::{RtpHeader, RTP_HEADER_SIZE};
+use crate::rtp::{RTP_HEADER_SIZE, RtpHeader};
 
 /// Size of the trailing nonce counter in bytes for modern AEAD modes.
 pub const NONCE_COUNTER_SIZE: usize = 4;
@@ -47,11 +47,7 @@ impl VoiceCryptor {
             .map_err(|_| VoiceError::Crypto("failed to create unbound key"))?;
         let key = LessSafeKey::new(unbound_key);
 
-        Ok(Self {
-            key,
-            algorithm,
-            nonce_counter: 0,
-        })
+        Ok(Self { key, algorithm, nonce_counter: 0 })
     }
 
     /// Creates an AES-256-GCM cryptor (the preferred, hardware-accelerated mode for Discord).
@@ -81,7 +77,11 @@ impl VoiceCryptor {
     ///
     /// # Errors
     /// Returns [`VoiceError::Crypto`] if encryption fails.
-    pub fn encrypt_rtp_packet(&mut self, header: &RtpHeader, opus_payload: &[u8]) -> Result<Vec<u8>> {
+    pub fn encrypt_rtp_packet(
+        &mut self,
+        header: &RtpHeader,
+        opus_payload: &[u8],
+    ) -> Result<Vec<u8>> {
         let counter = self.nonce_counter;
         self.nonce_counter = self.nonce_counter.wrapping_add(1);
 

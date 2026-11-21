@@ -72,7 +72,9 @@ impl std::fmt::Display for VerificationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::InvalidSignatureHex => write!(f, "signature is not a valid 64-byte hex string"),
-            Self::InvalidSignature => write!(f, "cryptographic ed25519 signature verification failed"),
+            Self::InvalidSignature => {
+                write!(f, "cryptographic ed25519 signature verification failed")
+            },
         }
     }
 }
@@ -168,9 +170,7 @@ impl Verifier {
             let mut buf = Vec::with_capacity(total_len);
             buf.extend_from_slice(ts_bytes);
             buf.extend_from_slice(body);
-            self.public_key
-                .verify(&buf, &sig)
-                .map_err(|_| VerificationError::InvalidSignature)
+            self.public_key.verify(&buf, &sig).map_err(|_| VerificationError::InvalidSignature)
         }
     }
 
@@ -194,9 +194,7 @@ impl Verifier {
         scratch.extend_from_slice(timestamp.as_bytes());
         scratch.extend_from_slice(body);
 
-        self.public_key
-            .verify(scratch, &sig)
-            .map_err(|_| VerificationError::InvalidSignature)
+        self.public_key.verify(scratch, &sig).map_err(|_| VerificationError::InvalidSignature)
     }
 }
 
@@ -224,9 +222,7 @@ pub trait InteractionHandler: Send + Sync {
         &self,
         _autocomplete: &CommandInteraction,
     ) -> Option<CreateInteractionResponse> {
-        Some(CreateInteractionResponse::Autocomplete(
-            CreateAutocompleteResponse::default(),
-        ))
+        Some(CreateInteractionResponse::Autocomplete(CreateAutocompleteResponse::default()))
     }
 
     /// Handler for Message Components (buttons, select menus).
@@ -273,21 +269,13 @@ impl InteractionResponseOutput {
     /// Constructs a JSON 200 OK response.
     #[must_use]
     pub fn json(body: Vec<u8>) -> Self {
-        Self {
-            status: 200,
-            content_type: "application/json",
-            body,
-        }
+        Self { status: 200, content_type: "application/json", body }
     }
 
     /// Constructs an empty 204 No Content response.
     #[must_use]
     pub fn no_content() -> Self {
-        Self {
-            status: 204,
-            content_type: "text/plain",
-            body: Vec::new(),
-        }
+        Self { status: 204, content_type: "text/plain", body: Vec::new() }
     }
 }
 
@@ -351,7 +339,7 @@ pub async fn process_interaction<H: InteractionHandler>(
             let json_bytes =
                 serde_json::to_vec(&resp).map_err(InteractionProcessingError::Serialization)?;
             Ok(InteractionResponseOutput::json(json_bytes))
-        }
+        },
         None => Ok(InteractionResponseOutput::no_content()),
     }
 }
@@ -449,9 +437,7 @@ mod tests {
 
         // Test with scratch buffer
         let mut scratch = Vec::new();
-        assert!(verifier
-            .verify_with_buffer(&signature, timestamp, &body, &mut scratch)
-            .is_ok());
+        assert!(verifier.verify_with_buffer(&signature, timestamp, &body, &mut scratch).is_ok());
     }
 
     #[cfg(feature = "builder")]
@@ -475,10 +461,8 @@ mod tests {
             _autocomplete: &CommandInteraction,
         ) -> Option<CreateInteractionResponse> {
             Some(CreateInteractionResponse::Autocomplete(
-                CreateAutocompleteResponse::default().set_choices(vec![
-                    "Option 1".into(),
-                    "Option 2".into(),
-                ]),
+                CreateAutocompleteResponse::default()
+                    .set_choices(vec!["Option 1".into(), "Option 2".into()]),
             ))
         }
     }
@@ -501,15 +485,10 @@ mod tests {
 
         let signature = sign_message(&signing_key, timestamp, ping_body.as_bytes());
 
-        let result = process_interaction(
-            &verifier,
-            &handler,
-            &signature,
-            timestamp,
-            ping_body.as_bytes(),
-        )
-        .await
-        .unwrap();
+        let result =
+            process_interaction(&verifier, &handler, &signature, timestamp, ping_body.as_bytes())
+                .await
+                .unwrap();
 
         assert_eq!(result.status, 200);
         assert_eq!(result.content_type, "application/json");
@@ -529,12 +508,11 @@ mod tests {
         let body = b"{\"type\":1}";
         let bad_sig = "0".repeat(128);
 
-        let err = process_interaction(&verifier, &handler, &bad_sig, timestamp, body)
-            .await
-            .unwrap_err();
+        let err =
+            process_interaction(&verifier, &handler, &bad_sig, timestamp, body).await.unwrap_err();
 
         match err {
-            InteractionProcessingError::Verification(VerificationError::InvalidSignature) => {}
+            InteractionProcessingError::Verification(VerificationError::InvalidSignature) => {},
             other => panic!("expected InvalidSignature error, got {other:?}"),
         }
     }
@@ -568,24 +546,16 @@ mod tests {
 
         let signature = sign_message(&signing_key, timestamp, cmd_body.as_bytes());
 
-        let result = process_interaction(
-            &verifier,
-            &handler,
-            &signature,
-            timestamp,
-            cmd_body.as_bytes(),
-        )
-        .await
-        .unwrap();
+        let result =
+            process_interaction(&verifier, &handler, &signature, timestamp, cmd_body.as_bytes())
+                .await
+                .unwrap();
 
         assert_eq!(result.status, 200);
         let resp_json: serde_json::Value = serde_json::from_slice(&result.body).unwrap();
         // Type 4 is ChannelMessageWithSource
         assert_eq!(resp_json.get("type").and_then(|v| v.as_u64()), Some(4));
-        assert_eq!(
-            resp_json["data"]["content"].as_str(),
-            Some("Hello from TestBot!")
-        );
+        assert_eq!(resp_json["data"]["content"].as_str(), Some("Hello from TestBot!"));
     }
 
     #[cfg(feature = "builder")]
@@ -624,15 +594,10 @@ mod tests {
 
         let signature = sign_message(&signing_key, timestamp, auto_body.as_bytes());
 
-        let result = process_interaction(
-            &verifier,
-            &handler,
-            &signature,
-            timestamp,
-            auto_body.as_bytes(),
-        )
-        .await
-        .unwrap();
+        let result =
+            process_interaction(&verifier, &handler, &signature, timestamp, auto_body.as_bytes())
+                .await
+                .unwrap();
 
         assert_eq!(result.status, 200);
         let resp_json: serde_json::Value = serde_json::from_slice(&result.body).unwrap();

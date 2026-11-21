@@ -86,7 +86,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 // Worker interacts with central state engine
                 let stats = worker_state.stats().await;
-                info!("[Worker Replica #1] StateEngine stats: guilds={}, users={}", stats.guilds, stats.users);
+                info!(
+                    "[Worker Replica #1] StateEngine stats: guilds={}, users={}",
+                    stats.guilds, stats.users
+                );
 
                 // Worker calls Gateway Shard via RPC to update status
                 let resp = worker_broker
@@ -98,7 +101,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .await
                     .expect("RPC call failed");
 
-                info!("[Worker Replica #1] Gateway RPC response: {}", String::from_utf8_lossy(&resp));
+                info!(
+                    "[Worker Replica #1] Gateway RPC response: {}",
+                    String::from_utf8_lossy(&resp)
+                );
             }
         }
     });
@@ -108,7 +114,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // -----------------------------------------------------------------------
     tokio::time::sleep(Duration::from_millis(50)).await;
 
-    info!("[Gateway Shard 0] Incoming INTERACTION_CREATE received from Discord. Blasting to broker…");
+    info!(
+        "[Gateway Shard 0] Incoming INTERACTION_CREATE received from Discord. Blasting to broker…"
+    );
     let interaction = InteractionCommand {
         interaction_id: 887766554433,
         command_name: "ban_malicious_user".into(),

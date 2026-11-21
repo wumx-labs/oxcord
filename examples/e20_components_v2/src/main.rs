@@ -3,15 +3,8 @@ use std::env;
 use dotenv::dotenv;
 use oxcord::async_trait;
 use oxcord::builder::{
-    CreateButton,
-    CreateContainer,
-    CreateInteractionResponse,
-    CreateInteractionResponseMessage,
-    CreateMessage,
-    CreateSection,
-    CreateSeparator,
-    CreateTextDisplay,
-    CreateThumbnail,
+    CreateButton, CreateContainer, CreateInteractionResponse, CreateInteractionResponseMessage,
+    CreateMessage, CreateSection, CreateSeparator, CreateTextDisplay, CreateThumbnail,
 };
 use oxcord::model::application::{Interaction, SeparatorSpacing};
 use oxcord::model::channel::Message;
@@ -37,12 +30,9 @@ impl EventHandler for Handler {
                 "## 🚀 Welcome to OXCORD Components V2!\nThis card is built using modern Discord Components V2.",
             );
 
-            let separator = CreateSeparator::new()
-                .divider(true)
-                .spacing(SeparatorSpacing::Small);
+            let separator = CreateSeparator::new().divider(true).spacing(SeparatorSpacing::Small);
 
-            let click_btn = CreateButton::new("v2_action_button")
-                .label("Try V2 Button");
+            let click_btn = CreateButton::new("v2_action_button").label("Try V2 Button");
 
             let section = CreateSection::new()
                 .add_text("Click the button on the right to interact with Components V2:")

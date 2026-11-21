@@ -6,10 +6,10 @@ use futures::future::BoxFuture;
 
 use super::Args;
 use crate::client::Context;
+use crate::model::Colour;
 use crate::model::channel::Message;
 use crate::model::id::UserId;
 use crate::model::permissions::Permissions;
-use crate::model::Colour;
 
 pub mod buckets;
 mod check;

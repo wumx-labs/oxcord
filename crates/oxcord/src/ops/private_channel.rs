@@ -1,12 +1,12 @@
 #[cfg(feature = "model")]
-use std::sync::Arc;
-#[cfg(feature = "model")]
 use crate::builder::{CreateAttachment, CreateMessage, EditMessage, GetMessages};
 #[cfg(feature = "model")]
 use crate::http::CacheHttp;
 #[cfg(feature = "model")]
 use crate::http::{Http, Typing};
 use crate::model::prelude::*;
+#[cfg(feature = "model")]
+use std::sync::Arc;
 #[allow(async_fn_in_trait)]
 pub trait PrivateChannelExt: Sized {
     #[cfg(feature = "model")]
@@ -169,11 +169,7 @@ pub trait PrivateChannelExt: Sized {
     /// # Errors
     ///
     /// Returns [`Error::Http`] if the number of pinned messages would exceed the 50 message limit.
-    async fn pin(
-        &self,
-        http: impl AsRef<Http>,
-        message_id: impl Into<MessageId>,
-    ) -> Result<()>;
+    async fn pin(&self, http: impl AsRef<Http>, message_id: impl Into<MessageId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Retrieves the list of messages that have been pinned in the private channel.
     #[allow(clippy::missing_errors_doc)]
@@ -189,11 +185,7 @@ pub trait PrivateChannelExt: Sized {
     /// [`CreateMessage::execute`] for more details.
     ///
     /// [`CreateMessage::execute`]: ../../builder/struct.CreateMessage.html#method.execute
-    async fn say(
-        &self,
-        cache_http: impl CacheHttp,
-        content: impl Into<String>,
-    ) -> Result<Message>;
+    async fn say(&self, cache_http: impl CacheHttp, content: impl Into<String>) -> Result<Message>;
     #[cfg(feature = "model")]
     /// Sends file(s) along with optional message contents.
     ///
@@ -278,11 +270,7 @@ pub trait PrivateChannelExt: Sized {
     ///
     /// Returns [`Error::Http`] if the current user lacks permission, if the message was deleted,
     /// or if the channel already has the limit of 50 pinned messages.
-    async fn unpin(
-        &self,
-        http: impl AsRef<Http>,
-        message_id: impl Into<MessageId>,
-    ) -> Result<()>;
+    async fn unpin(&self, http: impl AsRef<Http>, message_id: impl Into<MessageId>) -> Result<()>;
 }
 impl PrivateChannelExt for PrivateChannel {
     #[cfg(feature = "model")]
@@ -305,11 +293,7 @@ impl PrivateChannelExt for PrivateChannel {
     #[allow(clippy::missing_errors_doc)]
     #[inline]
     async fn delete(&self, http: impl AsRef<Http>) -> Result<PrivateChannel> {
-        self.id
-            .delete(http)
-            .await?
-            .private()
-            .ok_or(Error::Model(ModelError::InvalidChannelType))
+        self.id.delete(http).await?.private().ok_or(Error::Model(ModelError::InvalidChannelType))
     }
     #[cfg(feature = "model")]
     #[inline]
@@ -393,11 +377,7 @@ impl PrivateChannelExt for PrivateChannel {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn pin(
-        &self,
-        http: impl AsRef<Http>,
-        message_id: impl Into<MessageId>,
-    ) -> Result<()> {
+    async fn pin(&self, http: impl AsRef<Http>, message_id: impl Into<MessageId>) -> Result<()> {
         self.id.pin(http, message_id).await
     }
     #[cfg(feature = "model")]
@@ -408,11 +388,7 @@ impl PrivateChannelExt for PrivateChannel {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn say(
-        &self,
-        cache_http: impl CacheHttp,
-        content: impl Into<String>,
-    ) -> Result<Message> {
+    async fn say(&self, cache_http: impl CacheHttp, content: impl Into<String>) -> Result<Message> {
         self.id.say(cache_http, content).await
     }
     #[cfg(feature = "model")]
@@ -440,11 +416,7 @@ impl PrivateChannelExt for PrivateChannel {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn unpin(
-        &self,
-        http: impl AsRef<Http>,
-        message_id: impl Into<MessageId>,
-    ) -> Result<()> {
+    async fn unpin(&self, http: impl AsRef<Http>, message_id: impl Into<MessageId>) -> Result<()> {
         self.id.unpin(http, message_id).await
     }
 }

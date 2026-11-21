@@ -6,7 +6,9 @@ use crate::internal::prelude::*;
 use crate::model::prelude::*;
 use crate::model::utils::is_false;
 
-pub(crate) fn minus1_as_0<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<u16, D::Error> {
+pub(crate) fn minus1_as_0<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<u16, D::Error> {
     i16::deserialize(deserializer).map(|val| if val == -1 { 0 } else { val as u16 })
 }
 

@@ -18,11 +18,7 @@ enum ParseAction {
 
 impl ParseAction {
     fn from_allow(allow: bool) -> Self {
-        if allow {
-            Self::Insert
-        } else {
-            Self::Remove
-        }
+        if allow { Self::Insert } else { Self::Remove }
     }
 }
 

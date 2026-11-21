@@ -104,11 +104,11 @@ impl ChannelExt for Channel {
         match self {
             Self::Guild(public_channel) => {
                 public_channel.delete(cache_http).await?;
-            }
+            },
             Self::Private(private_channel) => {
                 private_channel.delete(cache_http.http()).await?;
-            }
-            _ => {}
+            },
+            _ => {},
         }
         Ok(())
     }

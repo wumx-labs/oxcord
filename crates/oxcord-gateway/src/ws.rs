@@ -6,17 +6,17 @@ use flate2::read::ZlibDecoder;
 use futures::{SinkExt, StreamExt};
 use serde::Serialize;
 use tokio::net::TcpStream;
-use tokio::time::{timeout, Duration};
-use tokio_tungstenite::tungstenite::protocol::{CloseFrame, WebSocketConfig};
+use tokio::time::{Duration, timeout};
 use tokio_tungstenite::tungstenite::Error as WsError;
 use tokio_tungstenite::tungstenite::Message;
-use tokio_tungstenite::{connect_async_with_config, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::tungstenite::protocol::{CloseFrame, WebSocketConfig};
+use tokio_tungstenite::{MaybeTlsStream, WebSocketStream, connect_async_with_config};
 use tracing::{debug, instrument, trace, warn};
 use url::Url;
 
 use super::{ActivityData, ChunkGuildFilter, PresenceData};
-use crate::error::GatewayError;
 use crate::Result;
+use crate::error::GatewayError;
 use oxcord_model::constants::{self, Opcode};
 use oxcord_model::event::GatewayEvent;
 use oxcord_model::gateway::{GatewayIntents, ShardInfo};
@@ -130,11 +130,8 @@ fn decompress_payload(bytes: &[u8]) -> Result<Vec<u8>> {
 
 impl WsClient {
     pub async fn connect(url: Url) -> Result<Self> {
-        let config = WebSocketConfig {
-            max_message_size: None,
-            max_frame_size: None,
-            ..Default::default()
-        };
+        let config =
+            WebSocketConfig { max_message_size: None, max_frame_size: None, ..Default::default() };
         let (stream, _) = connect_async_with_config(url, Some(config), false).await?;
 
         Ok(Self(stream))
@@ -240,9 +237,7 @@ impl WsClient {
 
         self.send_json(&WebSocketMessage {
             op: Opcode::ReqeustSoundboardSounds,
-            d: WebSocketMessageData::SoundboardSounds {
-                guild_ids,
-            },
+            d: WebSocketMessageData::SoundboardSounds { guild_ids },
         })
         .await
     }
@@ -343,11 +338,7 @@ impl WsClient {
 
         self.send_json(&WebSocketMessage {
             op: Opcode::Resume,
-            d: WebSocketMessageData::Resume {
-                session_id,
-                token,
-                seq,
-            },
+            d: WebSocketMessageData::Resume { session_id, token, seq },
         })
         .await
     }
@@ -390,8 +381,8 @@ impl WsClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use flate2::write::ZlibEncoder;
     use flate2::Compression;
+    use flate2::write::ZlibEncoder;
     use std::io::Write;
 
     #[test]
@@ -436,4 +427,3 @@ mod tests {
         assert!(json.contains(r#""self_deaf":true"#));
     }
 }
-

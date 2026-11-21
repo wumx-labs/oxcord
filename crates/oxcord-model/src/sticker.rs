@@ -123,7 +123,10 @@ enum_number! {
 }
 
 #[cfg(feature = "model")]
-pub fn sticker_url(sticker_id: StickerId, sticker_format_type: StickerFormatType) -> Option<String> {
+pub fn sticker_url(
+    sticker_id: StickerId,
+    sticker_format_type: StickerFormatType,
+) -> Option<String> {
     let ext = match sticker_format_type {
         StickerFormatType::Png | StickerFormatType::Apng => "png",
         StickerFormatType::Lottie => "json",

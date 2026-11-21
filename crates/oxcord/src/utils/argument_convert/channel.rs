@@ -64,7 +64,8 @@ async fn lookup_channel_global(
         return Err(ChannelParseError::NotFoundOrMalformed);
     }
 
-    let channels = ctx.http().get_channels(guild_id).await.map_err(|e| ChannelParseError::Http(e.into()))?;
+    let channels =
+        ctx.http().get_channels(guild_id).await.map_err(|e| ChannelParseError::Http(e.into()))?;
     if let Some(channel) = channels.into_iter().find(|c| c.name.eq_ignore_ascii_case(s)) {
         Ok(Channel::Guild(channel))
     } else {

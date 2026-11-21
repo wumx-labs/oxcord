@@ -4,8 +4,8 @@
 //! Backed by `rskafka` — a 100% pure Rust async Kafka client with zero C/C++ dependencies.
 
 use std::collections::BTreeMap;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
 use async_trait::async_trait;
@@ -33,10 +33,7 @@ impl Subscription for KafkaSubscription {
                 return Some(self.buffered_records.remove(0));
             }
 
-            match self
-                .partition_client
-                .fetch_records(self.next_offset, 1..1024 * 1024, 1000)
-                .await
+            match self.partition_client.fetch_records(self.next_offset, 1..1024 * 1024, 1000).await
             {
                 Ok((records, _watermark)) => {
                     if records.is_empty() {
@@ -52,11 +49,11 @@ impl Subscription for KafkaSubscription {
                             self.buffered_records.push(msg);
                         }
                     }
-                }
+                },
                 Err(e) => {
                     tracing::error!("Kafka fetch error on topic {}: {e}", self.topic);
                     tokio::time::sleep(Duration::from_millis(200)).await;
-                }
+                },
             }
         }
     }
@@ -77,10 +74,7 @@ impl KafkaBroker {
             .await
             .map_err(|e| BrokerError::Transport(e.to_string()))?;
 
-        Ok(Self {
-            client: Arc::new(client),
-            correlation_seq: Arc::new(AtomicU64::new(1)),
-        })
+        Ok(Self { client: Arc::new(client), correlation_seq: Arc::new(AtomicU64::new(1)) })
     }
 }
 
@@ -97,7 +91,8 @@ impl Broker for KafkaBroker {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
             .as_millis() as i64;
-        let timestamp = rskafka::chrono::DateTime::from_timestamp_millis(now_millis).unwrap_or_default();
+        let timestamp =
+            rskafka::chrono::DateTime::from_timestamp_millis(now_millis).unwrap_or_default();
 
         let record = Record {
             key: None,

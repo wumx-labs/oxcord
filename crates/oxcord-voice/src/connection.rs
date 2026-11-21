@@ -52,7 +52,7 @@ impl VoiceConnection {
                 return Err(VoiceError::Protocol(format!(
                     "expected Hello event, got {:?}",
                     other.kind()
-                )))
+                )));
             },
         };
         debug!("Voice Hello received: interval={:.1}ms", hello.heartbeat_interval);
@@ -67,7 +67,7 @@ impl VoiceConnection {
                 return Err(VoiceError::Protocol(format!(
                     "expected Ready event, got {:?}",
                     other.kind()
-                )))
+                )));
             },
         };
         info!(
@@ -76,9 +76,8 @@ impl VoiceConnection {
         );
 
         // 4. Select best encryption mode
-        let chosen_mode = ready
-            .best_encryption_mode()
-            .unwrap_or(EncryptionMode::AeadXChaCha20Poly1305RtpSize);
+        let chosen_mode =
+            ready.best_encryption_mode().unwrap_or(EncryptionMode::AeadXChaCha20Poly1305RtpSize);
         debug!("Selected voice encryption mode: {}", chosen_mode);
 
         // 5. Bind UDP socket and perform IP Discovery
@@ -86,10 +85,7 @@ impl VoiceConnection {
         let udp = UdpSocket::bind("0.0.0.0:0").await?;
         let (external_ip, external_port) =
             perform_ip_discovery(&udp, server_addr, ready.ssrc, Duration::from_secs(5)).await?;
-        debug!(
-            "Discovered external UDP address: {}:{}",
-            external_ip, external_port
-        );
+        debug!("Discovered external UDP address: {}:{}", external_ip, external_port);
 
         // 6. Send SelectProtocol
         let select = SelectProtocol {
@@ -105,7 +101,7 @@ impl VoiceConnection {
                 return Err(VoiceError::Protocol(format!(
                     "expected SessionDescription, got {:?}",
                     other.kind()
-                )))
+                )));
             },
         };
         info!("Session description received, negotiated mode: {}", session.mode);
@@ -127,13 +123,7 @@ impl VoiceConnection {
         // Note: For full duplex WS, the heartbeat loop can run via shared sender
         // or during ws loop. Here we provide clean connection container.
 
-        Ok(Self {
-            ws,
-            driver,
-            ready,
-            session,
-            shutdown_tx: Some(shutdown_tx),
-        })
+        Ok(Self { ws, driver, ready, session, shutdown_tx: Some(shutdown_tx) })
     }
 
     /// Returns a reference to the [`VoiceDriver`] for audio transmission.

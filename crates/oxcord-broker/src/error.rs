@@ -56,7 +56,7 @@ impl From<tokio::sync::broadcast::error::RecvError> for BrokerError {
             tokio::sync::broadcast::error::RecvError::Closed => Self::SubscriptionClosed,
             tokio::sync::broadcast::error::RecvError::Lagged(missed) => {
                 Self::Transport(format!("subscriber lagged by {missed} messages"))
-            }
+            },
         }
     }
 }

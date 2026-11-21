@@ -1,9 +1,9 @@
-use crate::internal::prelude::*;
 use super::Builder;
 use super::CreateForumTag;
-use oxcord_rest::CacheHttp;
+use crate::internal::prelude::*;
 use oxcord_model::channel::PermissionOverwriteData;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// A builder to edit a [`GuildChannel`] for use via [`GuildChannel::edit`].
 ///
@@ -345,9 +345,7 @@ impl Builder for EditChannel<'_> {
                 .http()
                 .edit_voice_status(
                     ctx,
-                    &EditVoiceStatusBody {
-                        status: status.as_str(),
-                    },
+                    &EditVoiceStatusBody { status: status.as_str() },
                     self.audit_log_reason,
                 )
                 .await?;

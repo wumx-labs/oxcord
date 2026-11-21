@@ -1,8 +1,8 @@
-use crate::model::prelude::*;
 #[cfg(feature = "model")]
 use crate::builder::{Builder as _, GetEntitlements};
 #[cfg(feature = "model")]
 use crate::http::{CacheHttp, Http};
+use crate::model::prelude::*;
 #[allow(async_fn_in_trait)]
 pub trait EmojiIdentifierExt: Sized {
     #[cfg(all(feature = "model", feature = "utils"))]
@@ -17,7 +17,6 @@ impl EmojiIdentifierExt for EmojiIdentifier {
         cdn!("/emojis/{}.{}", self.id, ext)
     }
 }
-
 
 #[cfg(feature = "model")]
 #[allow(async_fn_in_trait)]
@@ -40,10 +39,8 @@ pub trait EntitlementExt {
     ///
     /// May error due to an invalid response from discord, or network error.
     #[cfg(feature = "model")]
-    async fn list(
-        cache_http: impl CacheHttp,
-        builder: GetEntitlements,
-    ) -> Result<Vec<Entitlement>>;
+    async fn list(cache_http: impl CacheHttp, builder: GetEntitlements)
+    -> Result<Vec<Entitlement>>;
 }
 
 #[cfg(feature = "model")]

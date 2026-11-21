@@ -40,7 +40,7 @@ native_tls_backend = ["reqwest/native-tls"]
 simd_json = ["simd-json", "oxcord-model/simd_json"]
 
 [dev-dependencies.http_crate]
-version = "0.2"
+version = "1.0"
 package = "http"
 
 [lints.cargo]

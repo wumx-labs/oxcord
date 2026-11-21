@@ -32,11 +32,7 @@ pub trait RoleExt: Sized {
     /// Returns [`Error::Http`] if the current user does not have permission to Manage Roles.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
-    async fn edit(
-        &mut self,
-        http: impl AsRef<Http>,
-        builder: EditRole<'_>,
-    ) -> Result<()>;
+    async fn edit(&mut self, http: impl AsRef<Http>, builder: EditRole<'_>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Check that the role has the given permission.
     #[must_use]
@@ -62,11 +58,7 @@ impl RoleExt for Role {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn edit(
-        &mut self,
-        http: impl AsRef<Http>,
-        builder: EditRole<'_>,
-    ) -> Result<()> {
+    async fn edit(&mut self, http: impl AsRef<Http>, builder: EditRole<'_>) -> Result<()> {
         *self = self.guild_id.edit_role(http.as_ref(), self.id, builder).await?;
         Ok(())
     }
@@ -87,11 +79,10 @@ impl RoleExt for Role {
     #[cfg(feature = "model")]
     #[inline]
     fn icon_url(&self) -> Option<String> {
-        self.icon
-            .map(|icon| {
-                let ext = if icon.is_animated() { "gif" } else { "webp" };
-                cdn!("/role-icons/{}/{}.{}", self.id, icon, ext)
-            })
+        self.icon.map(|icon| {
+            let ext = if icon.is_animated() { "gif" } else { "webp" };
+            cdn!("/role-icons/{}/{}.{}", self.id, icon, ext)
+        })
     }
 }
 #[allow(async_fn_in_trait)]

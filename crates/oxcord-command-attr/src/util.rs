@@ -1,11 +1,11 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use syn::parse::{Error, Parse, ParseStream, Result as SynResult};
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 use syn::token::{Comma, Mut};
-use syn::{parenthesized, parse_quote, Attribute, Ident, Lifetime, Lit, Path, PathSegment, Type};
+use syn::{Attribute, Ident, Lifetime, Lit, Path, PathSegment, Type, parenthesized, parse_quote};
 
 use crate::structures::CommandFun;
 
@@ -126,11 +126,7 @@ pub struct Argument {
 
 impl ToTokens for Argument {
     fn to_tokens(&self, stream: &mut TokenStream2) {
-        let Argument {
-            mutable,
-            name,
-            kind,
-        } = self;
+        let Argument { mutable, name, kind } = self;
 
         stream.extend(quote! {
             #mutable #name: #kind

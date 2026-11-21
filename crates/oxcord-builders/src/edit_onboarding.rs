@@ -1,7 +1,7 @@
-use crate::internal::prelude::*;
 use super::Builder;
-use oxcord_rest::CacheHttp;
+use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// Builder for modifying guild onboarding.
 ///
@@ -209,9 +209,13 @@ mod tests {
             .role_ids(vec![RoleId::new(200)])
             .description("For Rustaceans");
 
-        let prompt = CreateOnboardingPrompt::new("Choose your role", OnboardingPromptType::MultipleChoice, vec![opt])
-            .single_select(true)
-            .required(true);
+        let prompt = CreateOnboardingPrompt::new(
+            "Choose your role",
+            OnboardingPromptType::MultipleChoice,
+            vec![opt],
+        )
+        .single_select(true)
+        .required(true);
 
         let builder = EditOnboarding::new()
             .enabled(true)
@@ -226,4 +230,3 @@ mod tests {
         assert!(json.contains(r#""title":"Rust Dev""#));
     }
 }
-

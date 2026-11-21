@@ -456,7 +456,10 @@ pub fn tag(name: &str, discriminator: Option<NonZeroU16>) -> String {
 }
 
 #[cfg(feature = "model")]
-pub fn primary_guild_badge_url(guild_id: Option<GuildId>, hash: Option<&ImageHash>) -> Option<String> {
+pub fn primary_guild_badge_url(
+    guild_id: Option<GuildId>,
+    hash: Option<&ImageHash>,
+) -> Option<String> {
     if let Some(guild_id) = guild_id {
         return hash.map(|hash| cdn!("/guild-tag-badges/{}/{}.png?size=1024", guild_id, hash));
     }
@@ -482,7 +485,7 @@ pub fn static_nameplate_url(path: &str) -> String {
 
 #[cfg(test)]
 mod test {
-    
+
     use std::num::NonZeroU16;
 
     #[test]
@@ -498,14 +501,10 @@ mod test {
             discriminator: Option<NonZeroU16>,
         }
 
-        let user = User {
-            discriminator: NonZeroU16::new(123),
-        };
+        let user = User { discriminator: NonZeroU16::new(123) };
         assert_json(&user, json!({"discriminator": "0123"}));
 
-        let user_no_discriminator = User {
-            discriminator: None,
-        };
+        let user_no_discriminator = User { discriminator: None };
         assert_json(&user_no_discriminator, json!({}));
     }
 }

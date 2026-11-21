@@ -116,10 +116,10 @@ pub mod http;
 pub mod interactions_endpoint;
 #[cfg(feature = "utils")]
 pub mod utils;
-#[cfg(feature = "voice")]
-pub use oxcord_voice as voice;
 #[cfg(feature = "broker")]
 pub use oxcord_broker as broker;
+#[cfg(feature = "voice")]
+pub use oxcord_voice as voice;
 
 mod error;
 
@@ -152,6 +152,9 @@ compile_error!(
 ///   with items from the rest of oxcord
 #[allow(ambiguous_glob_reexports)]
 pub mod all {
+    #[cfg(feature = "broker")]
+    #[doc(no_inline)]
+    pub use crate::broker::*;
     #[cfg(feature = "builder")]
     #[doc(no_inline)]
     pub use crate::builder::*;
@@ -178,22 +181,19 @@ pub mod all {
     #[cfg(feature = "interactions_endpoint")]
     #[doc(no_inline)]
     pub use crate::interactions_endpoint::*;
-    #[cfg(feature = "voice")]
-    #[doc(no_inline)]
-    pub use crate::voice::*;
-    #[cfg(feature = "broker")]
-    #[doc(no_inline)]
-    pub use crate::broker::*;
-    #[cfg(feature = "utils")]
-    #[doc(no_inline)]
-    pub use crate::utils::{
-        token::{validate as validate_token, InvalidToken},
-        *,
-    };
     #[cfg(feature = "model")]
     #[doc(no_inline)]
     #[allow(unused_imports)]
     pub use crate::ops::*;
+    #[cfg(feature = "utils")]
+    #[doc(no_inline)]
+    pub use crate::utils::{
+        token::{InvalidToken, validate as validate_token},
+        *,
+    };
+    #[cfg(feature = "voice")]
+    #[doc(no_inline)]
+    pub use crate::voice::*;
     // #[doc(no_inline)]
     // pub use crate::*;
     #[doc(no_inline)]

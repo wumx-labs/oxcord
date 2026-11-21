@@ -45,16 +45,14 @@ pub fn parse_ip_discovery_response(packet: &[u8]) -> Result<(IpAddr, u16)> {
 
     // IP address is stored in bytes 8..72 as a null-terminated ASCII string
     let ip_bytes = &packet[8..72];
-    let null_pos = ip_bytes
-        .iter()
-        .position(|&b| b == 0)
-        .unwrap_or(ip_bytes.len());
+    let null_pos = ip_bytes.iter().position(|&b| b == 0).unwrap_or(ip_bytes.len());
 
     let ip_str = std::str::from_utf8(&ip_bytes[..null_pos])
         .map_err(|e| VoiceError::IpDiscovery(format!("invalid UTF-8 in IP address: {e}")))?;
 
-    let ip = IpAddr::from_str(ip_str)
-        .map_err(|e| VoiceError::IpDiscovery(format!("failed to parse discovered IP '{ip_str}': {e}")))?;
+    let ip = IpAddr::from_str(ip_str).map_err(|e| {
+        VoiceError::IpDiscovery(format!("failed to parse discovered IP '{ip_str}': {e}"))
+    })?;
 
     // Port is stored in bytes 72..74 as a big-endian u16
     let port = u16::from_be_bytes([packet[72], packet[73]]);
@@ -78,9 +76,9 @@ pub async fn perform_ip_discovery(
     socket.send_to(&request, server_addr).await?;
 
     let mut buf = [0u8; IP_DISCOVERY_PACKET_SIZE];
-    let (len, _src) = timeout(timeout_dur, socket.recv_from(&mut buf))
-        .await
-        .map_err(|_| VoiceError::IpDiscovery("timed out waiting for IP discovery response".into()))??;
+    let (len, _src) = timeout(timeout_dur, socket.recv_from(&mut buf)).await.map_err(|_| {
+        VoiceError::IpDiscovery("timed out waiting for IP discovery response".into())
+    })??;
 
     parse_ip_discovery_response(&buf[..len])
 }

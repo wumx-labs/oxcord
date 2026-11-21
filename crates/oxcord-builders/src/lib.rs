@@ -10,8 +10,8 @@ extern crate serde;
 
 pub(crate) mod internal;
 
-pub use oxcord_rest::{CacheHttp, Http};
 pub(crate) use oxcord_rest::HttpError as Error;
+pub use oxcord_rest::{CacheHttp, Http};
 pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
 use crate::internal::prelude::*;
 
@@ -32,11 +32,7 @@ pub trait Builder {
 }
 
 pub fn check_overflow(len: usize, max: usize) -> StdResult<(), usize> {
-    if len > max {
-        Err(len - max)
-    } else {
-        Ok(())
-    }
+    if len > max { Err(len - max) } else { Ok(()) }
 }
 
 mod add_member;

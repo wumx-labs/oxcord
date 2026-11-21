@@ -24,11 +24,8 @@ pub const MEMBER_FETCH_LIMIT: u64 = 1000;
 /// The [UserAgent] sent along with every request.
 ///
 /// [UserAgent]: ::reqwest::header::USER_AGENT
-pub const USER_AGENT: &str = concat!(
-    "DiscordBot (https://github.com/wumx-labs/oxcord, ",
-    env!("CARGO_PKG_VERSION"),
-    ")"
-);
+pub const USER_AGENT: &str =
+    concat!("DiscordBot (https://github.com/wumx-labs/oxcord, ", env!("CARGO_PKG_VERSION"), ")");
 
 enum_number! {
     /// An enum representing the [gateway opcodes].

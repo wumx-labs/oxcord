@@ -25,8 +25,6 @@ extern crate serde;
 #[macro_use]
 pub(crate) mod internal;
 
-
-
 pub mod builder;
 
 mod client;

@@ -240,7 +240,6 @@ pub struct Guild {
 
 #[cfg(feature = "model")]
 impl Guild {
-
     pub fn member_highest_role(&self, member: &Member) -> Option<&Role> {
         let mut highest: Option<&Role> = None;
         for role_id in &member.roles {
@@ -298,11 +297,7 @@ impl Guild {
         // wins.
         //
         // If RHS has the higher role ID, then RHS wins.
-        if lhs.1 == rhs.1 && lhs.0 < rhs.0 {
-            Some(lhs_id)
-        } else {
-            Some(rhs_id)
-        }
+        if lhs.1 == rhs.1 && lhs.0 < rhs.0 { Some(lhs_id) } else { Some(rhs_id) }
     }
 
     /// Helper function that can also be used from [`PartialGuild`].
@@ -447,7 +442,6 @@ impl Guild {
 
         permissions
     }
-
 }
 
 #[cfg(feature = "model")]
@@ -764,5 +758,3 @@ pub struct IncidentsData {
     /// The time when raid alerts were triggered.
     pub raid_detected_at: Option<Timestamp>,
 }
-
-

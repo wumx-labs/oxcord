@@ -57,7 +57,11 @@ pub trait RateLimiter: Send + Sync {
     ) -> impl Future<Output = Self::Permit> + Send;
 
     /// Feeds the ratelimit headers of a response back into the limiter.
-    fn update(&self, bucket: &crate::http::RatelimitingBucket, headers: &reqwest::header::HeaderMap);
+    fn update(
+        &self,
+        bucket: &crate::http::RatelimitingBucket,
+        headers: &reqwest::header::HeaderMap,
+    );
 }
 
 /// A message broker used to move gateway events from gateway processes to workers.

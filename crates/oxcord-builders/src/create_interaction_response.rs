@@ -1,19 +1,14 @@
-use crate::internal::prelude::*;
 use super::create_poll::Ready;
-use super::{check_overflow, Builder};
+use super::{Builder, check_overflow};
 use super::{
-    CreateActionRow,
-    CreateAllowedMentions,
-    CreateAttachment,
-    CreateComponent,
-    CreateEmbed,
-    CreatePoll,
-    EditAttachments,
+    CreateActionRow, CreateAllowedMentions, CreateAttachment, CreateComponent, CreateEmbed,
+    CreatePoll, EditAttachments,
 };
-use serde::Serialize;
+use crate::internal::prelude::*;
 use oxcord_model::constants;
-use oxcord_rest::CacheHttp;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
+use serde::Serialize;
 
 /// [Discord docs](https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-response-object).
 #[derive(Clone, Debug)]
@@ -80,17 +75,20 @@ impl serde::Serialize for CreateInteractionResponse {
         use serde::ser::SerializeMap as _;
 
         let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("type", &match self {
-            Self::Pong => 1,
-            Self::Message(_) => 4,
-            Self::Defer(_) => 5,
-            Self::Acknowledge => 6,
-            Self::UpdateMessage(_) => 7,
-            Self::Autocomplete(_) => 8,
-            Self::Modal(_) => 9,
-            Self::PremiumRequired => 10,
-            Self::LaunchActivity => 12,
-        })?;
+        map.serialize_entry(
+            "type",
+            &match self {
+                Self::Pong => 1,
+                Self::Message(_) => 4,
+                Self::Defer(_) => 5,
+                Self::Acknowledge => 6,
+                Self::UpdateMessage(_) => 7,
+                Self::Autocomplete(_) => 8,
+                Self::Modal(_) => 9,
+                Self::PremiumRequired => 10,
+                Self::LaunchActivity => 12,
+            },
+        )?;
 
         match self {
             Self::Autocomplete(x) => map.serialize_entry("data", &x)?,
@@ -108,7 +106,7 @@ impl serde::Serialize for CreateInteractionResponse {
 }
 
 impl CreateInteractionResponse {
-        fn check_length(&self) -> Result<()> {
+    fn check_length(&self) -> Result<()> {
         if let CreateInteractionResponse::Message(data)
         | CreateInteractionResponse::Defer(data)
         | CreateInteractionResponse::UpdateMessage(data) = self

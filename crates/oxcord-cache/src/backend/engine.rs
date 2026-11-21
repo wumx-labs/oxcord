@@ -39,9 +39,7 @@ impl Default for StateEngine {
 impl StateEngine {
     /// Creates a new `StateEngine` with the specified [`StateBackend`].
     pub fn new<B: StateBackend + 'static>(backend: B) -> Self {
-        Self {
-            backend: Arc::new(backend),
-        }
+        Self { backend: Arc::new(backend) }
     }
 
     /// Creates a new `StateEngine` wrapped with an `Arc<dyn StateBackend>`.
@@ -83,7 +81,11 @@ impl StateEngine {
     }
 
     /// Retrieves a message by channel and message ID.
-    pub async fn get_message(&self, channel_id: ChannelId, message_id: MessageId) -> Option<Message> {
+    pub async fn get_message(
+        &self,
+        channel_id: ChannelId,
+        message_id: MessageId,
+    ) -> Option<Message> {
         self.backend.get_message(channel_id, message_id).await
     }
 
@@ -125,7 +127,7 @@ impl StateEngine {
                     self.backend.set_member(guild.id, member.clone()).await;
                     self.backend.set_user(member.user.clone()).await;
                 }
-            }
+            },
             Event::GuildUpdate(e) => {
                 if let Some(mut guild) = self.backend.get_guild(e.guild.id).await {
                     guild.afk_metadata.clone_from(&e.guild.afk_metadata);
@@ -146,32 +148,32 @@ impl StateEngine {
                     guild.welcome_screen.clone_from(&e.guild.welcome_screen);
                     self.backend.set_guild(guild).await;
                 }
-            }
+            },
             Event::GuildDelete(e) => {
                 self.backend.remove_guild(e.guild.id).await;
-            }
+            },
             Event::ChannelCreate(e) => {
                 self.backend.set_channel(e.channel.clone()).await;
-            }
+            },
             Event::ChannelUpdate(e) => {
                 self.backend.set_channel(e.channel.clone()).await;
-            }
+            },
             Event::ChannelDelete(e) => {
                 self.backend.remove_channel(e.channel.id).await;
-            }
+            },
             Event::GuildRoleCreate(e) => {
                 self.backend.set_role(e.role.guild_id, e.role.clone()).await;
-            }
+            },
             Event::GuildRoleUpdate(e) => {
                 self.backend.set_role(e.role.guild_id, e.role.clone()).await;
-            }
+            },
             Event::GuildRoleDelete(e) => {
                 self.backend.remove_role(e.guild_id, e.role_id).await;
-            }
+            },
             Event::GuildMemberAdd(e) => {
                 self.backend.set_member(e.member.guild_id, e.member.clone()).await;
                 self.backend.set_user(e.member.user.clone()).await;
-            }
+            },
             Event::GuildMemberUpdate(e) => {
                 if let Some(mut member) = self.backend.get_member(e.guild_id, e.user.id).await {
                     member.user.clone_from(&e.user);
@@ -188,23 +190,23 @@ impl StateEngine {
                     self.backend.set_member(e.guild_id, member).await;
                 }
                 self.backend.set_user(e.user.clone()).await;
-            }
+            },
             Event::GuildMemberRemove(e) => {
                 self.backend.remove_member(e.guild_id, e.user.id).await;
-            }
+            },
             Event::MessageCreate(e) => {
                 self.backend.set_message(e.message.clone()).await;
-            }
+            },
             Event::MessageDelete(e) => {
                 self.backend.remove_message(e.channel_id, e.message_id).await;
-            }
+            },
             Event::Ready(e) => {
                 self.backend.set_current_user(e.ready.user.clone()).await;
-            }
+            },
             Event::UserUpdate(e) => {
                 self.backend.set_current_user(e.current_user.clone()).await;
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 }

@@ -36,11 +36,7 @@ pub fn validate(token: impl AsRef<str>) -> Result<(), InvalidToken> {
         && parts.next().is_some_and(|p| !p.is_empty())
         && parts.next().is_none();
 
-    if is_valid {
-        Ok(())
-    } else {
-        Err(InvalidToken)
-    }
+    if is_valid { Ok(()) } else { Err(InvalidToken) }
 }
 
 /// Error that can be return by [`validate`].

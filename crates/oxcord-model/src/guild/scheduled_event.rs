@@ -94,9 +94,7 @@ pub struct ScheduledEventMetadata {
 impl ScheduledEventMetadata {
     #[must_use]
     pub fn new(location: impl Into<String>) -> Self {
-        Self {
-            location: Some(location.into()),
-        }
+        Self { location: Some(location.into()) }
     }
 }
 

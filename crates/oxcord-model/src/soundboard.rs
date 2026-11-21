@@ -27,4 +27,3 @@ pub struct Soundboard {
     /// User who created this soundboard sound.
     pub user: Option<User>,
 }
-

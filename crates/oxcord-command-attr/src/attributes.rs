@@ -61,12 +61,7 @@ pub struct Values {
 impl Values {
     #[inline]
     pub fn new(name: Ident, kind: ValueKind, literals: Vec<Lit>, span: Span) -> Self {
-        Values {
-            name,
-            literals,
-            kind,
-            span,
-        }
+        Values { name, literals, kind, span }
     }
 }
 
@@ -96,10 +91,13 @@ pub fn parse_values(attr: &Attribute) -> Result<Values> {
                         Meta::Path(path) => {
                             let i = to_ident(&path)?;
                             lits.push(Lit::Str(LitStr::new(&i.to_string(), i.span())));
-                        }
+                        },
                         Meta::List(_) | Meta::NameValue(_) => {
-                            return Err(Error::new(attr.span(), "cannot nest a list; only accept literals and identifiers at this level"))
-                        }
+                            return Err(Error::new(
+                                attr.span(),
+                                "cannot nest a list; only accept literals and identifiers at this level",
+                            ));
+                        },
                     },
                 }
             }

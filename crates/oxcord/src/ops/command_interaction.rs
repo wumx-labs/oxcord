@@ -9,9 +9,9 @@ use crate::client::Context;
 use crate::http::{CacheHttp, Http};
 use crate::model::channel::Message;
 use crate::model::id::MessageId;
+use crate::model::prelude::*;
 #[cfg(all(feature = "collector", feature = "utils"))]
 use crate::utils::{CreateQuickModal, QuickModalResponse};
-use crate::model::prelude::*;
 #[allow(async_fn_in_trait)]
 pub trait CommandInteractionExt: Sized {
     #[cfg(feature = "model")]
@@ -185,7 +185,10 @@ impl CommandInteractionExt for CommandInteraction {
         message_id: impl Into<MessageId>,
         builder: CreateInteractionResponseFollowup,
     ) -> Result<Message> {
-        builder.execute(cache_http, (Some(message_id.into()), &self.token)).await.map_err(From::from)
+        builder
+            .execute(cache_http, (Some(message_id.into()), &self.token))
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
     async fn delete_followup<M: Into<MessageId>>(
@@ -193,7 +196,10 @@ impl CommandInteractionExt for CommandInteraction {
         http: impl AsRef<Http>,
         message_id: M,
     ) -> Result<()> {
-        http.as_ref().delete_followup_message(&self.token, message_id.into()).await.map_err(From::from)
+        http.as_ref()
+            .delete_followup_message(&self.token, message_id.into())
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
     async fn get_followup<M: Into<MessageId>>(
@@ -205,9 +211,7 @@ impl CommandInteractionExt for CommandInteraction {
     }
     #[cfg(feature = "model")]
     async fn defer(&self, cache_http: impl CacheHttp) -> Result<()> {
-        let builder = CreateInteractionResponse::Defer(
-            CreateInteractionResponseMessage::default(),
-        );
+        let builder = CreateInteractionResponse::Defer(CreateInteractionResponseMessage::default());
         self.create_response(cache_http, builder).await
     }
     #[cfg(feature = "model")]

@@ -96,12 +96,15 @@ async fn message(ctx: &Context, msg: Message) -> Result<(), oxcord::Error> {
                     .button(
                         CreateButton::new_link("https://google.com").emoji('🔍').label("Search"),
                     )
-                    .select_menu(CreateSelectMenu::new("3", CreateSelectMenuKind::String {
-                        options: vec![
-                            CreateSelectMenuOption::new("foo", "foo"),
-                            CreateSelectMenuOption::new("bar", "bar"),
-                        ],
-                    })),
+                    .select_menu(CreateSelectMenu::new(
+                        "3",
+                        CreateSelectMenuKind::String {
+                            options: vec![
+                                CreateSelectMenuOption::new("foo", "foo"),
+                                CreateSelectMenuOption::new("bar", "bar"),
+                            ],
+                        },
+                    )),
             )
             .await?;
     } else if msg.content == "manybuttons" {
@@ -229,10 +232,7 @@ async fn message(ctx: &Context, msg: Message) -> Result<(), oxcord::Error> {
     Ok(())
 }
 
-async fn interaction(
-    ctx: &Context,
-    interaction: CommandInteraction,
-) -> Result<(), oxcord::Error> {
+async fn interaction(ctx: &Context, interaction: CommandInteraction) -> Result<(), oxcord::Error> {
     if interaction.data.name == "editattachments" {
         // Respond with an image
         interaction
@@ -335,12 +335,15 @@ async fn interaction(
                 &ctx,
                 CreateInteractionResponse::Message(
                     CreateInteractionResponseMessage::new()
-                        .select_menu(CreateSelectMenu::new("0", CreateSelectMenuKind::String {
-                            options: vec![
-                                CreateSelectMenuOption::new("foo", "foo"),
-                                CreateSelectMenuOption::new("bar", "bar"),
-                            ],
-                        }))
+                        .select_menu(CreateSelectMenu::new(
+                            "0",
+                            CreateSelectMenuKind::String {
+                                options: vec![
+                                    CreateSelectMenuOption::new("foo", "foo"),
+                                    CreateSelectMenuOption::new("bar", "bar"),
+                                ],
+                            },
+                        ))
                         .select_menu(CreateSelectMenu::new(
                             "1",
                             CreateSelectMenuKind::Mentionable {
@@ -348,16 +351,21 @@ async fn interaction(
                                 default_roles: None,
                             },
                         ))
-                        .select_menu(CreateSelectMenu::new("2", CreateSelectMenuKind::Role {
-                            default_roles: None,
-                        }))
-                        .select_menu(CreateSelectMenu::new("3", CreateSelectMenuKind::User {
-                            default_users: None,
-                        }))
-                        .select_menu(CreateSelectMenu::new("4", CreateSelectMenuKind::Channel {
-                            channel_types: None,
-                            default_channels: None,
-                        })),
+                        .select_menu(CreateSelectMenu::new(
+                            "2",
+                            CreateSelectMenuKind::Role { default_roles: None },
+                        ))
+                        .select_menu(CreateSelectMenu::new(
+                            "3",
+                            CreateSelectMenuKind::User { default_users: None },
+                        ))
+                        .select_menu(CreateSelectMenu::new(
+                            "4",
+                            CreateSelectMenuKind::Channel {
+                                channel_types: None,
+                                default_channels: None,
+                            },
+                        )),
                 ),
             )
             .await?;

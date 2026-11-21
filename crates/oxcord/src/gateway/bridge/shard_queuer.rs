@@ -3,22 +3,17 @@ use std::sync::Arc;
 #[cfg(feature = "framework")]
 use std::sync::OnceLock;
 
-use futures::channel::mpsc::UnboundedReceiver as Receiver;
 use futures::StreamExt;
+use futures::channel::mpsc::UnboundedReceiver as Receiver;
 use tokio::sync::{Mutex, RwLock};
-use tokio::time::{sleep, timeout, Duration, Instant};
+use tokio::time::{Duration, Instant, sleep, timeout};
 use tracing::{debug, info, instrument, warn};
 use typemap_rev::TypeMap;
 
 #[cfg(feature = "voice")]
 use super::VoiceGatewayManager;
 use super::{
-    ShardId,
-    ShardManager,
-    ShardMessenger,
-    ShardQueuerMessage,
-    ShardRunner,
-    ShardRunnerInfo,
+    ShardId, ShardManager, ShardMessenger, ShardQueuerMessage, ShardRunner, ShardRunnerInfo,
     ShardRunnerOptions,
 };
 #[cfg(feature = "cache")]
@@ -239,8 +234,7 @@ impl ShardQueuer {
             if let Err(why) = runner.runner_tx.tx.unbounded_send(msg) {
                 warn!(
                     "Failed to cleanly shutdown shard {} when sending message to shard runner: {:?}",
-                    shard_id,
-                    why,
+                    shard_id, why,
                 );
             }
         }

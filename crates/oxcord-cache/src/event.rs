@@ -1,31 +1,12 @@
 use super::{Cache, CacheUpdate};
 use oxcord_model::channel::{GuildChannel, Message};
 use oxcord_model::event::{
-    ChannelCreateEvent,
-    ChannelDeleteEvent,
-    ChannelPinsUpdateEvent,
-    ChannelUpdateEvent,
-    GuildCreateEvent,
-    GuildDeleteEvent,
-    GuildEmojisUpdateEvent,
-    GuildMemberAddEvent,
-    GuildMemberRemoveEvent,
-    GuildMemberUpdateEvent,
-    GuildMembersChunkEvent,
-    GuildRoleCreateEvent,
-    GuildRoleDeleteEvent,
-    GuildRoleUpdateEvent,
-    GuildStickersUpdateEvent,
-    GuildUpdateEvent,
-    MessageCreateEvent,
-    MessageUpdateEvent,
-    PresenceUpdateEvent,
-    ReadyEvent,
-    ThreadCreateEvent,
-    ThreadDeleteEvent,
-    ThreadUpdateEvent,
-    UserUpdateEvent,
-    VoiceChannelStatusUpdateEvent,
+    ChannelCreateEvent, ChannelDeleteEvent, ChannelPinsUpdateEvent, ChannelUpdateEvent,
+    GuildCreateEvent, GuildDeleteEvent, GuildEmojisUpdateEvent, GuildMemberAddEvent,
+    GuildMemberRemoveEvent, GuildMemberUpdateEvent, GuildMembersChunkEvent, GuildRoleCreateEvent,
+    GuildRoleDeleteEvent, GuildRoleUpdateEvent, GuildStickersUpdateEvent, GuildUpdateEvent,
+    MessageCreateEvent, MessageUpdateEvent, PresenceUpdateEvent, ReadyEvent, ThreadCreateEvent,
+    ThreadDeleteEvent, ThreadUpdateEvent, UserUpdateEvent, VoiceChannelStatusUpdateEvent,
     VoiceStateUpdateEvent,
 };
 use oxcord_model::gateway::ShardInfo;
@@ -192,53 +173,59 @@ impl CacheUpdate for GuildMemberUpdateEvent {
     fn update(&mut self, cache: &Cache) -> Option<Self::Output> {
         cache.update_user_entry(&self.user);
 
-        match cache.guilds.get_mut(&self.guild_id) { Some(mut guild) => {
-            let item = if let Some(member) = guild.members.get_mut(&self.user.id) {
-                let item = Some(member.clone());
+        match cache.guilds.get_mut(&self.guild_id) {
+            Some(mut guild) => {
+                let item = if let Some(member) = guild.members.get_mut(&self.user.id) {
+                    let item = Some(member.clone());
 
-                member.joined_at.clone_from(&Some(self.joined_at));
-                member.nick.clone_from(&self.nick);
-                member.roles.clone_from(&self.roles);
-                member.user.clone_from(&self.user);
-                member.pending.clone_from(&self.pending);
-                member.premium_since.clone_from(&self.premium_since);
-                member.deaf.clone_from(&self.deaf);
-                member.mute.clone_from(&self.mute);
-                member.avatar.clone_from(&self.avatar);
-                member.banner.clone_from(&self.banner);
-                member.communication_disabled_until.clone_from(&self.communication_disabled_until);
-                member.unusual_dm_activity_until.clone_from(&self.unusual_dm_activity_until);
+                    member.joined_at.clone_from(&Some(self.joined_at));
+                    member.nick.clone_from(&self.nick);
+                    member.roles.clone_from(&self.roles);
+                    member.user.clone_from(&self.user);
+                    member.pending.clone_from(&self.pending);
+                    member.premium_since.clone_from(&self.premium_since);
+                    member.deaf.clone_from(&self.deaf);
+                    member.mute.clone_from(&self.mute);
+                    member.avatar.clone_from(&self.avatar);
+                    member.banner.clone_from(&self.banner);
+                    member
+                        .communication_disabled_until
+                        .clone_from(&self.communication_disabled_until);
+                    member.unusual_dm_activity_until.clone_from(&self.unusual_dm_activity_until);
+
+                    item
+                } else {
+                    None
+                };
+
+                if item.is_none() {
+                    guild.members.insert(
+                        self.user.id,
+                        Member {
+                            deaf: false,
+                            guild_id: self.guild_id,
+                            joined_at: Some(self.joined_at),
+                            mute: false,
+                            nick: self.nick.clone(),
+                            roles: self.roles.clone(),
+                            user: self.user.clone(),
+                            pending: self.pending,
+                            premium_since: self.premium_since,
+                            permissions: None,
+                            avatar: self.avatar,
+                            banner: self.banner,
+                            communication_disabled_until: self.communication_disabled_until,
+                            flags: self.flags.unwrap_or_default(),
+                            unusual_dm_activity_until: self.unusual_dm_activity_until,
+                            avatar_decoration_data: self.avatar_decoration_data,
+                        },
+                    );
+                }
 
                 item
-            } else {
-                None
-            };
-
-            if item.is_none() {
-                guild.members.insert(self.user.id, Member {
-                    deaf: false,
-                    guild_id: self.guild_id,
-                    joined_at: Some(self.joined_at),
-                    mute: false,
-                    nick: self.nick.clone(),
-                    roles: self.roles.clone(),
-                    user: self.user.clone(),
-                    pending: self.pending,
-                    premium_since: self.premium_since,
-                    permissions: None,
-                    avatar: self.avatar,
-                    banner: self.banner,
-                    communication_disabled_until: self.communication_disabled_until,
-                    flags: self.flags.unwrap_or_default(),
-                    unusual_dm_activity_until: self.unusual_dm_activity_until,
-                    avatar_decoration_data: self.avatar_decoration_data,
-                });
-            }
-
-            item
-        } _ => {
-            None
-        }}
+            },
+            _ => None,
+        }
     }
 }
 
@@ -561,21 +548,24 @@ impl CacheUpdate for VoiceStateUpdateEvent {
 
     fn update(&mut self, cache: &Cache) -> Option<VoiceState> {
         if let Some(guild_id) = self.voice_state.guild_id {
-            match cache.guilds.get_mut(&guild_id) { Some(mut guild) => {
-                if let Some(member) = &self.voice_state.member {
-                    guild.members.insert(member.user.id, member.clone());
-                }
+            match cache.guilds.get_mut(&guild_id) {
+                Some(mut guild) => {
+                    if let Some(member) = &self.voice_state.member {
+                        guild.members.insert(member.user.id, member.clone());
+                    }
 
-                if self.voice_state.channel_id.is_some() {
-                    // Update or add to the voice state list
-                    guild.voice_states.insert(self.voice_state.user_id, self.voice_state.clone())
-                } else {
-                    // Remove the user from the voice state list
-                    guild.voice_states.remove(&self.voice_state.user_id)
-                }
-            } _ => {
-                None
-            }}
+                    if self.voice_state.channel_id.is_some() {
+                        // Update or add to the voice state list
+                        guild
+                            .voice_states
+                            .insert(self.voice_state.user_id, self.voice_state.clone())
+                    } else {
+                        // Remove the user from the voice state list
+                        guild.voice_states.remove(&self.voice_state.user_id)
+                    }
+                },
+                _ => None,
+            }
         } else {
             None
         }

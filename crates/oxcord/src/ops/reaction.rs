@@ -1,8 +1,8 @@
-#[cfg(doc)]
-use std::fmt::Display as _;
 #[cfg(feature = "model")]
 use crate::http::{CacheHttp, Http};
 use crate::model::prelude::*;
+#[cfg(doc)]
+use std::fmt::Display as _;
 #[cfg(feature = "model")]
 use tracing::warn;
 #[allow(async_fn_in_trait)]
@@ -135,12 +135,7 @@ impl ReactionExt for Reaction {
             }
         }
         self.channel_id
-            .delete_reaction(
-                cache_http.http(),
-                self.message_id,
-                user_id,
-                self.emoji.clone(),
-            )
+            .delete_reaction(cache_http.http(), self.message_id, user_id, self.emoji.clone())
             .await
     }
     #[cfg(feature = "model")]
@@ -159,7 +154,8 @@ impl ReactionExt for Reaction {
             .http()
             .as_ref()
             .delete_message_reaction_emoji(self.channel_id, self.message_id, &self.emoji)
-            .await.map_err(From::from)
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
     #[inline]
@@ -197,7 +193,6 @@ impl ReactionExt for Reaction {
     }
 }
 
-
 #[cfg(feature = "model")]
 #[allow(async_fn_in_trait)]
 pub(crate) trait ReactionHelpers {
@@ -234,6 +229,7 @@ impl ReactionHelpers for Reaction {
                 limit,
                 after.map(UserId::get),
             )
-            .await.map_err(From::from)
+            .await
+            .map_err(From::from)
     }
 }

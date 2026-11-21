@@ -3,5 +3,5 @@
 
 mod bridge;
 
-pub use oxcord_gateway::*;
 pub use self::bridge::*;
+pub use oxcord_gateway::*;

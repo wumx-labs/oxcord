@@ -155,7 +155,10 @@ impl ModalInteractionExt for ModalInteraction {
         message_id: impl Into<MessageId>,
         builder: CreateInteractionResponseFollowup,
     ) -> Result<Message> {
-        builder.execute(cache_http, (Some(message_id.into()), &self.token)).await.map_err(From::from)
+        builder
+            .execute(cache_http, (Some(message_id.into()), &self.token))
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
     async fn delete_followup<M: Into<MessageId>>(
@@ -163,7 +166,10 @@ impl ModalInteractionExt for ModalInteraction {
         http: impl AsRef<Http>,
         message_id: M,
     ) -> Result<()> {
-        http.as_ref().delete_followup_message(&self.token, message_id.into()).await.map_err(From::from)
+        http.as_ref()
+            .delete_followup_message(&self.token, message_id.into())
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
     async fn defer(&self, cache_http: impl CacheHttp) -> Result<()> {

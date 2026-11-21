@@ -1,4 +1,3 @@
-use crate::model::prelude::*;
 #[cfg(feature = "model")]
 use crate::builder::{Builder, CreateMessage, EditProfile};
 #[cfg(all(feature = "cache", feature = "model"))]
@@ -11,23 +10,24 @@ use crate::gateway::ShardMessenger;
 use crate::http::CacheHttp;
 #[cfg(feature = "model")]
 use crate::json::json;
+use crate::model::prelude::*;
 #[cfg(feature = "model")]
-use crate::model::utils::{avatar_url, user_banner_url};
+use crate::model::user::avatar_decoration_url;
 #[cfg(feature = "model")]
 use crate::model::user::default_avatar_url;
-#[cfg(feature = "model")]
-use crate::model::user::static_avatar_url;
-#[cfg(feature = "model")]
-use crate::model::user::tag;
+#[cfg(all(feature = "unstable_discord_api", feature = "model"))]
+use crate::model::user::nameplate_url;
 #[cfg(feature = "model")]
 use crate::model::user::primary_guild_badge_url;
 #[cfg(feature = "model")]
-use crate::model::user::avatar_decoration_url;
-#[cfg(all(feature = "unstable_discord_api", feature = "model"))]
-use crate::model::user::nameplate_url;
+use crate::model::user::static_avatar_url;
 #[cfg(all(feature = "unstable_discord_api", feature = "model"))]
 #[cfg(feature = "model")]
 use crate::model::user::static_nameplate_url;
+#[cfg(feature = "model")]
+use crate::model::user::tag;
+#[cfg(feature = "model")]
+use crate::model::utils::{avatar_url, user_banner_url};
 #[allow(async_fn_in_trait)]
 pub trait AvatarDecorationDataExt: Sized {
     #[cfg(feature = "model")]
@@ -73,19 +73,11 @@ pub trait CurrentUserExt: Sized {
     ///
     /// Returns an [`Error::Http`] if an invalid value is set. May also return an [`Error::Json`]
     /// if there is an error in deserializing the API response.
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditProfile,
-    ) -> Result<()>;
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditProfile) -> Result<()>;
 }
 impl CurrentUserExt for CurrentUser {
     #[cfg(feature = "model")]
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditProfile,
-    ) -> Result<()> {
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditProfile) -> Result<()> {
         *self = builder.execute(cache_http, ()).await?;
         Ok(())
     }
@@ -147,10 +139,7 @@ pub trait UserExt: Sized {
     /// # Errors
     ///
     /// See [`UserId::create_dm_channel`] for what errors may be returned.
-    async fn create_dm_channel(
-        &self,
-        cache_http: impl CacheHttp,
-    ) -> Result<PrivateChannel>;
+    async fn create_dm_channel(&self, cache_http: impl CacheHttp) -> Result<PrivateChannel>;
     #[cfg(feature = "model")]
     /// Retrieves the time that this user was created at.
     #[must_use]
@@ -188,11 +177,7 @@ pub trait UserExt: Sized {
     #[cfg(feature = "model")]
     /// This is an alias of [`Self::direct_message`].
     #[allow(clippy::missing_errors_doc)]
-    async fn dm(
-        &self,
-        cache_http: impl CacheHttp,
-        builder: CreateMessage,
-    ) -> Result<Message>;
+    async fn dm(&self, cache_http: impl CacheHttp, builder: CreateMessage) -> Result<Message>;
     #[cfg(feature = "model")]
     /// Retrieves the URL to the user's avatar, falling back to the default avatar if needed.
     ///
@@ -290,32 +275,20 @@ pub trait UserExt: Sized {
     /// Returns a builder which can be awaited to obtain a message or stream of messages sent by
     /// this user.
     #[cfg(feature = "collector")]
-    fn await_reply(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector;
+    fn await_reply(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector;
     #[cfg(feature = "model")]
     /// Same as [`Self::await_reply`].
     #[cfg(feature = "collector")]
-    fn await_replies(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector;
+    fn await_replies(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector;
     #[cfg(feature = "model")]
     /// Returns a builder which can be awaited to obtain a reaction or stream of reactions sent by
     /// this user.
     #[cfg(feature = "collector")]
-    fn await_reaction(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector;
+    fn await_reaction(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector;
     #[cfg(feature = "model")]
     /// Same as [`Self::await_reaction`].
     #[cfg(feature = "collector")]
-    fn await_reactions(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector;
+    fn await_reactions(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector;
 }
 impl UserExt for User {
     #[cfg(feature = "model")]
@@ -330,10 +303,7 @@ impl UserExt for User {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn create_dm_channel(
-        &self,
-        cache_http: impl CacheHttp,
-    ) -> Result<PrivateChannel> {
+    async fn create_dm_channel(&self, cache_http: impl CacheHttp) -> Result<PrivateChannel> {
         if self.bot {
             return Err(Error::Model(ModelError::MessagingBot));
         }
@@ -365,11 +335,7 @@ impl UserExt for User {
     #[cfg(feature = "model")]
     #[allow(clippy::missing_errors_doc)]
     #[inline]
-    async fn dm(
-        &self,
-        cache_http: impl CacheHttp,
-        builder: CreateMessage,
-    ) -> Result<Message> {
+    async fn dm(&self, cache_http: impl CacheHttp, builder: CreateMessage) -> Result<Message> {
         self.direct_message(cache_http, builder).await
     }
     #[cfg(feature = "model")]
@@ -388,11 +354,7 @@ impl UserExt for User {
         guild_id: impl Into<GuildId>,
         role: impl Into<RoleId>,
     ) -> Result<bool> {
-        guild_id
-            .into()
-            .member(cache_http, self)
-            .await
-            .map(|m| m.roles.contains(&role.into()))
+        guild_id.into().member(cache_http, self).await.map(|m| m.roles.contains(&role.into()))
     }
     #[cfg(feature = "model")]
     #[inline]
@@ -432,34 +394,22 @@ impl UserExt for User {
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reply(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector {
+    fn await_reply(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector {
         MessageCollector::new(shard_messenger).author_id(self.id)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_replies(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> MessageCollector {
+    fn await_replies(&self, shard_messenger: impl AsRef<ShardMessenger>) -> MessageCollector {
         self.await_reply(shard_messenger)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reaction(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector {
+    fn await_reaction(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector {
         ReactionCollector::new(shard_messenger).author_id(self.id)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reactions(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector {
+    fn await_reactions(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector {
         self.await_reaction(shard_messenger)
     }
 }
@@ -478,10 +428,7 @@ pub trait UserIdExt: Sized {
     /// returned by the Discord API.
     ///
     /// [current user]: CurrentUser
-    async fn create_dm_channel(
-        self,
-        cache_http: impl CacheHttp,
-    ) -> Result<PrivateChannel>;
+    async fn create_dm_channel(self, cache_http: impl CacheHttp) -> Result<PrivateChannel>;
     #[cfg(feature = "model")]
     /// Sends a message to a user through a direct message channel. This is a channel that can only
     /// be accessed by you and the recipient.
@@ -527,11 +474,7 @@ pub trait UserIdExt: Sized {
     #[cfg(feature = "model")]
     /// This is an alias of [`Self::direct_message`].
     #[allow(clippy::missing_errors_doc)]
-    async fn dm(
-        self,
-        cache_http: impl CacheHttp,
-        builder: CreateMessage,
-    ) -> Result<Message>;
+    async fn dm(self, cache_http: impl CacheHttp, builder: CreateMessage) -> Result<Message>;
     #[cfg(feature = "model")]
     /// Attempts to find a [`User`] by its Id in the cache.
     #[cfg(feature = "cache")]
@@ -555,10 +498,7 @@ pub trait UserIdExt: Sized {
 }
 impl UserIdExt for UserId {
     #[cfg(feature = "model")]
-    async fn create_dm_channel(
-        self,
-        cache_http: impl CacheHttp,
-    ) -> Result<PrivateChannel> {
+    async fn create_dm_channel(self, cache_http: impl CacheHttp) -> Result<PrivateChannel> {
         #[cfg(feature = "temp_cache")]
         if let Some(cache) = cache_http.cache() {
             if let Some(private_channel) = cache.temp_private_channels.get(&self) {
@@ -581,19 +521,12 @@ impl UserIdExt for UserId {
         cache_http: impl CacheHttp,
         builder: CreateMessage,
     ) -> Result<Message> {
-        self.create_dm_channel(&cache_http)
-            .await?
-            .send_message(cache_http, builder)
-            .await
+        self.create_dm_channel(&cache_http).await?.send_message(cache_http, builder).await
     }
     #[cfg(feature = "model")]
     #[allow(clippy::missing_errors_doc)]
     #[inline]
-    async fn dm(
-        self,
-        cache_http: impl CacheHttp,
-        builder: CreateMessage,
-    ) -> Result<Message> {
+    async fn dm(self, cache_http: impl CacheHttp, builder: CreateMessage) -> Result<Message> {
         self.direct_message(cache_http, builder).await
     }
     #[cfg(feature = "model")]

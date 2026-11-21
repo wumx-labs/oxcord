@@ -19,11 +19,11 @@ pub use oauth::*;
 pub(crate) mod ping_interaction;
 pub use ping_interaction::*;
 
+use super::Permissions;
 use super::guild::PartialGuild;
 use super::id::{ApplicationId, GenericId, GuildId, SkuId, UserId};
 use super::misc::ImageHash;
 use super::user::User;
-use super::Permissions;
 
 /// Partial information about the given application.
 ///
@@ -295,13 +295,16 @@ mod team_role_ordering {
 
         roles.sort();
 
-        assert_eq!(roles, [
-            other(""),
-            other("test"),
-            TeamMemberRole::ReadOnly,
-            TeamMemberRole::Developer,
-            TeamMemberRole::Admin,
-        ]);
+        assert_eq!(
+            roles,
+            [
+                other(""),
+                other("test"),
+                TeamMemberRole::ReadOnly,
+                TeamMemberRole::Developer,
+                TeamMemberRole::Admin,
+            ]
+        );
     }
 
     #[test]

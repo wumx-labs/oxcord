@@ -27,10 +27,9 @@ struct SimulatedMessageCreate {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "e23_broker_distributed_bot=info,oxcord_broker=info".parse().unwrap()),
-        )
+        .with_env_filter(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(
+            |_| "e23_broker_distributed_bot=info,oxcord_broker=info".parse().unwrap(),
+        ))
         .init();
 
     info!("Initializing distributed bot cluster using InProcessBroker…");
@@ -75,10 +74,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         })
         .await;
 
-    let _rpc_listener = rpc_dispatcher
-        .listen("rpc.shard.0.latency")
-        .await
-        .expect("listen RPC failed");
+    let _rpc_listener =
+        rpc_dispatcher.listen("rpc.shard.0.latency").await.expect("listen RPC failed");
 
     // Wait a brief moment for subscriptions to be active
     tokio::time::sleep(Duration::from_millis(50)).await;
@@ -100,9 +97,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Simulate Worker calling Gateway via RPC to get Shard 0 Latency
     tokio::time::sleep(Duration::from_millis(50)).await;
     info!("[Worker Node] Calling Gateway Shard 0 for latency via RPC…");
-    let latency_bytes = broker
-        .request("rpc.shard.0.latency", b"get_latency", Duration::from_secs(2))
-        .await?;
+    let latency_bytes =
+        broker.request("rpc.shard.0.latency", b"get_latency", Duration::from_secs(2)).await?;
     let latency_str = String::from_utf8_lossy(&latency_bytes);
     info!("[Worker Node] RPC Response received from Shard 0! Latency: {}", latency_str);
 

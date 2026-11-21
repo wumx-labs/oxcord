@@ -1,8 +1,7 @@
-use std::fmt::Display;
-#[cfg(all(feature = "cache", feature = "model"))]
-use std::fmt::Write;
 #[cfg(all(feature = "model", feature = "utils"))]
 use crate::builder::{Builder, EditMessage};
+#[cfg(feature = "model")]
+use crate::builder::{CreateAllowedMentions, CreateMessage};
 #[cfg(all(feature = "cache", feature = "model"))]
 use crate::cache::{Cache, GuildRef};
 #[cfg(feature = "collector")]
@@ -18,8 +17,9 @@ use crate::http::{CacheHttp, Http};
 use crate::model::prelude::*;
 #[cfg(all(feature = "model", feature = "cache"))]
 use crate::utils;
-#[cfg(feature = "model")]
-use crate::builder::{CreateAllowedMentions, CreateMessage};
+use std::fmt::Display;
+#[cfg(all(feature = "cache", feature = "model"))]
+use std::fmt::Write;
 #[allow(async_fn_in_trait)]
 pub trait MessageExt: Sized {
     #[cfg(feature = "model")]
@@ -171,11 +171,7 @@ pub trait MessageExt: Sized {
     /// Returns a [`ModelError::MessageTooLong`] if the message contents are too long.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditMessage,
-    ) -> Result<()>;
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditMessage) -> Result<()>;
     #[cfg(feature = "model")]
     /// Returns message content, but with user and role mentions replaced with
     /// names and everyone/here mentions cancelled.
@@ -396,17 +392,11 @@ pub trait MessageExt: Sized {
     /// Returns a builder which can be awaited to obtain a reaction or stream of reactions on this
     /// message.
     #[cfg(feature = "collector")]
-    fn await_reaction(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector;
+    fn await_reaction(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector;
     #[cfg(feature = "model")]
     /// Same as [`Self::await_reaction`].
     #[cfg(feature = "collector")]
-    fn await_reactions(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector;
+    fn await_reactions(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector;
     #[cfg(feature = "model")]
     /// Returns a builder which can be awaited to obtain a single component interactions or a
     /// stream of component interactions on this message.
@@ -484,10 +474,7 @@ impl MessageExt for Message {
             return Some(Permissions::dm_permissions());
         };
         let guild = cache.as_ref().guild(guild_id)?;
-        let (channel, is_thread) = if let Some(channel) = guild
-            .channels
-            .get(&self.channel_id)
-        {
+        let (channel, is_thread) = if let Some(channel) = guild.channels.get(&self.channel_id) {
             (channel, false)
         } else {
             let thread = guild.threads.iter().find(|th| th.id == self.channel_id)?;
@@ -499,8 +486,7 @@ impl MessageExt for Message {
             guild.user_permissions_in(channel, guild.members.get(&self.author.id)?)
         };
         if is_thread {
-            permissions
-                .set(Permissions::SEND_MESSAGES, permissions.send_messages_in_threads());
+            permissions.set(Permissions::SEND_MESSAGES, permissions.send_messages_in_threads());
         }
         Some(permissions)
     }
@@ -525,11 +511,7 @@ impl MessageExt for Message {
         #[cfg(feature = "cache")]
         {
             if let Some(cache) = cache_http.cache() {
-                utils::user_has_perms_cache(
-                    cache,
-                    self.channel_id,
-                    Permissions::MANAGE_MESSAGES,
-                )?;
+                utils::user_has_perms_cache(cache, self.channel_id, Permissions::MANAGE_MESSAGES)?;
             }
         }
         self.channel_id.delete_reactions(cache_http.http(), self.id).await
@@ -553,37 +535,25 @@ impl MessageExt for Message {
         #[cfg(feature = "cache")]
         {
             if let Some(cache) = cache_http.cache() {
-                utils::user_has_perms_cache(
-                    cache,
-                    self.channel_id,
-                    Permissions::MANAGE_MESSAGES,
-                )?;
+                utils::user_has_perms_cache(cache, self.channel_id, Permissions::MANAGE_MESSAGES)?;
             }
         }
         cache_http
             .http()
             .as_ref()
-            .delete_message_reaction_emoji(
-                self.channel_id,
-                self.id,
-                &reaction_type.into(),
-            )
-            .await.map_err(From::from)
+            .delete_message_reaction_emoji(self.channel_id, self.id, &reaction_type.into())
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditMessage,
-    ) -> Result<()> {
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditMessage) -> Result<()> {
         if let Some(flags) = self.flags {
             if flags.contains(MessageFlags::IS_VOICE_MESSAGE) {
                 return Err(Error::Model(ModelError::CannotEditVoiceMessage));
             }
         }
-        *self = builder
-            .execute(cache_http, (self.channel_id, self.id, Some(self.author.id)))
-            .await?;
+        *self =
+            builder.execute(cache_http, (self.channel_id, self.id, Some(self.author.id))).await?;
         Ok(())
     }
     #[cfg(feature = "model")]
@@ -617,9 +587,7 @@ impl MessageExt for Message {
                 result = result.replace(&mention, "@deleted-role");
             }
         }
-        result
-            .replace("@everyone", "@\u{200B}everyone")
-            .replace("@here", "@\u{200B}here")
+        result.replace("@everyone", "@\u{200B}everyone").replace("@here", "@\u{200B}here")
     }
     #[cfg(feature = "model")]
     #[inline]
@@ -651,11 +619,7 @@ impl MessageExt for Message {
     }
     #[cfg(feature = "model")]
     fn overflow_length(content: &str) -> Option<usize> {
-        crate::builder::check_overflow(
-                content.chars().count(),
-                constants::MESSAGE_CODE_LIMIT,
-            )
-            .err()
+        crate::builder::check_overflow(content.chars().count(), constants::MESSAGE_CODE_LIMIT).err()
     }
     #[cfg(feature = "model")]
     async fn pin(&self, cache_http: impl CacheHttp) -> Result<()> {
@@ -707,8 +671,7 @@ impl MessageExt for Message {
         cache_http: impl CacheHttp,
         content: impl Display,
     ) -> Result<Message> {
-        self.reply_(cache_http, format!("{} {content}", self.author.mention()), None)
-            .await
+        self.reply_(cache_http, format!("{} {content}", self.author.mention()), None).await
     }
     #[cfg(feature = "model")]
     #[inline]
@@ -770,18 +733,12 @@ impl MessageExt for Message {
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reaction(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector {
+    fn await_reaction(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector {
         ReactionCollector::new(shard_messenger).message_id(self.id)
     }
     #[cfg(feature = "model")]
     #[cfg(feature = "collector")]
-    fn await_reactions(
-        &self,
-        shard_messenger: impl AsRef<ShardMessenger>,
-    ) -> ReactionCollector {
+    fn await_reactions(&self, shard_messenger: impl AsRef<ShardMessenger>) -> ReactionCollector {
         self.await_reaction(shard_messenger)
     }
     #[cfg(feature = "model")]
@@ -832,12 +789,7 @@ impl MessageExt for Message {
         }
         let channel = self.channel_id.to_channel(&cache_http).await.ok()?.guild()?;
         if channel.thread_metadata.is_some() {
-            let thread_parent = channel
-                .parent_id?
-                .to_channel(cache_http)
-                .await
-                .ok()?
-                .guild()?;
+            let thread_parent = channel.parent_id?.to_channel(cache_http).await.ok()?.guild()?;
             thread_parent.parent_id
         } else {
             channel.parent_id
@@ -888,7 +840,6 @@ impl MessageIdExt for MessageId {
         self.link(channel_id, guild_id)
     }
 }
-
 
 #[cfg(feature = "model")]
 #[allow(async_fn_in_trait)]
@@ -992,28 +943,18 @@ mod tests {
 
     use dashmap::DashMap;
 
-    use crate::model::prelude::{
-        Guild,
-        GuildChannel,
-        Member,
-        Message,
-        PermissionOverwrite,
-        PermissionOverwriteType,
-        Permissions,
-        User,
-        UserId,
-    };
-    use crate::cache::MaybeMap;
     use crate::cache::Cache;
+    use crate::cache::MaybeMap;
+    use crate::model::prelude::{
+        Guild, GuildChannel, Member, Message, PermissionOverwrite, PermissionOverwriteType,
+        Permissions, User, UserId,
+    };
 
     /// Test that author_permissions checks the permissions in a channel, not just the guild.
     #[test]
     fn author_permissions_respects_overwrites() {
         // Author of the message, with a random ID that won't collide with defaults.
-        let author = User {
-            id: UserId::new(50778944701071),
-            ..Default::default()
-        };
+        let author = User { id: UserId::new(50778944701071), ..Default::default() };
 
         // Channel with the message, with SEND_MESSAGES on.
         let channel = GuildChannel {
@@ -1029,20 +970,16 @@ mod tests {
         // Guild with the author and channel cached, default (empty) permissions.
         let guild = Guild {
             channels: HashMap::from([(channel.id, channel)]),
-            members: HashMap::from([(author.id, Member {
-                user: author.clone(),
-                ..Default::default()
-            })]),
+            members: HashMap::from([(
+                author.id,
+                Member { user: author.clone(), ..Default::default() },
+            )]),
             ..Default::default()
         };
 
         // Message, tied to the guild and the channel.
-        let message = Message {
-            author,
-            channel_id,
-            guild_id: Some(guild.id),
-            ..Default::default()
-        };
+        let message =
+            Message { author, channel_id, guild_id: Some(guild.id), ..Default::default() };
 
         // Cache, with the guild setup.
         let mut cache = Cache::new();

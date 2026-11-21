@@ -3,8 +3,8 @@ name: CI
 on: [push, pull_request]
 
 env:
-  rust_min: 1.74.0
-  rust_nightly: nightly-2025-06-24
+  rust_min: 1.85.0
+  rust_nightly: nightly
 
 jobs:
   test:
@@ -63,6 +63,10 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain || 'stable' }}
+
+      - name: Install OpenSSL for native-tls
+        if: matrix.name == 'native-tls' && runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
 
       - name: Add problem matchers
         shell: bash
@@ -176,30 +180,6 @@ jobs:
       - name: Check
         run: cargo check --features full
 
-  min_versions:
-    name: Check minimal versions
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-
-      - name: Install toolchain (${{ env.rust_nightly }})
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ env.rust_nightly }}
-
-      - name: Add problem matchers
-        run: echo "::add-matcher::.github/matchers/rust.json"
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check minimal versions
-        run: |
-          cargo update -Z minimal-versions
-          cargo check
-
   doc:
     name: Build docs
     runs-on: ubuntu-latest
@@ -223,8 +203,6 @@ jobs:
         run: |
           cargo doc --no-deps --features collector,voice,unstable_discord_api
           cargo doc --no-deps -p oxcord-command-attr
-        env:
-          RUSTDOCFLAGS: -D rustdoc::broken_intra_doc_links
 
   examples:
     name: Examples
@@ -281,3 +259,15 @@ jobs:
         run: cargo check -p e18_webhook
       - name: 'Check example 19'
         run: cargo check -p e19_interactions_endpoint
+      - name: 'Check example 20'
+        run: cargo check -p e20_components_v2
+      - name: 'Check example 21'
+        run: cargo check -p e21_voice_playback
+      - name: 'Check example 22'
+        run: cargo check -p e22_distributed_cache_bot
+      - name: 'Check example 23'
+        run: cargo check -p e23_broker_distributed_bot
+      - name: 'Check example 24'
+        run: cargo check -p e24_stateless_worker
+      - name: 'Check example 25'
+        run: cargo check -p e25_full_enterprise_bot

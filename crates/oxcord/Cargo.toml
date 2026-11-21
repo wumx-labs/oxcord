@@ -61,7 +61,7 @@ oxcord-voice = { version = "0.0.1", path = "../oxcord-voice", optional = true }
 oxcord-broker = { version = "0.1.0", path = "../oxcord-broker", optional = true }
 
 [dev-dependencies.http_crate]
-version = ">=0.2.11"
+version = "1.0"
 package = "http"
 
 [features]
@@ -110,7 +110,7 @@ voice_model = ["oxcord-voice-model"]
 standard_framework = ["framework", "uwl", "levenshtein", "command_attr", "static_assertions", "parking_lot"]
 # Enables support for Discord API functionality that's not stable yet, as well as oxcord APIs that
 # are allowed to change even in semver non-breaking updates.
-unstable_discord_api = []
+unstable_discord_api = ["oxcord-model/unstable_discord_api"]
 # Enables some utility functions that can be useful for bot creators.
 utils = ["oxcord-model/utils", "oxcord-rest?/utils"]
 voice = ["client", "model", "voice_model", "oxcord-voice"]

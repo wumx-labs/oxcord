@@ -43,7 +43,6 @@ pub enum Channel {
 
 #[cfg(feature = "model")]
 impl Channel {
-
     /// Retrieves the Id of the inner [`GuildChannel`], or [`PrivateChannel`].
     #[inline]
     #[must_use]
@@ -202,11 +201,7 @@ impl std::convert::TryFrom<PermissionOverwriteData> for PermissionOverwrite {
             raw => return Err(InvalidPermissionOverwriteType(raw)),
         };
 
-        Ok(PermissionOverwrite {
-            allow: data.allow,
-            deny: data.deny,
-            kind,
-        })
+        Ok(PermissionOverwrite { allow: data.allow, deny: data.deny, kind })
     }
 }
 
@@ -217,12 +212,7 @@ impl From<PermissionOverwrite> for PermissionOverwriteData {
             PermissionOverwriteType::Member(id) => (1, id.into()),
         };
 
-        PermissionOverwriteData {
-            allow: data.allow,
-            deny: data.deny,
-            kind,
-            id,
-        }
+        PermissionOverwriteData { allow: data.allow, deny: data.deny, kind, id }
     }
 }
 

@@ -1,6 +1,5 @@
 use std::fmt;
 
-
 #[cfg(feature = "model")]
 #[allow(unused_imports)]
 use crate::internal::prelude::*;
@@ -8,14 +7,12 @@ use crate::model::prelude::*;
 
 #[cfg(feature = "model")]
 impl GuildId {
-
     /// Gets the default permission role (@everyone) from the guild.
     #[inline]
     #[must_use]
     pub const fn everyone_role(&self) -> RoleId {
         RoleId::new(self.get())
     }
-
 }
 
 impl From<PartialGuild> for GuildId {

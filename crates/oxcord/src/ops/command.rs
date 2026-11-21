@@ -102,29 +102,22 @@ pub trait CommandExt: Sized {
     /// # Errors
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
-    async fn get_global_commands_with_localizations(
-        http: impl AsRef<Http>,
-    ) -> Result<Vec<Command>>;
+    async fn get_global_commands_with_localizations(http: impl AsRef<Http>)
+    -> Result<Vec<Command>>;
     #[cfg(feature = "model")]
     /// Gets a global command by its Id.
     ///
     /// # Errors
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
-    async fn get_global_command(
-        http: impl AsRef<Http>,
-        command_id: CommandId,
-    ) -> Result<Command>;
+    async fn get_global_command(http: impl AsRef<Http>, command_id: CommandId) -> Result<Command>;
     #[cfg(feature = "model")]
     /// Deletes a global command by its Id.
     ///
     /// # Errors
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
-    async fn delete_global_command(
-        http: impl AsRef<Http>,
-        command_id: CommandId,
-    ) -> Result<()>;
+    async fn delete_global_command(http: impl AsRef<Http>, command_id: CommandId) -> Result<()>;
 }
 impl CommandExt for Command {
     #[cfg(feature = "model")]
@@ -160,17 +153,11 @@ impl CommandExt for Command {
         http.as_ref().get_global_commands_with_localizations().await.map_err(From::from)
     }
     #[cfg(feature = "model")]
-    async fn get_global_command(
-        http: impl AsRef<Http>,
-        command_id: CommandId,
-    ) -> Result<Command> {
+    async fn get_global_command(http: impl AsRef<Http>, command_id: CommandId) -> Result<Command> {
         http.as_ref().get_global_command(command_id).await.map_err(From::from)
     }
     #[cfg(feature = "model")]
-    async fn delete_global_command(
-        http: impl AsRef<Http>,
-        command_id: CommandId,
-    ) -> Result<()> {
+    async fn delete_global_command(http: impl AsRef<Http>, command_id: CommandId) -> Result<()> {
         http.as_ref().delete_global_command(command_id).await.map_err(From::from)
     }
 }

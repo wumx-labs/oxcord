@@ -23,17 +23,15 @@ pub use quick_modal::*;
 
 pub use self::custom_message::CustomMessage;
 pub use self::message_builder::{Content, ContentModifier, EmbedMessageBuilding, MessageBuilder};
-#[cfg(all(feature = "cache", feature = "model"))]
-use crate::ops::guild_mod::GuildExt;
 #[doc(inline)]
 pub use self::token::validate as validate_token;
 #[cfg(all(feature = "cache", feature = "model"))]
 use crate::cache::Cache;
 use crate::model::prelude::*;
+#[cfg(all(feature = "cache", feature = "model"))]
+use crate::ops::guild_mod::GuildExt;
 
 pub use crate::model::parse::*;
-
-
 
 /// Tries to find a user's permissions using the cache. Unlike [`user_has_perms`], this function
 /// will return `true` even when the permissions are not in the cache.

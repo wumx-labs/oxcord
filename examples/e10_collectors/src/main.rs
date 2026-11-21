@@ -9,13 +9,7 @@ use oxcord::async_trait;
 use oxcord::collector::MessageCollector;
 use oxcord::framework::standard::macros::{command, group, help};
 use oxcord::framework::standard::{
-    help_commands,
-    Args,
-    CommandGroup,
-    CommandResult,
-    Configuration,
-    HelpOptions,
-    StandardFramework,
+    help_commands, Args, CommandGroup, CommandResult, Configuration, HelpOptions, StandardFramework,
 };
 // Collectors are streams, that means we can use `StreamExt` and `TryStreamExt`.
 use oxcord::futures::stream::StreamExt;

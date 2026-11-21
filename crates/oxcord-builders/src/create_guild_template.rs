@@ -1,7 +1,7 @@
-use crate::internal::prelude::*;
 use super::Builder;
-use oxcord_rest::CacheHttp;
+use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
+use oxcord_rest::CacheHttp;
 
 /// Builder for creating a guild template.
 ///
@@ -17,10 +17,7 @@ pub struct CreateGuildTemplate {
 impl CreateGuildTemplate {
     /// Creates a new builder with the given template name.
     pub fn new(name: impl Into<String>) -> Self {
-        Self {
-            name: name.into(),
-            description: None,
-        }
+        Self { name: name.into(), description: None }
     }
 
     /// Sets the name of the template.
@@ -66,4 +63,3 @@ mod tests {
         assert_eq!(json, r#"{"name":"My Template","description":"Template description"}"#);
     }
 }
-

@@ -1,8 +1,8 @@
 //! The HTTP module re-exported from `oxcord_rest`.
 
-#[cfg(any(feature = "cache", feature = "client"))]
-use std::sync::Arc;
 pub use oxcord_rest::*;
+#[cfg(feature = "cache")]
+use std::sync::Arc;
 
 #[cfg(feature = "cache")]
 use crate::cache::Cache;

@@ -105,24 +105,16 @@ impl CreateEmbed {
     /// for rules on naming local attachments.
     #[inline]
     pub fn image(mut self, url: impl Into<String>) -> Self {
-        self.0.image = Some(EmbedImage {
-            url: url.into(),
-            proxy_url: None,
-            height: None,
-            width: None,
-        });
+        self.0.image =
+            Some(EmbedImage { url: url.into(), proxy_url: None, height: None, width: None });
         self
     }
 
     /// Set the thumbnail of the embed.
     #[inline]
     pub fn thumbnail(mut self, url: impl Into<String>) -> Self {
-        self.0.thumbnail = Some(EmbedThumbnail {
-            url: url.into(),
-            proxy_url: None,
-            height: None,
-            width: None,
-        });
+        self.0.thumbnail =
+            Some(EmbedThumbnail { url: url.into(), proxy_url: None, height: None, width: None });
         self
     }
 
@@ -175,7 +167,7 @@ impl CreateEmbed {
         self.image(filename)
     }
 
-        pub(super) fn check_length(&self) -> Result<()> {
+    pub(super) fn check_length(&self) -> Result<()> {
         let mut length = 0;
         if let Some(ref author) = self.0.author {
             length += author.name.chars().count();

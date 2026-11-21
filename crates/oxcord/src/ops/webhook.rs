@@ -1,12 +1,12 @@
 #[cfg(feature = "model")]
-use secrecy::ExposeSecret;
-#[cfg(feature = "model")]
 use crate::builder::{Builder, EditWebhook, EditWebhookMessage, ExecuteWebhook};
 #[cfg(feature = "cache")]
 use crate::cache::{Cache, GuildChannelRef, GuildRef};
 #[cfg(feature = "model")]
 use crate::http::{CacheHttp, Http};
 use crate::model::prelude::*;
+#[cfg(feature = "model")]
+use secrecy::ExposeSecret;
 #[allow(async_fn_in_trait)]
 pub trait WebhookChannelExt: Sized {
     #[cfg(feature = "model")]
@@ -31,7 +31,8 @@ impl WebhookChannelExt for WebhookChannel {
     #[cfg(feature = "cache")]
     #[inline]
     fn to_channel_cached(self, cache: &Cache) -> Option<GuildChannelRef<'_>> {
-        #[allow(deprecated)] cache.channel(self.id)
+        #[allow(deprecated)]
+        cache.channel(self.id)
     }
     #[cfg(feature = "model")]
     #[inline]
@@ -72,10 +73,7 @@ pub trait WebhookExt: Sized {
     ///
     /// May also return an [`Error::Json`] if there is an error in deserialising Discord's
     /// response.
-    async fn from_id(
-        http: impl AsRef<Http>,
-        webhook_id: impl Into<WebhookId>,
-    ) -> Result<Self>;
+    async fn from_id(http: impl AsRef<Http>, webhook_id: impl Into<WebhookId>) -> Result<Self>;
     #[cfg(feature = "model")]
     /// Retrieves a webhook given its Id and unique token.
     ///
@@ -184,11 +182,7 @@ pub trait WebhookExt: Sized {
     /// May also return an [`Error::Http`] if the content is malformed, or if the token is invalid.
     ///
     /// Or may return an [`Error::Json`] if there is an error in deserialising Discord's response.
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditWebhook<'_>,
-    ) -> Result<()>;
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditWebhook<'_>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Executes a webhook with the fields set via the given builder.
     ///
@@ -337,10 +331,7 @@ pub trait WebhookExt: Sized {
 }
 impl WebhookExt for Webhook {
     #[cfg(feature = "model")]
-    async fn from_id(
-        http: impl AsRef<Http>,
-        webhook_id: impl Into<WebhookId>,
-    ) -> Result<Self> {
+    async fn from_id(http: impl AsRef<Http>, webhook_id: impl Into<WebhookId>) -> Result<Self> {
         http.as_ref().get_webhook(webhook_id.into()).await.map_err(From::from)
     }
     #[cfg(feature = "model")]
@@ -360,24 +351,16 @@ impl WebhookExt for Webhook {
     async fn delete(&self, http: impl AsRef<Http>) -> Result<()> {
         let http = http.as_ref();
         match &self.token {
-            Some(token) => {
-                http.delete_webhook_with_token(self.id, token.expose_secret(), None)
-                    .await.map_err(From::from)
-            }
+            Some(token) => http
+                .delete_webhook_with_token(self.id, token.expose_secret(), None)
+                .await
+                .map_err(From::from),
             None => http.delete_webhook(self.id, None).await.map_err(From::from),
         }
     }
     #[cfg(feature = "model")]
-    async fn edit(
-        &mut self,
-        cache_http: impl CacheHttp,
-        builder: EditWebhook<'_>,
-    ) -> Result<()> {
-        let token = self
-            .token
-            .as_ref()
-            .map(ExposeSecret::expose_secret)
-            .map(String::as_str);
+    async fn edit(&mut self, cache_http: impl CacheHttp, builder: EditWebhook<'_>) -> Result<()> {
+        let token = self.token.as_ref().map(ExposeSecret::expose_secret).map(String::as_str);
         *self = builder.execute(cache_http, (self.id, token)).await?;
         Ok(())
     }
@@ -400,7 +383,10 @@ impl WebhookExt for Webhook {
         message_id: MessageId,
     ) -> Result<Message> {
         let token = self.token.as_ref().ok_or(ModelError::NoTokenSet)?.expose_secret();
-        http.as_ref().get_webhook_message(self.id, thread_id, token, message_id).await.map_err(From::from)
+        http.as_ref()
+            .get_webhook_message(self.id, thread_id, token, message_id)
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
     async fn edit_message(
@@ -420,7 +406,10 @@ impl WebhookExt for Webhook {
         message_id: MessageId,
     ) -> Result<()> {
         let token = self.token.as_ref().ok_or(ModelError::NoTokenSet)?.expose_secret();
-        http.as_ref().delete_webhook_message(self.id, thread_id, token, message_id).await.map_err(From::from)
+        http.as_ref()
+            .delete_webhook_message(self.id, thread_id, token, message_id)
+            .await
+            .map_err(From::from)
     }
     #[cfg(feature = "model")]
     async fn refresh(&mut self, http: impl AsRef<Http>) -> Result<()> {
@@ -464,10 +453,7 @@ pub trait WebhookGuildExt: Sized {
     /// # Errors
     ///
     /// Returns an [`Error::Http`] if the current user is not in the guild.
-    async fn to_partial_guild_with_counts(
-        self,
-        http: impl AsRef<Http>,
-    ) -> Result<PartialGuild>;
+    async fn to_partial_guild_with_counts(self, http: impl AsRef<Http>) -> Result<PartialGuild>;
 }
 impl WebhookGuildExt for WebhookGuild {
     #[cfg(feature = "model")]
@@ -491,10 +477,7 @@ impl WebhookGuildExt for WebhookGuild {
     }
     #[cfg(feature = "model")]
     #[inline]
-    async fn to_partial_guild_with_counts(
-        self,
-        http: impl AsRef<Http>,
-    ) -> Result<PartialGuild> {
+    async fn to_partial_guild_with_counts(self, http: impl AsRef<Http>) -> Result<PartialGuild> {
         http.as_ref().get_guild_with_counts(self.id).await.map_err(From::from)
     }
 }

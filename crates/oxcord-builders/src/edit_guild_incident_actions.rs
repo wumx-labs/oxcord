@@ -1,6 +1,6 @@
 use crate::internal::prelude::*;
-use oxcord_rest::Http;
 use oxcord_model::prelude::*;
+use oxcord_rest::Http;
 
 /// A builder for editing guild incident actions.
 ///
@@ -38,7 +38,7 @@ impl EditGuildIncidentActions {
     /// Returns [`Error::Http`] if invalid data is given. See [Discord's docs] for more details.
     ///
     /// May also return [`Error::Json`] if there is an error in deserializing the API response.
-        pub async fn execute(self, http: &Http, guild_id: GuildId) -> Result<IncidentsData> {
+    pub async fn execute(self, http: &Http, guild_id: GuildId) -> Result<IncidentsData> {
         http.edit_guild_incident_actions(guild_id, &self).await
     }
 }

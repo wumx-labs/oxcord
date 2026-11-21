@@ -168,14 +168,17 @@ impl<'de> Visitor<'de> for EventVisitor {
                 // So, if order correct then we don't need to pass the RawValue back out.
                 Some("d") => match op {
                     Some(Opcode::Identify) => return Ok(map.next_value::<Identify>()?.into()),
-                    Some(Opcode::SelectProtocol) =>
-                        return Ok(map.next_value::<SelectProtocol>()?.into()),
+                    Some(Opcode::SelectProtocol) => {
+                        return Ok(map.next_value::<SelectProtocol>()?.into());
+                    },
                     Some(Opcode::Ready) => return Ok(map.next_value::<Ready>()?.into()),
                     Some(Opcode::Heartbeat) => return Ok(map.next_value::<Heartbeat>()?.into()),
-                    Some(Opcode::HeartbeatAck) =>
-                        return Ok(map.next_value::<HeartbeatAck>()?.into()),
-                    Some(Opcode::SessionDescription) =>
-                        return Ok(map.next_value::<SessionDescription>()?.into()),
+                    Some(Opcode::HeartbeatAck) => {
+                        return Ok(map.next_value::<HeartbeatAck>()?.into());
+                    },
+                    Some(Opcode::SessionDescription) => {
+                        return Ok(map.next_value::<SessionDescription>()?.into());
+                    },
                     Some(Opcode::Speaking) => return Ok(map.next_value::<Speaking>()?.into()),
                     Some(Opcode::Resume) => return Ok(map.next_value::<Resume>()?.into()),
                     Some(Opcode::Hello) => return Ok(map.next_value::<Hello>()?.into()),
@@ -183,43 +186,57 @@ impl<'de> Visitor<'de> for EventVisitor {
                         let _ = map.next_value::<Option<()>>()?;
                         return Ok(Event::Resumed);
                     },
-                    Some(Opcode::ClientConnect) =>
-                        return Ok(map.next_value::<ClientConnect>()?.into()),
-                    Some(Opcode::ClientDisconnect) =>
-                        return Ok(map.next_value::<ClientDisconnect>()?.into()),
-                    Some(Opcode::DavePrepareTransition) =>
-                        return Ok(Event::DavePrepareTransition(map.next_value()?)),
-                    Some(Opcode::DaveExecuteTransition) =>
-                        return Ok(Event::DaveExecuteTransition(map.next_value()?)),
-                    Some(Opcode::DaveTransitionReady) =>
-                        return Ok(Event::DaveTransitionReady(map.next_value()?)),
-                    Some(Opcode::DavePrepareEpoch) =>
-                        return Ok(Event::DavePrepareEpoch(map.next_value()?)),
-                    Some(Opcode::DaveMlsExternalSender) =>
-                        return Ok(Event::DaveMlsExternalSender(map.next_value()?)),
-                    Some(Opcode::DaveMlsKeyPackage) =>
-                        return Ok(Event::DaveMlsKeyPackage(map.next_value()?)),
-                    Some(Opcode::DaveMlsProposals) =>
-                        return Ok(Event::DaveMlsProposals(map.next_value()?)),
-                    Some(Opcode::DaveMlsCommitWelcome) =>
-                        return Ok(Event::DaveMlsCommitWelcome(map.next_value()?)),
-                    Some(Opcode::DaveMlsAnnounceCommitTransition) =>
-                        return Ok(Event::DaveMlsAnnounceCommitTransition(map.next_value()?)),
-                    Some(Opcode::DaveMlsWelcome) =>
-                        return Ok(Event::DaveMlsWelcome(map.next_value()?)),
-                    Some(Opcode::DaveMlsInvalidCommitWelcome) =>
-                        return Ok(Event::DaveMlsInvalidCommitWelcome(map.next_value()?)),
+                    Some(Opcode::ClientConnect) => {
+                        return Ok(map.next_value::<ClientConnect>()?.into());
+                    },
+                    Some(Opcode::ClientDisconnect) => {
+                        return Ok(map.next_value::<ClientDisconnect>()?.into());
+                    },
+                    Some(Opcode::DavePrepareTransition) => {
+                        return Ok(Event::DavePrepareTransition(map.next_value()?));
+                    },
+                    Some(Opcode::DaveExecuteTransition) => {
+                        return Ok(Event::DaveExecuteTransition(map.next_value()?));
+                    },
+                    Some(Opcode::DaveTransitionReady) => {
+                        return Ok(Event::DaveTransitionReady(map.next_value()?));
+                    },
+                    Some(Opcode::DavePrepareEpoch) => {
+                        return Ok(Event::DavePrepareEpoch(map.next_value()?));
+                    },
+                    Some(Opcode::DaveMlsExternalSender) => {
+                        return Ok(Event::DaveMlsExternalSender(map.next_value()?));
+                    },
+                    Some(Opcode::DaveMlsKeyPackage) => {
+                        return Ok(Event::DaveMlsKeyPackage(map.next_value()?));
+                    },
+                    Some(Opcode::DaveMlsProposals) => {
+                        return Ok(Event::DaveMlsProposals(map.next_value()?));
+                    },
+                    Some(Opcode::DaveMlsCommitWelcome) => {
+                        return Ok(Event::DaveMlsCommitWelcome(map.next_value()?));
+                    },
+                    Some(Opcode::DaveMlsAnnounceCommitTransition) => {
+                        return Ok(Event::DaveMlsAnnounceCommitTransition(map.next_value()?));
+                    },
+                    Some(Opcode::DaveMlsWelcome) => {
+                        return Ok(Event::DaveMlsWelcome(map.next_value()?));
+                    },
+                    Some(Opcode::DaveMlsInvalidCommitWelcome) => {
+                        return Ok(Event::DaveMlsInvalidCommitWelcome(map.next_value()?));
+                    },
                     None => {
                         d = Some(map.next_value::<&RawValue>()?);
                     },
                 },
                 Some(_) => {},
-                None =>
+                None => {
                     if d.is_none() {
                         return Err(DeError::missing_field("d"));
                     } else if op.is_none() {
                         return Err(DeError::missing_field("op"));
-                    },
+                    }
+                },
             }
 
             if d.is_some() && op.is_some() {
@@ -236,36 +253,47 @@ impl<'de> Visitor<'de> for EventVisitor {
             Opcode::Ready => serde_json::from_str::<Ready>(d).map(Into::into),
             Opcode::Heartbeat => serde_json::from_str::<Heartbeat>(d).map(Into::into),
             Opcode::HeartbeatAck => serde_json::from_str::<HeartbeatAck>(d).map(Into::into),
-            Opcode::SessionDescription =>
-                serde_json::from_str::<SessionDescription>(d).map(Into::into),
+            Opcode::SessionDescription => {
+                serde_json::from_str::<SessionDescription>(d).map(Into::into)
+            },
             Opcode::Speaking => serde_json::from_str::<Speaking>(d).map(Into::into),
             Opcode::Resume => serde_json::from_str::<Resume>(d).map(Into::into),
             Opcode::Hello => serde_json::from_str::<Hello>(d).map(Into::into),
             Opcode::Resumed => Ok(Event::Resumed),
             Opcode::ClientConnect => serde_json::from_str::<ClientConnect>(d).map(Into::into),
             Opcode::ClientDisconnect => serde_json::from_str::<ClientDisconnect>(d).map(Into::into),
-            Opcode::DavePrepareTransition =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DavePrepareTransition),
-            Opcode::DaveExecuteTransition =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveExecuteTransition),
-            Opcode::DaveTransitionReady =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveTransitionReady),
-            Opcode::DavePrepareEpoch =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DavePrepareEpoch),
-            Opcode::DaveMlsExternalSender =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsExternalSender),
-            Opcode::DaveMlsKeyPackage =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsKeyPackage),
-            Opcode::DaveMlsProposals =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsProposals),
-            Opcode::DaveMlsCommitWelcome =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsCommitWelcome),
-            Opcode::DaveMlsAnnounceCommitTransition =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsAnnounceCommitTransition),
-            Opcode::DaveMlsWelcome =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsWelcome),
-            Opcode::DaveMlsInvalidCommitWelcome =>
-                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsInvalidCommitWelcome),
+            Opcode::DavePrepareTransition => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DavePrepareTransition)
+            },
+            Opcode::DaveExecuteTransition => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveExecuteTransition)
+            },
+            Opcode::DaveTransitionReady => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveTransitionReady)
+            },
+            Opcode::DavePrepareEpoch => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DavePrepareEpoch)
+            },
+            Opcode::DaveMlsExternalSender => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsExternalSender)
+            },
+            Opcode::DaveMlsKeyPackage => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsKeyPackage)
+            },
+            Opcode::DaveMlsProposals => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsProposals)
+            },
+            Opcode::DaveMlsCommitWelcome => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsCommitWelcome)
+            },
+            Opcode::DaveMlsAnnounceCommitTransition => serde_json::from_str::<serde_json::Value>(d)
+                .map(Event::DaveMlsAnnounceCommitTransition),
+            Opcode::DaveMlsWelcome => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsWelcome)
+            },
+            Opcode::DaveMlsInvalidCommitWelcome => {
+                serde_json::from_str::<serde_json::Value>(d).map(Event::DaveMlsInvalidCommitWelcome)
+            },
         })
         .map_err(DeError::custom)
     }

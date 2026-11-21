@@ -9,11 +9,11 @@ use tokio_tungstenite::tungstenite::protocol::frame::CloseFrame;
 use tracing::{debug, error, info, instrument, trace, warn};
 use typemap_rev::TypeMap;
 
-use super::event::ShardStageUpdateEvent;
 #[cfg(feature = "collector")]
 use super::CollectorCallback;
 #[cfg(feature = "voice")]
 use super::VoiceGatewayManager;
+use super::event::ShardStageUpdateEvent;
 use super::{ShardId, ShardManager, ShardRunnerMessage};
 #[cfg(feature = "cache")]
 use crate::cache::Cache;
@@ -238,10 +238,7 @@ impl ShardRunner {
         drop(
             self.shard
                 .client
-                .close(Some(CloseFrame {
-                    code: close_code.into(),
-                    reason: Cow::from(""),
-                }))
+                .close(Some(CloseFrame { code: close_code.into(), reason: Cow::from("") }))
                 .await,
         );
 
@@ -288,26 +285,17 @@ impl ShardRunner {
         match msg {
             ShardRunnerMessage::Restart(id) => self.checked_shutdown(id, 4000).await,
             ShardRunnerMessage::Shutdown(id, code) => self.checked_shutdown(id, code).await,
-            ShardRunnerMessage::ChunkGuild {
-                guild_id,
-                limit,
-                presences,
-                filter,
-                nonce,
-            } => self
+            ShardRunnerMessage::ChunkGuild { guild_id, limit, presences, filter, nonce } => self
                 .shard
                 .chunk_guild(guild_id, limit, presences, filter, nonce.as_deref())
                 .await
                 .is_ok(),
-            ShardRunnerMessage::SoundboardSounds {
-                guild_ids,
-            } => self.shard.request_soundboard_sounds(&guild_ids).await.is_ok(),
+            ShardRunnerMessage::SoundboardSounds { guild_ids } => {
+                self.shard.request_soundboard_sounds(&guild_ids).await.is_ok()
+            },
             ShardRunnerMessage::Close(code, reason) => {
                 let reason = reason.unwrap_or_default();
-                let close = CloseFrame {
-                    code: code.into(),
-                    reason: Cow::from(reason),
-                };
+                let close = CloseFrame { code: code.into(), reason: Cow::from(reason) };
                 self.shard.client.close(Some(close)).await.is_ok()
             },
             ShardRunnerMessage::Message(msg) => self.shard.client.send(msg).await.is_ok(),
@@ -323,16 +311,12 @@ impl ShardRunner {
                 self.shard.set_status(status);
                 self.shard.update_presence().await.is_ok()
             },
-            ShardRunnerMessage::UpdateVoiceState {
-                guild_id,
-                channel_id,
-                self_mute,
-                self_deaf,
-            } => self
-                .shard
-                .update_voice_state(guild_id, channel_id, self_mute, self_deaf)
-                .await
-                .is_ok(),
+            ShardRunnerMessage::UpdateVoiceState { guild_id, channel_id, self_mute, self_deaf } => {
+                self.shard
+                    .update_voice_state(guild_id, channel_id, self_mute, self_deaf)
+                    .await
+                    .is_ok()
+            },
         }
     }
 
@@ -436,15 +420,21 @@ impl ShardRunner {
 
                 match why {
                     GatewayError::InvalidAuthentication => {
-                        self.manager.return_with_value(Err(GatewayError::InvalidAuthentication)).await;
+                        self.manager
+                            .return_with_value(Err(GatewayError::InvalidAuthentication))
+                            .await;
                         return Err(Error::Gateway(GatewayError::InvalidAuthentication));
                     },
                     GatewayError::InvalidGatewayIntents => {
-                        self.manager.return_with_value(Err(GatewayError::InvalidGatewayIntents)).await;
+                        self.manager
+                            .return_with_value(Err(GatewayError::InvalidGatewayIntents))
+                            .await;
                         return Err(Error::Gateway(GatewayError::InvalidGatewayIntents));
                     },
                     GatewayError::DisallowedGatewayIntents => {
-                        self.manager.return_with_value(Err(GatewayError::DisallowedGatewayIntents)).await;
+                        self.manager
+                            .return_with_value(Err(GatewayError::DisallowedGatewayIntents))
+                            .await;
                         return Err(Error::Gateway(GatewayError::DisallowedGatewayIntents));
                     },
                     _ => return Ok((None, None, true)),

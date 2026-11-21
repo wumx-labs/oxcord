@@ -9,7 +9,7 @@ use tracing::{debug, instrument, trace};
 
 use crate::crypto::VoiceCryptor;
 use crate::error::Result;
-use crate::rtp::{RtpPacketizer, FRAME_DURATION_MS, OPUS_SILENCE_FRAME};
+use crate::rtp::{FRAME_DURATION_MS, OPUS_SILENCE_FRAME, RtpPacketizer};
 
 /// Real-time audio driver for transmitting encrypted Opus frames over UDP.
 #[derive(Clone)]

@@ -1,7 +1,7 @@
-use oxcord_rest::CacheHttp;
 use crate::internal::prelude::Result;
 use oxcord_model::id::{EntitlementId, GuildId, SkuId, UserId};
 use oxcord_model::monetization::Entitlement;
+use oxcord_rest::CacheHttp;
 
 /// Builds a request to fetch active and ended [`Entitlement`]s.
 ///
