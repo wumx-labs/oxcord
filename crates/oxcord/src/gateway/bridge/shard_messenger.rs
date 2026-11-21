@@ -139,7 +139,9 @@ impl ShardMessenger {
     /// [`Guild`]: crate::model::guild::Guild
     /// [soundboard]: crate::model::soundboard::Soundboard
     pub fn request_soundboard_sounds(&self, guild_ids: Vec<GuildId>) {
-        self.send_to_shard(ShardRunnerMessage::SoundboardSounds { guild_ids });
+        self.send_to_shard(ShardRunnerMessage::SoundboardSounds {
+            guild_ids,
+        });
     }
 
     /// Sets the user's current activity, if any.

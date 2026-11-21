@@ -228,9 +228,10 @@ impl VoiceGatewayManager for VoiceStateTracker {
 
     async fn server_update(&self, guild_id: GuildId, endpoint: &Option<String>, token: &str) {
         let mut states = self.states.write().await;
-        let entry = states
-            .entry(guild_id)
-            .or_insert_with(|| VoiceConnectionState { guild_id, ..Default::default() });
+        let entry = states.entry(guild_id).or_insert_with(|| VoiceConnectionState {
+            guild_id,
+            ..Default::default()
+        });
 
         entry.endpoint.clone_from(endpoint);
         entry.token = Some(token.to_string());
@@ -246,9 +247,10 @@ impl VoiceGatewayManager for VoiceStateTracker {
         }
 
         let mut states = self.states.write().await;
-        let entry = states
-            .entry(guild_id)
-            .or_insert_with(|| VoiceConnectionState { guild_id, ..Default::default() });
+        let entry = states.entry(guild_id).or_insert_with(|| VoiceConnectionState {
+            guild_id,
+            ..Default::default()
+        });
 
         entry.channel_id = voice_state.channel_id;
         entry.session_id = Some(voice_state.session_id.clone());

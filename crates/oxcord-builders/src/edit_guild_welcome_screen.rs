@@ -1,7 +1,8 @@
-use super::Builder;
-use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
+
+use super::Builder;
+use crate::internal::prelude::*;
 
 /// A builder to edit the welcome screen of a guild
 ///

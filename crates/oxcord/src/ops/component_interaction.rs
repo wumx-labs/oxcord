@@ -1,7 +1,10 @@
 #[cfg(feature = "model")]
 use crate::builder::{
-    Builder, CreateInteractionResponse, CreateInteractionResponseFollowup,
-    CreateInteractionResponseMessage, EditInteractionResponse,
+    Builder,
+    CreateInteractionResponse,
+    CreateInteractionResponseFollowup,
+    CreateInteractionResponseMessage,
+    EditInteractionResponse,
 };
 #[cfg(feature = "collector")]
 use crate::client::Context;

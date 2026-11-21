@@ -1,7 +1,8 @@
-use super::Builder;
-use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
 use oxcord_rest::{CacheHttp, MessagePagination};
+
+use super::Builder;
+use crate::internal::prelude::*;
 
 /// Builds a request to the API to retrieve messages.
 ///

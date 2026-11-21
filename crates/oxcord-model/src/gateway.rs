@@ -398,14 +398,19 @@ pub struct ShardInfo {
 impl ShardInfo {
     #[must_use]
     pub const fn new(id: ShardId, total: u32) -> Self {
-        Self { id, total }
+        Self {
+            id,
+            total,
+        }
     }
 }
 
 impl<'de> serde::Deserialize<'de> for ShardInfo {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> StdResult<Self, D::Error> {
-        <(u32, u32)>::deserialize(deserializer)
-            .map(|(id, total)| ShardInfo { id: ShardId(id), total })
+        <(u32, u32)>::deserialize(deserializer).map(|(id, total)| ShardInfo {
+            id: ShardId(id),
+            total,
+        })
     }
 }
 

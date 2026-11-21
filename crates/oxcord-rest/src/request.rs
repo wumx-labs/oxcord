@@ -1,7 +1,13 @@
 use std::fmt::Write;
 
+use oxcord_model::constants;
 use reqwest::header::{
-    AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE, HeaderMap as Headers, HeaderValue, USER_AGENT,
+    AUTHORIZATION,
+    CONTENT_LENGTH,
+    CONTENT_TYPE,
+    HeaderMap as Headers,
+    HeaderValue,
+    USER_AGENT,
 };
 use reqwest::{Client, RequestBuilder as ReqwestRequestBuilder, Url};
 use tracing::instrument;
@@ -10,7 +16,6 @@ use super::multipart::Multipart;
 use super::routing::Route;
 use super::{HttpError, LightMethod};
 use crate::internal::prelude::*;
-use oxcord_model::constants;
 
 #[derive(Clone, Debug)]
 #[must_use]
@@ -25,7 +30,14 @@ pub struct Request<'a> {
 
 impl<'a> Request<'a> {
     pub const fn new(route: Route<'a>, method: LightMethod) -> Self {
-        Self { body: None, multipart: None, headers: None, method, route, params: None }
+        Self {
+            body: None,
+            multipart: None,
+            headers: None,
+            method,
+            route,
+            params: None,
+        }
     }
 
     pub fn body(mut self, body: Option<Vec<u8>>) -> Self {

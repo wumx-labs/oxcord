@@ -1,6 +1,8 @@
 use std::time::Duration;
 
 use futures::{SinkExt, StreamExt};
+use oxcord_voice_model::payload::*;
+use oxcord_voice_model::{Event, SpeakingState};
 use tokio::net::TcpStream;
 use tokio::time::timeout;
 use tokio_tungstenite::tungstenite::Message;
@@ -9,8 +11,6 @@ use tracing::{debug, instrument};
 use url::Url;
 
 use crate::error::{Result, VoiceError};
-use oxcord_voice_model::payload::*;
-use oxcord_voice_model::{Event, SpeakingState};
 
 pub type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
 
@@ -121,7 +121,10 @@ impl VoiceWsClient {
 
     /// Sends a [`Heartbeat`] message with the given nonce.
     pub async fn send_heartbeat(&mut self, nonce: u64) -> Result<()> {
-        self.send_event(&Event::Heartbeat(Heartbeat { nonce })).await
+        self.send_event(&Event::Heartbeat(Heartbeat {
+            nonce,
+        }))
+        .await
     }
 
     /// Returns the negotiated heartbeat interval.

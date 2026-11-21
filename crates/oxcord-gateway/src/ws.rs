@@ -4,12 +4,16 @@ use std::time::SystemTime;
 
 use flate2::read::ZlibDecoder;
 use futures::{SinkExt, StreamExt};
+use oxcord_model::constants::{self, Opcode};
+use oxcord_model::event::GatewayEvent;
+use oxcord_model::gateway::{GatewayIntents, ShardInfo};
+use oxcord_model::id::{ChannelId, GuildId, UserId};
+use oxcord_model::json::{from_slice, from_str, to_string};
 use serde::Serialize;
 use tokio::net::TcpStream;
 use tokio::time::{Duration, timeout};
-use tokio_tungstenite::tungstenite::Error as WsError;
-use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::tungstenite::protocol::{CloseFrame, WebSocketConfig};
+use tokio_tungstenite::tungstenite::{Error as WsError, Message};
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream, connect_async_with_config};
 use tracing::{debug, instrument, trace, warn};
 use url::Url;
@@ -17,11 +21,6 @@ use url::Url;
 use super::{ActivityData, ChunkGuildFilter, PresenceData};
 use crate::Result;
 use crate::error::GatewayError;
-use oxcord_model::constants::{self, Opcode};
-use oxcord_model::event::GatewayEvent;
-use oxcord_model::gateway::{GatewayIntents, ShardInfo};
-use oxcord_model::id::{ChannelId, GuildId, UserId};
-use oxcord_model::json::{from_slice, from_str, to_string};
 
 #[derive(Serialize)]
 struct IdentifyProperties {
@@ -130,8 +129,11 @@ fn decompress_payload(bytes: &[u8]) -> Result<Vec<u8>> {
 
 impl WsClient {
     pub async fn connect(url: Url) -> Result<Self> {
-        let config =
-            WebSocketConfig { max_message_size: None, max_frame_size: None, ..Default::default() };
+        let config = WebSocketConfig {
+            max_message_size: None,
+            max_frame_size: None,
+            ..Default::default()
+        };
         let (stream, _) = connect_async_with_config(url, Some(config), false).await?;
 
         Ok(Self(stream))
@@ -237,7 +239,9 @@ impl WsClient {
 
         self.send_json(&WebSocketMessage {
             op: Opcode::ReqeustSoundboardSounds,
-            d: WebSocketMessageData::SoundboardSounds { guild_ids },
+            d: WebSocketMessageData::SoundboardSounds {
+                guild_ids,
+            },
         })
         .await
     }
@@ -338,7 +342,11 @@ impl WsClient {
 
         self.send_json(&WebSocketMessage {
             op: Opcode::Resume,
-            d: WebSocketMessageData::Resume { session_id, token, seq },
+            d: WebSocketMessageData::Resume {
+                session_id,
+                token,
+                seq,
+            },
         })
         .await
     }
@@ -380,10 +388,12 @@ impl WsClient {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use std::io::Write;
+
     use flate2::Compression;
     use flate2::write::ZlibEncoder;
-    use std::io::Write;
+
+    use super::*;
 
     #[test]
     fn test_zlib_decompression() {

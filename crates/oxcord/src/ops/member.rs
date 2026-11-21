@@ -1,3 +1,6 @@
+#[cfg(feature = "cache")]
+use std::cmp::Reverse;
+
 #[cfg(feature = "model")]
 use crate::builder::EditMember;
 #[cfg(feature = "cache")]
@@ -7,8 +10,6 @@ use crate::http::{CacheHttp, Http};
 use crate::model::prelude::*;
 #[cfg(feature = "model")]
 use crate::model::utils::{avatar_url, user_banner_url};
-#[cfg(feature = "cache")]
-use std::cmp::Reverse;
 #[allow(async_fn_in_trait)]
 pub trait MemberExt: Sized {
     #[cfg(feature = "model")]

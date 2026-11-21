@@ -9,7 +9,8 @@
 //! WebSocket gateway connections and command processing. `oxcord-broker` decouples the
 //! architecture into distributed microservices:
 //!
-//! 1. **Gateway Sharder Nodes**: Connect to Discord Gateway WebSocket, publish events to broker topics.
+//! 1. **Gateway Sharder Nodes**: Connect to Discord Gateway WebSocket, publish events to broker
+//!    topics.
 //! 2. **Message Broker**: NATS, Redis Streams, or In-Process broadcast bus.
 //! 3. **Worker Nodes**: Subscribe to event topics, handle state cache, and execute bot commands.
 //! 4. **RPC Communication**: Cross-shard querying (e.g. asking Shard 42 for its voice status).
@@ -38,7 +39,11 @@ pub mod nats;
 pub mod kafka;
 
 pub use envelope::{
-    BrokerMessage, HEADER_CORRELATION_ID, HEADER_EVENT_NAME, HEADER_REPLY_TO, HEADER_SHARD_ID,
+    BrokerMessage,
+    HEADER_CORRELATION_ID,
+    HEADER_EVENT_NAME,
+    HEADER_REPLY_TO,
+    HEADER_SHARD_ID,
 };
 pub use error::{BrokerError, Result};
 pub use in_process::InProcessBroker;
@@ -53,9 +58,11 @@ pub use traits::{Broker, Subscription, SubscriptionStream};
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use serde::{Deserialize, Serialize};
     use std::time::Duration;
+
+    use serde::{Deserialize, Serialize};
+
+    use super::*;
 
     #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
     struct PingPayload {
@@ -70,7 +77,10 @@ mod tests {
 
         let mut sub = broker.subscribe(topic).await.expect("subscribe failed");
 
-        let payload = PingPayload { nonce: 12345, msg: "Guild Created".into() };
+        let payload = PingPayload {
+            nonce: 12345,
+            msg: "Guild Created".into(),
+        };
 
         let msg = BrokerMessage::from_json(topic, &payload)
             .expect("from_json failed")

@@ -1,13 +1,13 @@
 use std::error::Error as StdError;
 use std::fmt;
 
+use oxcord_model::json::*;
 use reqwest::header::InvalidHeaderValue;
 use reqwest::{Error as ReqwestError, Method, Response, StatusCode};
 use serde::de::{Deserialize, Deserializer, Error as _};
 use url::ParseError as UrlError;
 
 use crate::internal::prelude::*;
-use oxcord_model::json::*;
 
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 #[non_exhaustive]

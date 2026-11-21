@@ -6,7 +6,8 @@
 //! 2. **Distributed Broker**: Event distribution & RPC bus (InProcess, NATS, Redis, Kafka).
 //! 3. **Stateless Workers**: Horizontally scalable business logic & slash command handling.
 //! 4. **State Engine**: Centralized caching layer with zero lock contention.
-//! 5. **Cross-Service RPC**: Workers query gateway shard state and trigger administrative actions on demand.
+//! 5. **Cross-Service RPC**: Workers query gateway shard state and trigger administrative actions
+//!    on demand.
 //!
 //! ## Running
 //! ```sh

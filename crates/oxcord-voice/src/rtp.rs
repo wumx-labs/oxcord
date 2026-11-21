@@ -67,7 +67,12 @@ impl RtpHeader {
     /// Creates a new RTP header with the given sequence, timestamp, and SSRC.
     #[must_use]
     pub fn new(sequence: u16, timestamp: u32, ssrc: u32) -> Self {
-        Self { sequence, timestamp, ssrc, ..Default::default() }
+        Self {
+            sequence,
+            timestamp,
+            ssrc,
+            ..Default::default()
+        }
     }
 
     /// Serializes this header into a 12-byte array.
@@ -151,7 +156,11 @@ impl RtpPacketizer {
     /// Creates a new packetizer with the given SSRC. Sequence and timestamp start at 0.
     #[must_use]
     pub fn new(ssrc: u32) -> Self {
-        Self { ssrc, sequence: 0, timestamp: 0 }
+        Self {
+            ssrc,
+            sequence: 0,
+            timestamp: 0,
+        }
     }
 
     /// Produces the next [`RtpHeader`] and advances sequence and timestamp counters.

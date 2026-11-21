@@ -1,8 +1,22 @@
 #[cfg(feature = "model")]
+use std::sync::Arc;
+
+#[cfg(feature = "model")]
 use crate::builder::{
-    Builder, CreateAttachment, CreateForumPost, CreateInvite, CreateMessage, CreateStageInstance,
-    CreateThread, CreateWebhook, EditChannel, EditMessage, EditStageInstance, EditThread,
-    EditVoiceState, GetMessages,
+    Builder,
+    CreateAttachment,
+    CreateForumPost,
+    CreateInvite,
+    CreateMessage,
+    CreateStageInstance,
+    CreateThread,
+    CreateWebhook,
+    EditChannel,
+    EditMessage,
+    EditStageInstance,
+    EditThread,
+    EditVoiceState,
+    GetMessages,
 };
 #[cfg(feature = "cache")]
 use crate::cache::{self, Cache};
@@ -13,8 +27,6 @@ use crate::gateway::ShardMessenger;
 #[cfg(feature = "model")]
 use crate::http::{CacheHttp, Http, Typing};
 use crate::model::prelude::*;
-#[cfg(feature = "model")]
-use std::sync::Arc;
 #[allow(async_fn_in_trait)]
 pub trait GuildChannelExt: Sized {
     #[cfg(feature = "model")]

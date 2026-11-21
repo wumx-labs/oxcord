@@ -27,7 +27,9 @@ pub struct SubscriptionStream {
 impl SubscriptionStream {
     /// Wraps any [`Subscription`] into a [`Stream`].
     pub fn new(subscription: Box<dyn Subscription>) -> Self {
-        Self { subscription }
+        Self {
+            subscription,
+        }
     }
 }
 
@@ -48,7 +50,8 @@ impl Stream for SubscriptionStream {
 /// Designed to enable seamless horizontal scaling for Discord bots:
 /// - Gateway nodes publish Discord events to topics (e.g., `discord.events.message_create`).
 /// - Worker nodes subscribe to topics and process commands or state updates.
-/// - RPC (`request`) allows workers on different nodes to request data or invoke operations on specific shards.
+/// - RPC (`request`) allows workers on different nodes to request data or invoke operations on
+///   specific shards.
 #[async_trait]
 pub trait Broker: Send + Sync {
     /// Publishes a raw byte payload to the specified topic.

@@ -99,7 +99,9 @@ impl Broker for InProcessBroker {
     async fn subscribe(&self, topic: &str) -> Result<Box<dyn Subscription>> {
         let sender = self.get_or_create_sender(topic).await;
         let receiver = sender.subscribe();
-        Ok(Box::new(InProcessSubscription { receiver }))
+        Ok(Box::new(InProcessSubscription {
+            receiver,
+        }))
     }
 
     async fn request(&self, topic: &str, payload: &[u8], timeout: Duration) -> Result<Vec<u8>> {

@@ -44,6 +44,7 @@ pub type Result<T, E = HttpError> = std::result::Result<T, E>;
 
 use std::sync::Arc;
 
+use oxcord_model::prelude::*;
 use reqwest::Method;
 pub use reqwest::StatusCode;
 
@@ -54,7 +55,6 @@ pub use self::ratelimiting::*;
 pub use self::request::*;
 pub use self::routing::*;
 pub use self::typing::*;
-use oxcord_model::prelude::*;
 
 /// This trait will be required by functions that need [`Http`] and can optionally use a [`Cache`]
 /// to potentially avoid REST-requests.

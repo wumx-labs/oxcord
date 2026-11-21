@@ -2,6 +2,8 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 
+use oxcord_voice_model::payload::*;
+use oxcord_voice_model::{EncryptionMode, Event, ProtocolData};
 use tokio::net::UdpSocket;
 use tokio::sync::mpsc;
 use tracing::{debug, info, instrument};
@@ -11,8 +13,6 @@ use crate::driver::VoiceDriver;
 use crate::error::{Result, VoiceError};
 use crate::ip_discovery::perform_ip_discovery;
 use crate::ws::VoiceWsClient;
-use oxcord_voice_model::payload::*;
-use oxcord_voice_model::{EncryptionMode, Event, ProtocolData};
 
 /// An active connection to a Discord voice channel.
 ///
@@ -123,7 +123,13 @@ impl VoiceConnection {
         // Note: For full duplex WS, the heartbeat loop can run via shared sender
         // or during ws loop. Here we provide clean connection container.
 
-        Ok(Self { ws, driver, ready, session, shutdown_tx: Some(shutdown_tx) })
+        Ok(Self {
+            ws,
+            driver,
+            ready,
+            session,
+            shutdown_tx: Some(shutdown_tx),
+        })
     }
 
     /// Returns a reference to the [`VoiceDriver`] for audio transmission.

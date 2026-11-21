@@ -1,7 +1,8 @@
-use super::Builder;
-use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
+
+use super::Builder;
+use crate::internal::prelude::*;
 
 /// A builder which edits a user's voice state, to be used in conjunction with
 /// [`GuildChannel::edit_voice_state`].

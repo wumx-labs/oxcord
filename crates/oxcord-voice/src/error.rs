@@ -1,5 +1,4 @@
-use std::fmt;
-use std::io;
+use std::{fmt, io};
 
 /// Results returned by operations in `oxcord-voice`.
 pub type Result<T> = std::result::Result<T, VoiceError>;

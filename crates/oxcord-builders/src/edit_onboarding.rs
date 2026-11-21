@@ -1,7 +1,8 @@
-use super::Builder;
-use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
+
+use super::Builder;
+use crate::internal::prelude::*;
 
 /// Builder for modifying guild onboarding.
 ///

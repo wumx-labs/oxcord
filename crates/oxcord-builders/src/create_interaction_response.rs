@@ -1,14 +1,21 @@
-use super::create_poll::Ready;
-use super::{Builder, check_overflow};
-use super::{
-    CreateActionRow, CreateAllowedMentions, CreateAttachment, CreateComponent, CreateEmbed,
-    CreatePoll, EditAttachments,
-};
-use crate::internal::prelude::*;
 use oxcord_model::constants;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
 use serde::Serialize;
+
+use super::create_poll::Ready;
+use super::{
+    Builder,
+    CreateActionRow,
+    CreateAllowedMentions,
+    CreateAttachment,
+    CreateComponent,
+    CreateEmbed,
+    CreatePoll,
+    EditAttachments,
+    check_overflow,
+};
+use crate::internal::prelude::*;
 
 /// [Discord docs](https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-response-object).
 #[derive(Clone, Debug)]
@@ -75,20 +82,17 @@ impl serde::Serialize for CreateInteractionResponse {
         use serde::ser::SerializeMap as _;
 
         let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry(
-            "type",
-            &match self {
-                Self::Pong => 1,
-                Self::Message(_) => 4,
-                Self::Defer(_) => 5,
-                Self::Acknowledge => 6,
-                Self::UpdateMessage(_) => 7,
-                Self::Autocomplete(_) => 8,
-                Self::Modal(_) => 9,
-                Self::PremiumRequired => 10,
-                Self::LaunchActivity => 12,
-            },
-        )?;
+        map.serialize_entry("type", &match self {
+            Self::Pong => 1,
+            Self::Message(_) => 4,
+            Self::Defer(_) => 5,
+            Self::Acknowledge => 6,
+            Self::UpdateMessage(_) => 7,
+            Self::Autocomplete(_) => 8,
+            Self::Modal(_) => 9,
+            Self::PremiumRequired => 10,
+            Self::LaunchActivity => 12,
+        })?;
 
         match self {
             Self::Autocomplete(x) => map.serialize_entry("data", &x)?,
@@ -339,7 +343,8 @@ impl CreateInteractionResponseMessage {
         self
     }
 
-    /// Sets Components V2 for this interaction response, automatically setting the [`InteractionResponseFlags::IS_COMPONENTS_V2`] flag.
+    /// Sets Components V2 for this interaction response, automatically setting the
+    /// [`InteractionResponseFlags::IS_COMPONENTS_V2`] flag.
     pub fn components_v2(mut self, components: Vec<CreateComponent>) -> Self {
         let mut flags = self.flags.unwrap_or_default();
         flags |= InteractionResponseFlags::IS_COMPONENTS_V2;

@@ -13,9 +13,9 @@ pub(crate) mod internal;
 pub(crate) use oxcord_rest::HttpError as Error;
 pub use oxcord_rest::{CacheHttp, Http};
 pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
-use crate::internal::prelude::*;
-
 pub use oxcord_rest::builder::{CreateAllowedMentions, CreateAttachment, EditAttachments};
+
+use crate::internal::prelude::*;
 
 /// Common trait for all HTTP request builders in this module.
 #[async_trait::async_trait]

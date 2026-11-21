@@ -433,9 +433,9 @@ impl IntoFuture for ClientBuilder {
 /// "ping-pong" bot is simple:
 ///
 /// ```no_run
+/// use oxcord::Client;
 /// use oxcord::model::prelude::*;
 /// use oxcord::prelude::*;
-/// use oxcord::Client;
 ///
 /// struct Handler;
 ///

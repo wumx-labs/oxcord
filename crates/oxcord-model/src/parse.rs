@@ -170,7 +170,10 @@ pub fn parse_role_mention(mention: &str) -> Option<RoleId> {
 /// use oxcord_model::id::ChannelId;
 /// use oxcord_model::parse::parse_channel_mention;
 ///
-/// assert_eq!(parse_channel_mention("<#81384788765712384>"), Some(ChannelId::new(81384788765712384)));
+/// assert_eq!(
+///     parse_channel_mention("<#81384788765712384>"),
+///     Some(ChannelId::new(81384788765712384))
+/// );
 /// ```
 ///
 /// Asserting that an invalid channel mention returns [`None`]:
@@ -258,7 +261,11 @@ pub fn parse_emoji(mention: impl AsRef<str>) -> Option<EmojiIdentifier> {
             name.push(x);
         }
 
-        id.parse().ok().map(|id| EmojiIdentifier { animated, id, name })
+        id.parse().ok().map(|id| EmojiIdentifier {
+            animated,
+            id,
+            name,
+        })
     } else {
         None
     }

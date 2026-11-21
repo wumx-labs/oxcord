@@ -40,7 +40,8 @@ impl VoiceDriver {
 
     /// Encrypts and transmits a single Opus audio frame over UDP.
     ///
-    /// The frame should contain valid Opus-encoded audio (typically representing 20ms of 48kHz audio).
+    /// The frame should contain valid Opus-encoded audio (typically representing 20ms of 48kHz
+    /// audio).
     ///
     /// # Errors
     /// Returns [`VoiceError`] if encryption or UDP socket transmission fails.
@@ -61,7 +62,8 @@ impl VoiceDriver {
         Ok(())
     }
 
-    /// Sends a sequence of Opus silence frames (`[0xF8, 0xFF, 0xFE]`) to initialize or terminate transmission.
+    /// Sends a sequence of Opus silence frames (`[0xF8, 0xFF, 0xFE]`) to initialize or terminate
+    /// transmission.
     ///
     /// Discord requires at least 5 silence frames to avoid audio popping or buffer underrun.
     ///

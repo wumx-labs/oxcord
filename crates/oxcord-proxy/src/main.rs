@@ -4,7 +4,8 @@
 //!
 //! - Runs as a standalone HTTP proxy daemon.
 //! - Centrally coordinates Discord rate limit buckets across hundreds of worker containers.
-//! - Injects the Discord Bot token securely so individual worker nodes don't need direct token exposure.
+//! - Injects the Discord Bot token securely so individual worker nodes don't need direct token
+//!   exposure.
 //! - Completely prevents HTTP 429 Cloudflare bans for enterprise-scale bot fleets.
 
 use std::env;

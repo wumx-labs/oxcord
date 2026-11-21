@@ -101,7 +101,8 @@ impl KeyValueStore for MemoryKeyValueStore {
     }
 }
 
-/// A [`StateBackend`] implementation that stores serialized JSON entities in an underlying [`KeyValueStore`].
+/// A [`StateBackend`] implementation that stores serialized JSON entities in an underlying
+/// [`KeyValueStore`].
 ///
 /// Keys are namespaced with the given prefix (defaulting to `"oxcord"`):
 /// - `{prefix}:guild:{guild_id}`
@@ -125,7 +126,10 @@ impl<KV: KeyValueStore> KeyValueStateBackend<KV> {
 
     /// Creates a new `KeyValueStateBackend` with a custom namespace prefix.
     pub fn with_prefix(store: KV, prefix: impl Into<String>) -> Self {
-        Self { store: Arc::new(store), prefix: prefix.into() }
+        Self {
+            store: Arc::new(store),
+            prefix: prefix.into(),
+        }
     }
 
     fn key_guild(&self, id: GuildId) -> String {

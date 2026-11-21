@@ -1,12 +1,13 @@
 #[cfg(feature = "model")]
+use secrecy::ExposeSecret;
+
+#[cfg(feature = "model")]
 use crate::builder::{Builder, EditWebhook, EditWebhookMessage, ExecuteWebhook};
 #[cfg(feature = "cache")]
 use crate::cache::{Cache, GuildChannelRef, GuildRef};
 #[cfg(feature = "model")]
 use crate::http::{CacheHttp, Http};
 use crate::model::prelude::*;
-#[cfg(feature = "model")]
-use secrecy::ExposeSecret;
 #[allow(async_fn_in_trait)]
 pub trait WebhookChannelExt: Sized {
     #[cfg(feature = "model")]

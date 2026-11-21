@@ -1,6 +1,11 @@
 use std::sync::Arc;
 use std::time::{Duration as StdDuration, Instant};
 
+use oxcord_model::constants::{self, close_codes};
+use oxcord_model::event::{Event, GatewayEvent};
+use oxcord_model::gateway::{GatewayIntents, ShardInfo};
+use oxcord_model::id::{ApplicationId, ChannelId, GuildId};
+use oxcord_model::user::OnlineStatus;
 use tokio::sync::Mutex;
 use tokio_tungstenite::tungstenite::error::Error as TungsteniteError;
 use tokio_tungstenite::tungstenite::protocol::frame::CloseFrame;
@@ -8,15 +13,16 @@ use tracing::{debug, error, info, instrument, trace, warn};
 use url::Url;
 
 use super::{
-    ActivityData, ChunkGuildFilter, ConnectionStage, GatewayError, PresenceData, ReconnectType,
-    ShardAction, WsClient,
+    ActivityData,
+    ChunkGuildFilter,
+    ConnectionStage,
+    GatewayError,
+    PresenceData,
+    ReconnectType,
+    ShardAction,
+    WsClient,
 };
 use crate::internal::prelude::*;
-use oxcord_model::constants::{self, close_codes};
-use oxcord_model::event::{Event, GatewayEvent};
-use oxcord_model::gateway::{GatewayIntents, ShardInfo};
-use oxcord_model::id::{ApplicationId, ChannelId, GuildId};
-use oxcord_model::user::OnlineStatus;
 
 /// A Shard is a higher-level handler for a websocket connection to Discord's gateway.
 ///

@@ -3,8 +3,10 @@
 //! Demonstrates the OXCORD Message Broker architecture for enterprise-scale bots:
 //!
 //! - **Gateway Node Task**: Publishes incoming Discord events to broker topics.
-//! - **Worker Node Task**: Subscribes to events and processes business logic without holding WebSocket connections.
-//! - **Cross-Shard RPC**: Worker calls an RPC topic to query shard latency, and the Gateway responds automatically.
+//! - **Worker Node Task**: Subscribes to events and processes business logic without holding
+//!   WebSocket connections.
+//! - **Cross-Shard RPC**: Worker calls an RPC topic to query shard latency, and the Gateway
+//!   responds automatically.
 //!
 //! ## Running
 //! ```sh
@@ -34,7 +36,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Initializing distributed bot cluster using InProcessBroker…");
 
-    // In a multi-machine setup, replace InProcessBroker with NatsBroker::connect(...) or RedisBroker::new(...)
+    // In a multi-machine setup, replace InProcessBroker with NatsBroker::connect(...) or
+    // RedisBroker::new(...)
     let broker = InProcessBroker::new();
 
     // -----------------------------------------------------------------------

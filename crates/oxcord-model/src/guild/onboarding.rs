@@ -71,7 +71,8 @@ pub struct OnboardingPrompt {
     pub single_select: bool,
     /// Indicates whether users are required to answer this prompt before completing onboarding.
     pub required: bool,
-    /// Indicates whether the prompt is present in the onboarding flow. If false, it will only appear in the Channels & Roles tab.
+    /// Indicates whether the prompt is present in the onboarding flow. If false, it will only
+    /// appear in the Channels & Roles tab.
     pub in_onboarding: bool,
 }
 

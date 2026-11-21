@@ -1,6 +1,7 @@
-use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
 use oxcord_rest::Http;
+
+use crate::internal::prelude::*;
 
 /// A builder for editing guild incident actions.
 ///

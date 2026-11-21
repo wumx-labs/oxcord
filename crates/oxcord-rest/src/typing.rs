@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use oxcord_model::id::ChannelId;
 use tokio::sync::oneshot::error::TryRecvError;
 use tokio::sync::oneshot::{self, Sender};
 use tokio::time::{Duration, sleep};
@@ -7,7 +8,6 @@ use tokio::time::{Duration, sleep};
 use crate::client::Http;
 use crate::internal::prelude::*;
 use crate::internal::tokio::spawn_named;
-use oxcord_model::id::ChannelId;
 
 /// A struct to start typing in a [`Channel`] for an indefinite period of time.
 ///

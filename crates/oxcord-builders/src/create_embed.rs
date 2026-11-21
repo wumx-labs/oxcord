@@ -1,10 +1,9 @@
-use crate::internal::prelude::*;
 // Developer note:
 //
 // This is a set of embed builders for rich embeds.
 //
-// These are used in the [`ChannelId::send_message`] and [`ExecuteWebhook::embeds`] methods, both
-// as part of builders.
+// These are used in the [`ChannelId::send_message`] and [`ExecuteWebhook::embeds`] methods,
+// both as part of builders.
 //
 // The only builder that should be exposed is [`CreateEmbed`]. The rest of these have no real
 // reason for being exposed, but are for completeness' sake.
@@ -14,8 +13,9 @@ use crate::internal::prelude::*;
 // [`ChannelId::send_message`]: oxcord_model::id::ChannelId::send_message
 // [`ExecuteWebhook::embeds`]: crate::builder::ExecuteWebhook::embeds
 // [here]: https://docs.discord.com/developers/resources/message#embed-object
-
 use oxcord_model::prelude::*;
+
+use crate::internal::prelude::*;
 
 /// A builder to create an embed in a message
 ///
@@ -105,16 +105,24 @@ impl CreateEmbed {
     /// for rules on naming local attachments.
     #[inline]
     pub fn image(mut self, url: impl Into<String>) -> Self {
-        self.0.image =
-            Some(EmbedImage { url: url.into(), proxy_url: None, height: None, width: None });
+        self.0.image = Some(EmbedImage {
+            url: url.into(),
+            proxy_url: None,
+            height: None,
+            width: None,
+        });
         self
     }
 
     /// Set the thumbnail of the embed.
     #[inline]
     pub fn thumbnail(mut self, url: impl Into<String>) -> Self {
-        self.0.thumbnail =
-            Some(EmbedThumbnail { url: url.into(), proxy_url: None, height: None, width: None });
+        self.0.thumbnail = Some(EmbedThumbnail {
+            url: url.into(),
+            proxy_url: None,
+            height: None,
+            width: None,
+        });
         self
     }
 

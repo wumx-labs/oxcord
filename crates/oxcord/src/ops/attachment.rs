@@ -1,6 +1,7 @@
-use crate::model::prelude::*;
 #[cfg(feature = "model")]
 use reqwest::Client as ReqwestClient;
+
+use crate::model::prelude::*;
 #[allow(async_fn_in_trait)]
 pub trait AttachmentExt: Sized {
     #[cfg(feature = "model")]

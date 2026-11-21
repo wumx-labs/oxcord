@@ -13,7 +13,11 @@ use ed25519_dalek::Verifier as _;
 #[cfg(feature = "builder")]
 use crate::builder::{CreateAutocompleteResponse, CreateInteractionResponse};
 use crate::model::application::{
-    CommandInteraction, ComponentInteraction, Interaction, ModalInteraction, PingInteraction,
+    CommandInteraction,
+    ComponentInteraction,
+    Interaction,
+    ModalInteraction,
+    PingInteraction,
 };
 
 /// Fast hex parser for fixed-size byte buffers without allocations.
@@ -174,8 +178,8 @@ impl Verifier {
         }
     }
 
-    /// Verifies a Discord request using a caller-provided reusable scratch buffer for zero allocations
-    /// regardless of payload size.
+    /// Verifies a Discord request using a caller-provided reusable scratch buffer for zero
+    /// allocations regardless of payload size.
     ///
     /// # Errors
     /// Returns [`VerificationError`] if the signature hex is invalid or verification fails.
@@ -269,13 +273,21 @@ impl InteractionResponseOutput {
     /// Constructs a JSON 200 OK response.
     #[must_use]
     pub fn json(body: Vec<u8>) -> Self {
-        Self { status: 200, content_type: "application/json", body }
+        Self {
+            status: 200,
+            content_type: "application/json",
+            body,
+        }
     }
 
     /// Constructs an empty 204 No Content response.
     #[must_use]
     pub fn no_content() -> Self {
-        Self { status: 204, content_type: "text/plain", body: Vec::new() }
+        Self {
+            status: 204,
+            content_type: "text/plain",
+            body: Vec::new(),
+        }
     }
 }
 
@@ -284,7 +296,8 @@ impl InteractionResponseOutput {
 pub enum InteractionProcessingError {
     /// Request signature verification failed. The HTTP server should reply with 401 Unauthorized.
     Verification(VerificationError),
-    /// Request body could not be parsed as a valid Discord [`Interaction`]. The HTTP server should reply with 400 Bad Request.
+    /// Request body could not be parsed as a valid Discord [`Interaction`]. The HTTP server should
+    /// reply with 400 Bad Request.
     InvalidJson(serde_json::Error),
     /// Handler response could not be serialized to JSON.
     Serialization(serde_json::Error),
@@ -346,8 +359,9 @@ pub async fn process_interaction<H: InteractionHandler>(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use ed25519_dalek::Signer as _;
+
+    use super::*;
 
     fn test_keys() -> (ed25519_dalek::SigningKey, Verifier) {
         let seed = [42u8; 32];

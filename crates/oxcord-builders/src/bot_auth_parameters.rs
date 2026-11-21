@@ -1,9 +1,9 @@
-use crate::internal::prelude::*;
 use arrayvec::ArrayVec;
-use url::Url;
-
 use oxcord_model::prelude::*;
 use oxcord_rest::Http;
+use url::Url;
+
+use crate::internal::prelude::*;
 
 /// A builder for constructing an invite link with custom OAuth2 scopes.
 #[derive(Debug, Clone, Default)]

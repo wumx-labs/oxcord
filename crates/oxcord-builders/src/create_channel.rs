@@ -1,8 +1,9 @@
-use super::Builder;
-use crate::internal::prelude::*;
 use oxcord_model::channel::PermissionOverwriteData;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
+
+use super::Builder;
+use crate::internal::prelude::*;
 
 /// A builder for creating a new [`GuildChannel`] in a [`Guild`].
 ///

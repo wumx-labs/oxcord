@@ -42,12 +42,16 @@ impl NatsBroker {
         let client = async_nats::connect(nats_url)
             .await
             .map_err(|e| BrokerError::Transport(e.to_string()))?;
-        Ok(Self { client })
+        Ok(Self {
+            client,
+        })
     }
 
     /// Creates a `NatsBroker` from an existing [`async_nats::Client`].
     pub fn from_client(client: async_nats::Client) -> Self {
-        Self { client }
+        Self {
+            client,
+        }
     }
 }
 
@@ -68,7 +72,10 @@ impl Broker for NatsBroker {
             .await
             .map_err(|e| BrokerError::Transport(e.to_string()))?;
 
-        Ok(Box::new(NatsSubscription { subscriber, topic: topic.to_string() }))
+        Ok(Box::new(NatsSubscription {
+            subscriber,
+            topic: topic.to_string(),
+        }))
     }
 
     async fn request(&self, topic: &str, payload: &[u8], timeout: Duration) -> Result<Vec<u8>> {

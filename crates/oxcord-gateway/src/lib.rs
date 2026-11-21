@@ -60,7 +60,12 @@ impl ActivityData {
     /// Creates an activity that appears as `Playing <name>`.
     #[must_use]
     pub fn playing(name: impl Into<String>) -> Self {
-        Self { name: name.into(), kind: ActivityType::Playing, state: None, url: None }
+        Self {
+            name: name.into(),
+            kind: ActivityType::Playing,
+            state: None,
+            url: None,
+        }
     }
 
     /// Creates an activity that appears as `Streaming <name>`.
@@ -81,19 +86,34 @@ impl ActivityData {
     /// Creates an activity that appears as `Listening to <name>`.
     #[must_use]
     pub fn listening(name: impl Into<String>) -> Self {
-        Self { name: name.into(), kind: ActivityType::Listening, state: None, url: None }
+        Self {
+            name: name.into(),
+            kind: ActivityType::Listening,
+            state: None,
+            url: None,
+        }
     }
 
     /// Creates an activity that appears as `Watching <name>`.
     #[must_use]
     pub fn watching(name: impl Into<String>) -> Self {
-        Self { name: name.into(), kind: ActivityType::Watching, state: None, url: None }
+        Self {
+            name: name.into(),
+            kind: ActivityType::Watching,
+            state: None,
+            url: None,
+        }
     }
 
     /// Creates an activity that appears as `Competing in <name>`.
     #[must_use]
     pub fn competing(name: impl Into<String>) -> Self {
-        Self { name: name.into(), kind: ActivityType::Competing, state: None, url: None }
+        Self {
+            name: name.into(),
+            kind: ActivityType::Competing,
+            state: None,
+            url: None,
+        }
     }
 
     /// Creates an activity that appears as `<state>`.
@@ -112,7 +132,12 @@ impl ActivityData {
 
 impl From<Activity> for ActivityData {
     fn from(activity: Activity) -> Self {
-        Self { name: activity.name, kind: activity.kind, state: activity.state, url: activity.url }
+        Self {
+            name: activity.name,
+            kind: activity.kind,
+            state: activity.state,
+            url: activity.url,
+        }
     }
 }
 

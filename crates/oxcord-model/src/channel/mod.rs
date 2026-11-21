@@ -201,7 +201,11 @@ impl std::convert::TryFrom<PermissionOverwriteData> for PermissionOverwrite {
             raw => return Err(InvalidPermissionOverwriteType(raw)),
         };
 
-        Ok(PermissionOverwrite { allow: data.allow, deny: data.deny, kind })
+        Ok(PermissionOverwrite {
+            allow: data.allow,
+            deny: data.deny,
+            kind,
+        })
     }
 }
 
@@ -212,7 +216,12 @@ impl From<PermissionOverwrite> for PermissionOverwriteData {
             PermissionOverwriteType::Member(id) => (1, id.into()),
         };
 
-        PermissionOverwriteData { allow: data.allow, deny: data.deny, kind, id }
+        PermissionOverwriteData {
+            allow: data.allow,
+            deny: data.deny,
+            kind,
+            id,
+        }
     }
 }
 

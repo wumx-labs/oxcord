@@ -1,7 +1,6 @@
 use arrayvec::ArrayVec;
-use serde::{Deserialize, Serialize};
-
 use oxcord_model::prelude::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]

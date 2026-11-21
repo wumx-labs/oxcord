@@ -1,10 +1,12 @@
+#[cfg(doc)]
+use std::fmt::Display as _;
+
+#[cfg(feature = "model")]
+use tracing::warn;
+
 #[cfg(feature = "model")]
 use crate::http::{CacheHttp, Http};
 use crate::model::prelude::*;
-#[cfg(doc)]
-use std::fmt::Display as _;
-#[cfg(feature = "model")]
-use tracing::warn;
 #[allow(async_fn_in_trait)]
 pub trait ReactionExt: Sized {
     #[cfg(feature = "model")]

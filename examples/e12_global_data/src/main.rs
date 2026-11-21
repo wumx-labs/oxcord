@@ -1,6 +1,7 @@
 //! In this example, you will be shown various ways of sharing data between events and commands.
 //! And how to use locks correctly to avoid deadlocking the bot.
-#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command framework.
+#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command
+                      // framework.
 
 use std::collections::HashMap;
 use std::env;

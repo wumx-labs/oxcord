@@ -14,8 +14,6 @@ mod configuration;
 mod parse;
 mod structures;
 
-#[cfg(feature = "model")]
-use crate::ops::*;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -44,6 +42,8 @@ use crate::model::guild::Member;
 use crate::model::permissions::Permissions;
 #[cfg(all(feature = "cache", feature = "http", feature = "model"))]
 use crate::model::{guild::Role, id::RoleId};
+#[cfg(feature = "model")]
+use crate::ops::*;
 
 /// An enum representing all possible fail conditions under which a command won't be executed.
 #[derive(Debug)]
@@ -147,8 +147,8 @@ impl StandardFramework {
     /// # use oxcord::prelude::*;
     /// # struct Handler;
     /// # impl EventHandler for Handler {}
-    /// use oxcord::framework::standard::{Configuration, StandardFramework};
     /// use oxcord::Client;
+    /// use oxcord::framework::standard::{Configuration, StandardFramework};
     ///
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
     /// let framework = StandardFramework::new();
@@ -219,13 +219,19 @@ impl StandardFramework {
     ) -> Option<DispatchError> {
         if let Some(min) = command.min_args {
             if args.len() < min as usize {
-                return Some(DispatchError::NotEnoughArguments { min, given: args.len() });
+                return Some(DispatchError::NotEnoughArguments {
+                    min,
+                    given: args.len(),
+                });
             }
         }
 
         if let Some(max) = command.max_args {
             if args.len() > max as usize {
-                return Some(DispatchError::TooManyArguments { max, given: args.len() });
+                return Some(DispatchError::TooManyArguments {
+                    max,
+                    given: args.len(),
+                });
             }
         }
 
@@ -401,9 +407,9 @@ impl StandardFramework {
     /// ```rust,no_run
     /// # use oxcord::prelude::*;
     /// # use oxcord::model::prelude::*;
-    /// use oxcord::framework::standard::macros::hook;
-    /// use oxcord::framework::standard::DispatchError;
     /// use oxcord::framework::StandardFramework;
+    /// use oxcord::framework::standard::DispatchError;
+    /// use oxcord::framework::standard::macros::hook;
     ///
     /// #[hook]
     /// async fn dispatch_error_hook(
@@ -460,8 +466,8 @@ impl StandardFramework {
     /// ```rust,no_run
     /// # use oxcord::prelude::*;
     /// # use oxcord::model::prelude::*;
-    /// use oxcord::framework::standard::macros::hook;
     /// use oxcord::framework::StandardFramework;
+    /// use oxcord::framework::standard::macros::hook;
     ///
     /// #[hook]
     /// async fn before_hook(_: &Context, _: &Message, cmd_name: &str) -> bool {
@@ -476,8 +482,8 @@ impl StandardFramework {
     /// ```rust,no_run
     /// # use oxcord::prelude::*;
     /// # use oxcord::model::prelude::*;
-    /// use oxcord::framework::standard::macros::hook;
     /// use oxcord::framework::StandardFramework;
+    /// use oxcord::framework::standard::macros::hook;
     ///
     /// #[hook]
     /// async fn before_hook(ctx: &Context, msg: &Message, cmd_name: &str) -> bool {
@@ -512,9 +518,9 @@ impl StandardFramework {
     /// ```rust,no_run
     /// # use oxcord::prelude::*;
     /// # use oxcord::model::prelude::*;
-    /// use oxcord::framework::standard::macros::hook;
-    /// use oxcord::framework::standard::CommandError;
     /// use oxcord::framework::StandardFramework;
+    /// use oxcord::framework::standard::CommandError;
+    /// use oxcord::framework::standard::macros::hook;
     ///
     /// #[hook]
     /// async fn after_hook(_: &Context, _: &Message, cmd_name: &str, error: Result<(), CommandError>) {
@@ -542,8 +548,8 @@ impl StandardFramework {
     /// ```rust,no_run
     /// # use oxcord::prelude::*;
     /// # use oxcord::model::prelude::*;
-    /// use oxcord::framework::standard::macros::hook;
     /// use oxcord::framework::StandardFramework;
+    /// use oxcord::framework::standard::macros::hook;
     ///
     /// #[hook]
     /// async fn unrecognised_command_hook(
@@ -575,8 +581,8 @@ impl StandardFramework {
     /// ```rust,no_run
     /// # use oxcord::prelude::*;
     /// # use oxcord::model::prelude::*;
-    /// use oxcord::framework::standard::macros::hook;
     /// use oxcord::framework::StandardFramework;
+    /// use oxcord::framework::standard::macros::hook;
     ///
     /// #[hook]
     /// async fn normal_message_hook(_: &Context, msg: &Message) {
@@ -607,7 +613,10 @@ impl StandardFramework {
 impl Framework for StandardFramework {
     #[instrument(skip(self, event))]
     async fn dispatch(&self, mut ctx: Context, event: FullEvent) {
-        let FullEvent::Message { new_message: msg } = event else {
+        let FullEvent::Message {
+            new_message: msg,
+        } = event
+        else {
             return;
         };
 
@@ -664,7 +673,10 @@ impl Framework for StandardFramework {
 
                 return;
             },
-            Err(ParseError::Dispatch { error, command_name }) => {
+            Err(ParseError::Dispatch {
+                error,
+                command_name,
+            }) => {
                 if let Some(dispatch) = &self.dispatch {
                     dispatch(&mut ctx, &msg, error, &command_name).await;
                 }
@@ -701,7 +713,10 @@ impl Framework for StandardFramework {
                     after(&mut ctx, &msg, name, res).await;
                 }
             },
-            Invoke::Command { command, group } => {
+            Invoke::Command {
+                command,
+                group,
+            } => {
                 let mut args = {
                     use std::borrow::Cow;
 

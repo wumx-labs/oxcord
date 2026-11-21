@@ -1,12 +1,13 @@
 #[cfg(feature = "model")]
+use std::sync::Arc;
+
+#[cfg(feature = "model")]
 use crate::builder::{CreateAttachment, CreateMessage, EditMessage, GetMessages};
 #[cfg(feature = "model")]
 use crate::http::CacheHttp;
 #[cfg(feature = "model")]
 use crate::http::{Http, Typing};
 use crate::model::prelude::*;
-#[cfg(feature = "model")]
-use std::sync::Arc;
 #[allow(async_fn_in_trait)]
 pub trait PrivateChannelExt: Sized {
     #[cfg(feature = "model")]

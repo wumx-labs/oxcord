@@ -146,7 +146,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let intents = GatewayIntents::all();
-    let handler = GatewayDaemonForwarder { broker };
+    let handler = GatewayDaemonForwarder {
+        broker,
+    };
 
     let mut client = Client::builder(&token, intents).event_handler(handler).await?;
 

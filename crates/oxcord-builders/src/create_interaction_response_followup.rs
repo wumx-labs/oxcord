@@ -1,14 +1,21 @@
-use super::create_poll::Ready;
-use super::{Builder, check_overflow};
-use super::{
-    CreateActionRow, CreateAllowedMentions, CreateAttachment, CreateComponent, CreateEmbed,
-    CreatePoll, EditAttachments,
-};
-use crate::internal::prelude::*;
 use oxcord_model::constants;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
 use serde::Serialize;
+
+use super::create_poll::Ready;
+use super::{
+    Builder,
+    CreateActionRow,
+    CreateAllowedMentions,
+    CreateAttachment,
+    CreateComponent,
+    CreateEmbed,
+    CreatePoll,
+    EditAttachments,
+    check_overflow,
+};
+use crate::internal::prelude::*;
 
 /// [Discord docs](https://docs.discord.com/developers/interactions/receiving-and-responding#create-followup-message)
 #[derive(Clone, Debug, Default)]
@@ -193,7 +200,8 @@ impl CreateInteractionResponseFollowup {
     }
     super::button_and_select_menu_convenience_methods!(self.components);
 
-    /// Sets Components V2 for this followup, automatically setting the [`MessageFlags::IS_COMPONENTS_V2`] flag.
+    /// Sets Components V2 for this followup, automatically setting the
+    /// [`MessageFlags::IS_COMPONENTS_V2`] flag.
     pub fn components_v2(mut self, components: Vec<CreateComponent>) -> Self {
         let mut flags = self.flags.unwrap_or_default();
         flags |= MessageFlags::IS_COMPONENTS_V2;

@@ -5,7 +5,8 @@
 //! Example 7 is needed because tracing is being used.
 //! Example 12 is needed because global data and atomic are used.
 //! Example 13 is needed for the parallel loops that are running to update data from the dashboard.
-#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command framework.
+#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command
+                      // framework.
 
 // be lazy, import all macros globally!
 #[macro_use]
@@ -352,16 +353,14 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         [PACKAGE, DASHBOARD_STATS, GROUP_LATENCY, "Websocket Ping Time"],
         Default::default(),
         PulseOpts::default()
-        // The seconds of data to retain, this is 30 minutes.
-        .retain(1800_u32)
-
-        // Column value range
-        .min(0)
-        .max(200)
-
-        // Label used along the values on the column.
-        .suffix("ms".to_string())
-        .divisor(1.0),
+            // The seconds of data to retain, this is 30 minutes.
+            .retain(1800_u32)
+            // Column value range
+            .min(0)
+            .max(200)
+            // Label used along the values on the column.
+            .suffix("ms".to_string())
+            .divisor(1.0),
     );
 
     let get_ping_tracer = Pulse::new(
@@ -375,12 +374,12 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         [PACKAGE, DASHBOARD_STATS, GROUP_LATENCY, "Rest POST Ping Time"],
         Default::default(),
         PulseOpts::default()
-        .retain(1800_u32)
-        .min(0)
-        // Post latency is on average higher, so we increase the max value on the graph.
-        .max(500)
-        .suffix("ms".to_string())
-        .divisor(1.0),
+            .retain(1800_u32)
+            .min(0)
+            // Post latency is on average higher, so we increase the max value on the graph.
+            .max(500)
+            .suffix("ms".to_string())
+            .divisor(1.0),
     );
 
     let command_usage_table = Table::new(
@@ -397,8 +396,10 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         command_usage_table.add_row(Row(idx as u64));
         command_usage_table.set_cell(Row(idx as u64), Col(0), i.options.names[0]);
         command_usage_table.set_cell(Row(idx as u64), Col(1), 0);
-        command_usage_values
-            .insert(i.options.names[0], CommandUsageValue { index: idx, use_count: 0 });
+        command_usage_values.insert(i.options.names[0], CommandUsageValue {
+            index: idx,
+            use_count: 0,
+        });
     }
 
     let components = Arc::new(Components {

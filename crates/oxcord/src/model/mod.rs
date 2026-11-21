@@ -3,8 +3,9 @@
 pub use oxcord_model::*;
 
 pub mod prelude {
+    pub use oxcord_model::prelude::*;
+
     pub use crate::error::{Error, Result};
     #[cfg(feature = "model")]
     pub use crate::ops::*;
-    pub use oxcord_model::prelude::*;
 }

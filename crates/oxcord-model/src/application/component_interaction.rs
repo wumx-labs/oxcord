@@ -109,11 +109,21 @@ impl<'de> Deserialize<'de> for ComponentInteractionDataKind {
 
         Ok(match json.component_type {
             ComponentType::Button => Self::Button,
-            ComponentType::StringSelect => Self::StringSelect { values: parse_values!() },
-            ComponentType::UserSelect => Self::UserSelect { values: parse_values!() },
-            ComponentType::RoleSelect => Self::RoleSelect { values: parse_values!() },
-            ComponentType::MentionableSelect => Self::MentionableSelect { values: parse_values!() },
-            ComponentType::ChannelSelect => Self::ChannelSelect { values: parse_values!() },
+            ComponentType::StringSelect => Self::StringSelect {
+                values: parse_values!(),
+            },
+            ComponentType::UserSelect => Self::UserSelect {
+                values: parse_values!(),
+            },
+            ComponentType::RoleSelect => Self::RoleSelect {
+                values: parse_values!(),
+            },
+            ComponentType::MentionableSelect => Self::MentionableSelect {
+                values: parse_values!(),
+            },
+            ComponentType::ChannelSelect => Self::ChannelSelect {
+                values: parse_values!(),
+            },
             ComponentType::Unknown(x) => Self::Unknown(x),
             x => {
                 return Err(D::Error::custom(format_args!(

@@ -1,7 +1,8 @@
-use super::Builder;
-use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
+
+use super::Builder;
+use crate::internal::prelude::*;
 
 /// [Discord docs](https://docs.discord.com/developers/resources/channel#modify-channel-json-params-thread).
 #[derive(Clone, Debug, Default, Serialize)]

@@ -1,8 +1,8 @@
-use super::Builder;
-use super::CreateMessage;
-use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
+
+use super::{Builder, CreateMessage};
+use crate::internal::prelude::*;
 
 /// [Discord docs](https://docs.discord.com/developers/resources/channel#start-thread-in-forum-or-media-channel).
 #[derive(Clone, Debug, Serialize)]

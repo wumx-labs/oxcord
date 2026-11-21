@@ -1,8 +1,8 @@
-use super::Builder;
-use super::CreateAttachment;
-use crate::internal::prelude::*;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
+
+use super::{Builder, CreateAttachment};
+use crate::internal::prelude::*;
 
 /// A builder to create or edit a [`Role`] for use via a number of model methods.
 ///
@@ -177,7 +177,11 @@ pub struct CreateRoleColours {
 
 impl CreateRoleColours {
     pub fn new(primary_colour: Colour) -> Self {
-        Self { primary_color: primary_colour, secondary_color: None, tertiary_color: None }
+        Self {
+            primary_color: primary_colour,
+            secondary_color: None,
+            tertiary_color: None,
+        }
     }
 
     /// Sets the secondary colour for this role.

@@ -1,4 +1,5 @@
-#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command framework.
+#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command
+                      // framework.
 
 use std::env;
 

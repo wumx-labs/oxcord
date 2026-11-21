@@ -1,6 +1,7 @@
 //! This example will showcase the beauty of collectors. They allow to await messages or reactions
 //! from a user in the middle of a control flow, one being a command.
-#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command framework.
+#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command
+                      // framework.
 use std::collections::HashSet;
 use std::env;
 use std::time::Duration;
@@ -9,7 +10,13 @@ use oxcord::async_trait;
 use oxcord::collector::MessageCollector;
 use oxcord::framework::standard::macros::{command, group, help};
 use oxcord::framework::standard::{
-    help_commands, Args, CommandGroup, CommandResult, Configuration, HelpOptions, StandardFramework,
+    help_commands,
+    Args,
+    CommandGroup,
+    CommandResult,
+    Configuration,
+    HelpOptions,
+    StandardFramework,
 };
 // Collectors are streams, that means we can use `StreamExt` and `TryStreamExt`.
 use oxcord::futures::stream::StreamExt;
@@ -127,7 +134,7 @@ async fn challenge(ctx: &Context, msg: &Message, _: Args) -> CommandResult {
 
     // We can create a collector from scratch too using this builder future.
     let collector = MessageCollector::new(&ctx.shard)
-    // Only collect messages by this user.
+        // Only collect messages by this user.
         .author_id(msg.author.id)
         .channel_id(msg.channel_id)
         .timeout(Duration::from_secs(10))

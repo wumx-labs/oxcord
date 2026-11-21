@@ -1,14 +1,12 @@
 use std::path::Path;
 
+use oxcord_model::channel::Message;
+use oxcord_model::id::AttachmentId;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use url::Url;
 
-use crate::Error;
-use crate::Http;
-use crate::Result;
-use oxcord_model::channel::Message;
-use oxcord_model::id::AttachmentId;
+use crate::{Error, Http, Result};
 
 /// A builder for creating a new attachment from a file path, file data, or URL.
 ///
@@ -28,7 +26,12 @@ pub struct CreateAttachment {
 impl CreateAttachment {
     /// Builds an [`CreateAttachment`] from the raw attachment data.
     pub fn bytes(data: impl Into<Vec<u8>>, filename: impl Into<String>) -> CreateAttachment {
-        CreateAttachment { data: data.into(), filename: filename.into(), description: None, id: 0 }
+        CreateAttachment {
+            data: data.into(),
+            filename: filename.into(),
+            description: None,
+            id: 0,
+        }
     }
 
     /// Builds an [`CreateAttachment`] by reading a local file.
@@ -206,7 +209,11 @@ impl EditAttachments {
             new_and_existing_attachments: msg
                 .attachments
                 .iter()
-                .map(|a| NewOrExisting::Existing(ExistingAttachment { id: a.id }))
+                .map(|a| {
+                    NewOrExisting::Existing(ExistingAttachment {
+                        id: a.id,
+                    })
+                })
                 .collect(),
         }
     }
@@ -216,7 +223,9 @@ impl EditAttachments {
     ///
     /// Opposite of [`Self::remove`].
     pub fn keep(mut self, id: AttachmentId) -> Self {
-        self.new_and_existing_attachments.push(NewOrExisting::Existing(ExistingAttachment { id }));
+        self.new_and_existing_attachments.push(NewOrExisting::Existing(ExistingAttachment {
+            id,
+        }));
         self
     }
 

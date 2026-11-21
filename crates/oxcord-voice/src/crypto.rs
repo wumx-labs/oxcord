@@ -47,7 +47,11 @@ impl VoiceCryptor {
             .map_err(|_| VoiceError::Crypto("failed to create unbound key"))?;
         let key = LessSafeKey::new(unbound_key);
 
-        Ok(Self { key, algorithm, nonce_counter: 0 })
+        Ok(Self {
+            key,
+            algorithm,
+            nonce_counter: 0,
+        })
     }
 
     /// Creates an AES-256-GCM cryptor (the preferred, hardware-accelerated mode for Discord).
@@ -73,7 +77,8 @@ impl VoiceCryptor {
     /// Encrypts an Opus audio payload with the given RTP header into a complete UDP packet.
     ///
     /// # Packet Layout
-    /// `[RTP Header (12 bytes)] + [Encrypted Opus Payload + Tag (16 bytes)] + [Nonce Counter (4 bytes)]`
+    /// `[RTP Header (12 bytes)] + [Encrypted Opus Payload + Tag (16 bytes)] + [Nonce Counter (4
+    /// bytes)]`
     ///
     /// # Errors
     /// Returns [`VoiceError::Crypto`] if encryption fails.

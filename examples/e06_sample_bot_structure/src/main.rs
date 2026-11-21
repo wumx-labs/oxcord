@@ -7,7 +7,8 @@
 //! git = "https://github.com/wumx-labs/oxcord.git"
 //! features = ["framework", "standard_framework"]
 //! ```
-#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command framework.
+#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command
+                      // framework.
 mod commands;
 
 use std::collections::HashSet;

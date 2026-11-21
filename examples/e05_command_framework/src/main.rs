@@ -7,7 +7,8 @@
 //! git = "https://github.com/wumx-labs/oxcord.git"
 //! features = ["framework", "standard_framework"]
 //! ```
-#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command framework.
+#![allow(deprecated)] // We recommend migrating to poise, instead of using the standard command
+                      // framework.
 use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fmt::Write;
@@ -18,8 +19,17 @@ use oxcord::builder::EditChannel;
 use oxcord::framework::standard::buckets::{LimitedFor, RevertBucket};
 use oxcord::framework::standard::macros::{check, command, group, help, hook};
 use oxcord::framework::standard::{
-    help_commands, Args, BucketBuilder, CommandGroup, CommandOptions, CommandResult, Configuration,
-    DispatchError, HelpOptions, Reason, StandardFramework,
+    help_commands,
+    Args,
+    BucketBuilder,
+    CommandGroup,
+    CommandOptions,
+    CommandResult,
+    Configuration,
+    DispatchError,
+    HelpOptions,
+    Reason,
+    StandardFramework,
 };
 use oxcord::gateway::ShardManager;
 use oxcord::http::Http;
@@ -250,23 +260,30 @@ async fn main() {
         // only be performed by the bot owner.
         .on_dispatch_error(dispatch_error)
         // Can't be used more than once per 5 seconds:
-        .bucket("emoji", BucketBuilder::default().delay(5)).await
+        .bucket("emoji", BucketBuilder::default().delay(5))
+        .await
         // Can't be used more than 2 times per 30 seconds, with a 5 second delay applying per
         // channel. Optionally `await_ratelimits` will delay until the command can be executed
         // instead of cancelling the command invocation.
-        .bucket("complicated",
-            BucketBuilder::default().limit(2).time_span(30).delay(5)
+        .bucket(
+            "complicated",
+            BucketBuilder::default()
+                .limit(2)
+                .time_span(30)
+                .delay(5)
                 // The target each bucket will apply to.
                 .limit_for(LimitedFor::Channel)
                 // The maximum amount of command invocations that can be delayed per target.
-                // Setting this to 0 (default) will never await/delay commands and cancel the invocation.
+                // Setting this to 0 (default) will never await/delay commands and cancel the
+                // invocation.
                 .await_ratelimits(1)
                 // A function to call when a rate limit leads to a delay.
-                .delay_action(delay_action)
-        ).await
+                .delay_action(delay_action),
+        )
+        .await
         // The `#[group]` macro generates `static` instances of the options set for the group.
-        // They're made in the pattern: `#name_GROUP` for the group instance and `#name_GROUP_OPTIONS`.
-        // #name is turned all uppercase
+        // They're made in the pattern: `#name_GROUP` for the group instance and
+        // `#name_GROUP_OPTIONS`. #name is turned all uppercase
         .help(&MY_HELP)
         .group(&GENERAL_GROUP)
         .group(&EMOJI_GROUP)
@@ -274,7 +291,8 @@ async fn main() {
         .group(&OWNER_GROUP);
 
     framework.configure(
-        Configuration::new().with_whitespace(true)
+        Configuration::new()
+            .with_whitespace(true)
             .on_mention(Some(bot_id))
             .prefix("~")
             // In this case, if "," would be first, a message would never be delimited at ", ",

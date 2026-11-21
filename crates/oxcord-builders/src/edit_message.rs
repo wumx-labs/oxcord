@@ -1,13 +1,19 @@
-use super::{Builder, check_overflow};
-use super::{
-    CreateActionRow, CreateAllowedMentions, CreateAttachment, CreateComponent, CreateEmbed,
-    EditAttachments,
-};
-use crate::internal::prelude::*;
 use oxcord_model::constants;
 use oxcord_model::prelude::*;
 use oxcord_rest::CacheHttp;
 use serde::Serialize;
+
+use super::{
+    Builder,
+    CreateActionRow,
+    CreateAllowedMentions,
+    CreateAttachment,
+    CreateComponent,
+    CreateEmbed,
+    EditAttachments,
+    check_overflow,
+};
+use crate::internal::prelude::*;
 
 /// A builder to specify the fields to edit in an existing message.
 ///
@@ -191,7 +197,8 @@ impl EditMessage {
     }
     super::button_and_select_menu_convenience_methods!(self.components);
 
-    /// Sets Components V2 for this message, automatically setting the [`MessageFlags::IS_COMPONENTS_V2`] flag.
+    /// Sets Components V2 for this message, automatically setting the
+    /// [`MessageFlags::IS_COMPONENTS_V2`] flag.
     pub fn components_v2(mut self, components: Vec<CreateComponent>) -> Self {
         let mut flags = self.flags.unwrap_or_default();
         flags |= MessageFlags::IS_COMPONENTS_V2;

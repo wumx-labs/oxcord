@@ -1,5 +1,3 @@
-#[cfg(feature = "model")]
-use crate::ops::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::time::{Duration, Instant};
@@ -9,6 +7,8 @@ use futures::future::BoxFuture;
 use crate::client::Context;
 use crate::internal::tokio::spawn_named;
 use crate::model::channel::Message;
+#[cfg(feature = "model")]
+use crate::ops::*;
 
 type Check = for<'fut> fn(&'fut Context, &'fut Message) -> BoxFuture<'fut, bool>;
 
@@ -180,7 +180,11 @@ impl TicketCounter {
         }
 
         let now = Instant::now();
-        let Self { tickets_for, ratelimit, .. } = self;
+        let Self {
+            tickets_for,
+            ratelimit,
+            ..
+        } = self;
 
         let ticket_owner = tickets_for.entry(id).or_insert_with(|| UnitRatelimit::new(now));
 
@@ -369,25 +373,37 @@ impl BucketBuilder {
     /// A bucket collecting tickets per command invocation.
     #[must_use]
     pub fn new_global() -> Self {
-        Self { limited_for: LimitedFor::Global, ..Default::default() }
+        Self {
+            limited_for: LimitedFor::Global,
+            ..Default::default()
+        }
     }
 
     /// A bucket collecting tickets per user.
     #[must_use]
     pub fn new_user() -> Self {
-        Self { limited_for: LimitedFor::User, ..Default::default() }
+        Self {
+            limited_for: LimitedFor::User,
+            ..Default::default()
+        }
     }
 
     /// A bucket collecting tickets per guild.
     #[must_use]
     pub fn new_guild() -> Self {
-        Self { limited_for: LimitedFor::Guild, ..Default::default() }
+        Self {
+            limited_for: LimitedFor::Guild,
+            ..Default::default()
+        }
     }
 
     /// A bucket collecting tickets per channel.
     #[must_use]
     pub fn new_channel() -> Self {
-        Self { limited_for: LimitedFor::Channel, ..Default::default() }
+        Self {
+            limited_for: LimitedFor::Channel,
+            ..Default::default()
+        }
     }
 
     /// A bucket collecting tickets per channel category.
@@ -396,7 +412,10 @@ impl BucketBuilder {
     #[cfg(feature = "cache")]
     #[must_use]
     pub fn new_category() -> Self {
-        Self { limited_for: LimitedFor::Category, ..Default::default() }
+        Self {
+            limited_for: LimitedFor::Category,
+            ..Default::default()
+        }
     }
 
     /// The "break" time between invocations of a command.
@@ -530,7 +549,10 @@ impl BucketBuilder {
     #[inline]
     pub(crate) fn construct(self) -> Bucket {
         let counter = TicketCounter {
-            ratelimit: Ratelimit { delay: self.delay, limit: Some((self.time_span, self.limit)) },
+            ratelimit: Ratelimit {
+                delay: self.delay,
+                limit: Some((self.time_span, self.limit)),
+            },
             tickets_for: HashMap::new(),
             check: self.check,
             delay_action: self.delay_action,

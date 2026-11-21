@@ -60,7 +60,8 @@ pub fn parse_ip_discovery_response(packet: &[u8]) -> Result<(IpAddr, u16)> {
     Ok((ip, port))
 }
 
-/// Performs Discord IP Discovery over the given UDP socket to discover the client's external IP and port.
+/// Performs Discord IP Discovery over the given UDP socket to discover the client's external IP and
+/// port.
 ///
 /// Sends an IP Discovery request to `server_addr` and awaits a response within `timeout_dur`.
 ///
@@ -85,8 +86,9 @@ pub async fn perform_ip_discovery(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::net::Ipv4Addr;
+
+    use super::*;
 
     #[test]
     fn test_ip_discovery_request_and_response() {
