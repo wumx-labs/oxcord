@@ -1,0 +1,10 @@
+//! These prelude re-exports are a set of exports that are commonly used from within the library.
+//!
+//! These are not publicly re-exported to the end user, and must stay as a private module.
+
+pub use std::result::Result as StdResult;
+
+#[allow(unused_imports)]
+pub use crate::error::{Error, Result};
+#[allow(unused_imports)]
+pub use crate::json::{JsonMap, Value};

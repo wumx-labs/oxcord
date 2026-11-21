@@ -1,0 +1,768 @@
+//! Models relating to guilds and types that it owns.
+
+pub mod audit_log;
+pub mod automod;
+pub(crate) mod emoji;
+pub(crate) mod guild_id;
+pub(crate) mod guild_preview;
+pub(crate) mod integration;
+pub(crate) mod member;
+pub(crate) mod onboarding;
+pub(crate) mod partial_guild;
+pub(crate) mod premium_tier;
+pub(crate) mod role;
+pub(crate) mod scheduled_event;
+pub(crate) mod system_channel;
+pub(crate) mod template;
+pub(crate) mod welcome_screen;
+
+#[cfg(feature = "model")]
+use tracing::{error, warn};
+
+pub use self::emoji::*;
+pub use self::guild_id::*;
+pub use self::guild_preview::*;
+pub use self::integration::*;
+pub use self::member::*;
+pub use self::onboarding::*;
+pub use self::partial_guild::*;
+pub use self::premium_tier::*;
+pub use self::role::*;
+pub use self::scheduled_event::*;
+pub use self::system_channel::*;
+pub use self::template::*;
+pub use self::welcome_screen::*;
+use crate::model::prelude::*;
+use crate::model::utils::*;
+
+/// A representation of a banning of a user.
+///
+/// [Discord docs](https://docs.discord.com/developers/resources/guild#ban-object).
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct Ban {
+    /// The reason given for this ban.
+    pub reason: Option<String>,
+    /// The user that was banned.
+    pub user: User,
+}
+
+/// The response from [`GuildId::bulk_ban`].
+///
+/// [Discord docs](https://docs.discord.com/developers/resources/guild#bulk-guild-ban).
+#[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct BulkBanResponse {
+    /// The users that were successfully banned.
+    pub banned_users: Vec<UserId>,
+    /// The users that were not successfully banned.
+    pub failed_users: Vec<UserId>,
+}
+
+#[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct AfkMetadata {
+    /// Id of a voice channel that's considered the AFK channel.
+    pub afk_channel_id: ChannelId,
+    /// The amount of seconds a user can not show any activity in a voice channel before being
+    /// moved to an AFK channel -- if one exists.
+    pub afk_timeout: AfkTimeout,
+}
+
+/// Information about a Discord guild, such as channels, emojis, etc.
+///
+/// [Discord docs](https://docs.discord.com/developers/resources/guild#guild-object) plus
+/// [extension](https://docs.discord.com/developers/events/gateway-events#guild-create).
+#[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct Guild {
+    /// The unique Id identifying the guild.
+    ///
+    /// This is equivalent to the Id of the default role (`@everyone`).
+    pub id: GuildId,
+    /// The name of the guild.
+    pub name: String,
+    /// The hash of the icon used by the guild.
+    ///
+    /// In the client, this appears on the guild list on the left-hand side.
+    pub icon: Option<ImageHash>,
+    /// Icon hash, returned when in the template object
+    pub icon_hash: Option<ImageHash>,
+    /// An identifying hash of the guild's splash icon.
+    ///
+    /// If the `InviteSplash` feature is enabled, this can be used to generate a URL to a splash
+    /// image.
+    pub splash: Option<ImageHash>,
+    /// An identifying hash of the guild discovery's splash icon.
+    ///
+    /// **Note**: Only present for guilds with the `DISCOVERABLE` feature.
+    pub discovery_splash: Option<ImageHash>,
+    // Omitted `owner` field because only Http::get_guilds uses it, which returns GuildInfo
+    /// The Id of the [`User`] who owns the guild.
+    pub owner_id: UserId,
+    // Omitted `permissions` field because only Http::get_guilds uses it, which returns GuildInfo
+    // Omitted `region` field because it is deprecated (see Discord docs)
+    /// Information about the voice afk channel.
+    #[serde(flatten)]
+    pub afk_metadata: Option<AfkMetadata>,
+    /// Whether or not the guild widget is enabled.
+    pub widget_enabled: Option<bool>,
+    /// The channel id that the widget will generate an invite to, or null if set to no invite
+    pub widget_channel_id: Option<ChannelId>,
+    /// Indicator of the current verification level of the guild.
+    pub verification_level: VerificationLevel,
+    /// Indicator of whether notifications for all messages are enabled by
+    /// default in the guild.
+    pub default_message_notifications: DefaultMessageNotificationLevel,
+    /// Default explicit content filter level.
+    pub explicit_content_filter: ExplicitContentFilter,
+    /// A mapping of the guild's roles.
+    #[serde(with = "roles")]
+    pub roles: HashMap<RoleId, Role>,
+    /// All of the guild's custom emojis.
+    #[serde(with = "emojis")]
+    pub emojis: HashMap<EmojiId, Emoji>,
+    /// The guild features. These are user-invisible options which are used for Discord rollouts
+    /// and/or paid benefits. More information is available at [`discord's documentation`].
+    ///
+    /// [`discord's documentation`]: https://docs.discord.com/developers/resources/guild#guild-object-guild-features
+    pub features: Vec<String>,
+    /// Indicator of whether the guild requires multi-factor authentication for [`Role`]s or
+    /// [`User`]s with moderation permissions.
+    pub mfa_level: MfaLevel,
+    /// Application ID of the guild creator if it is bot-created.
+    pub application_id: Option<ApplicationId>,
+    /// The ID of the channel to which system messages are sent.
+    pub system_channel_id: Option<ChannelId>,
+    /// System channel flags.
+    pub system_channel_flags: SystemChannelFlags,
+    /// The id of the channel where rules and/or guidelines are displayed.
+    ///
+    /// **Note**: Only available on `COMMUNITY` guild, see [`Self::features`].
+    pub rules_channel_id: Option<ChannelId>,
+    /// The maximum number of presences for the guild. The default value is currently 25000.
+    ///
+    /// **Note**: It is in effect when it is `None`.
+    pub max_presences: Option<u64>,
+    /// The maximum number of members for the guild.
+    pub max_members: Option<u64>,
+    /// The vanity url code for the guild, if it has one.
+    pub vanity_url_code: Option<String>,
+    /// The server's description, if it has one.
+    pub description: Option<String>,
+    /// The guild's banner, if it has one.
+    pub banner: Option<String>,
+    /// The server's premium boosting level.
+    pub premium_tier: PremiumTier,
+    /// The total number of users currently boosting this server.
+    pub premium_subscription_count: Option<u64>,
+    /// The preferred locale of this guild only set if guild has the "COMMUNITY" feature,
+    /// defaults to en-US.
+    pub preferred_locale: String,
+    /// The id of the channel where admins and moderators of Community guilds receive notices from
+    /// Discord.
+    ///
+    /// **Note**: Only available on `COMMUNITY` guild, see [`Self::features`].
+    pub public_updates_channel_id: Option<ChannelId>,
+    /// The maximum amount of users in a video channel.
+    pub max_video_channel_users: Option<u64>,
+    /// The maximum amount of users in a stage video channel
+    pub max_stage_video_channel_users: Option<u64>,
+    /// Approximate number of members in this guild.
+    pub approximate_member_count: Option<u64>,
+    /// Approximate number of non-offline members in this guild.
+    pub approximate_presence_count: Option<u64>,
+    /// The welcome screen of the guild.
+    ///
+    /// **Note**: Only available on `COMMUNITY` guild, see [`Self::features`].
+    pub welcome_screen: Option<GuildWelcomeScreen>,
+    /// The guild NSFW state. See [`discord support article`].
+    ///
+    /// [`discord support article`]: https://support.discord.com/hc/en-us/articles/1500005389362-NSFW-Server-Designation
+    pub nsfw_level: NsfwLevel,
+    /// All of the guild's custom stickers.
+    #[serde(with = "stickers")]
+    pub stickers: HashMap<StickerId, Sticker>,
+    /// Whether the guild has the boost progress bar enabled
+    pub premium_progress_bar_enabled: bool,
+
+    // =======
+    // From here on, all fields are from Guild Create Event's extra fields (see Discord docs)
+    // =======
+    /// The date that the current user joined the guild.
+    pub joined_at: Timestamp,
+    /// Indicator of whether the guild is considered "large" by Discord.
+    pub large: bool,
+    /// Whether this guild is unavailable due to an outage.
+    #[serde(default)]
+    pub unavailable: bool,
+    /// The number of members in the guild.
+    pub member_count: u64,
+    /// A mapping of [`User`]s to their current voice state.
+    #[serde(serialize_with = "serialize_map_values")]
+    #[serde(deserialize_with = "deserialize_voice_states")]
+    pub voice_states: HashMap<UserId, VoiceState>,
+    /// Users who are members of the guild.
+    ///
+    /// Members might not all be available when the [`ReadyEvent`] is received if the
+    /// [`Self::member_count`] is greater than the [`LARGE_THRESHOLD`] set by the library.
+    #[serde(with = "members")]
+    pub members: HashMap<UserId, Member>,
+    /// All voice and text channels contained within a guild.
+    ///
+    /// This contains all channels regardless of permissions (i.e. the ability of the bot to read
+    /// from or connect to them).
+    #[serde(serialize_with = "serialize_map_values")]
+    #[serde(deserialize_with = "deserialize_guild_channels")]
+    pub channels: HashMap<ChannelId, GuildChannel>,
+    /// All active threads in this guild that current user has permission to view.
+    ///
+    /// A thread is guaranteed (for errors, not for panics) to be cached if a `MESSAGE_CREATE`
+    /// event is fired in said thread, however an `INTERACTION_CREATE` may not have a private
+    /// thread in cache.
+    pub threads: Vec<GuildChannel>,
+    /// A mapping of [`User`]s' Ids to their current presences.
+    ///
+    /// **Note**: This will be empty unless the "guild presences" privileged intent is enabled.
+    #[serde(with = "presences")]
+    pub presences: HashMap<UserId, Presence>,
+    /// The stage instances in this guild.
+    pub stage_instances: Vec<StageInstance>,
+    /// The stage instances in this guild.
+    #[serde(rename = "guild_scheduled_events")]
+    pub scheduled_events: Vec<ScheduledEvent>,
+    /// The id of the channel where this guild will recieve safety alerts.
+    pub safety_alerts_channel_id: Option<ChannelId>,
+    /// The incidents data for this guild, if any.
+    pub incidents_data: Option<IncidentsData>,
+}
+
+#[cfg(feature = "model")]
+impl Guild {
+
+    pub fn member_highest_role(&self, member: &Member) -> Option<&Role> {
+        let mut highest: Option<&Role> = None;
+        for role_id in &member.roles {
+            if let Some(role) = self.roles.get(role_id) {
+                if let Some(highest) = highest {
+                    if role.position < highest.position
+                        || (role.position == highest.position && role.id > highest.id)
+                    {
+                        continue;
+                    }
+                }
+                highest = Some(role);
+            }
+        }
+        highest
+    }
+
+    pub fn greater_member_hierarchy_(&self, lhs_id: UserId, rhs_id: UserId) -> Option<UserId> {
+        // Check that the IDs are the same. If they are, neither is greater.
+        if lhs_id == rhs_id {
+            return None;
+        }
+
+        // Check if either user is the guild owner.
+        if lhs_id == self.owner_id {
+            return Some(lhs_id);
+        } else if rhs_id == self.owner_id {
+            return Some(rhs_id);
+        }
+
+        let lhs = self
+            .member_highest_role(self.members.get(&lhs_id)?)
+            .map_or((RoleId::new(1), 0), |r| (r.id, r.position));
+
+        let rhs = self
+            .member_highest_role(self.members.get(&rhs_id)?)
+            .map_or((RoleId::new(1), 0), |r| (r.id, r.position));
+
+        // If LHS and RHS both have no top position or have the same role ID, then no one wins.
+        if (lhs.1 == 0 && rhs.1 == 0) || (lhs.0 == rhs.0) {
+            return None;
+        }
+
+        // If LHS's top position is higher than RHS, then LHS wins.
+        if lhs.1 > rhs.1 {
+            return Some(lhs_id);
+        }
+
+        // If RHS's top position is higher than LHS, then RHS wins.
+        if rhs.1 > lhs.1 {
+            return Some(rhs_id);
+        }
+
+        // If LHS and RHS both have the same position, but LHS has the lower role ID, then LHS
+        // wins.
+        //
+        // If RHS has the higher role ID, then RHS wins.
+        if lhs.1 == rhs.1 && lhs.0 < rhs.0 {
+            Some(lhs_id)
+        } else {
+            Some(rhs_id)
+        }
+    }
+
+    /// Helper function that can also be used from [`PartialGuild`].
+    pub fn user_permissions_in_(
+        channel: Option<&GuildChannel>,
+        member_user_id: UserId,
+        member_roles: &[RoleId],
+        guild_id: GuildId,
+        guild_roles: &HashMap<RoleId, Role>,
+        guild_owner_id: UserId,
+    ) -> Permissions {
+        let mut everyone_allow_overwrites = Permissions::empty();
+        let mut everyone_deny_overwrites = Permissions::empty();
+        let mut roles_allow_overwrites = Vec::new();
+        let mut roles_deny_overwrites = Vec::new();
+        let mut member_allow_overwrites = Permissions::empty();
+        let mut member_deny_overwrites = Permissions::empty();
+
+        if let Some(channel) = channel {
+            for overwrite in &channel.permission_overwrites {
+                match overwrite.kind {
+                    PermissionOverwriteType::Member(user_id) => {
+                        if member_user_id == user_id {
+                            member_allow_overwrites = overwrite.allow;
+                            member_deny_overwrites = overwrite.deny;
+                        }
+                    },
+                    PermissionOverwriteType::Role(role_id) => {
+                        if role_id.get() == guild_id.get() {
+                            everyone_allow_overwrites = overwrite.allow;
+                            everyone_deny_overwrites = overwrite.deny;
+                        } else if member_roles.contains(&role_id) {
+                            roles_allow_overwrites.push(overwrite.allow);
+                            roles_deny_overwrites.push(overwrite.deny);
+                        }
+                    },
+                }
+            }
+        }
+
+        calculate_permissions(CalculatePermissions {
+            is_guild_owner: member_user_id == guild_owner_id,
+            everyone_permissions: if let Some(role) = guild_roles.get(&RoleId::new(guild_id.get()))
+            {
+                role.permissions
+            } else {
+                error!("@everyone role missing in {}", guild_id);
+                Permissions::empty()
+            },
+            user_roles_permissions: member_roles
+                .iter()
+                .map(|role_id| {
+                    if let Some(role) = guild_roles.get(role_id) {
+                        role.permissions
+                    } else {
+                        warn!(
+                            "{} on {} has non-existent role {:?}",
+                            member_user_id, guild_id, role_id
+                        );
+                        Permissions::empty()
+                    }
+                })
+                .collect(),
+            everyone_allow_overwrites,
+            everyone_deny_overwrites,
+            roles_allow_overwrites,
+            roles_deny_overwrites,
+            member_allow_overwrites,
+            member_deny_overwrites,
+        })
+    }
+
+    /// Helper function that can also be used from [`PartialGuild`].
+    pub fn role_permissions_in_(
+        channel: &GuildChannel,
+        role: &Role,
+        guild_id: GuildId,
+    ) -> Result<Permissions> {
+        // Fail if the role or channel is not from this guild.
+        if role.guild_id != guild_id || channel.guild_id != guild_id {
+            return Err(Error::WrongGuild);
+        }
+
+        let mut permissions = role.permissions;
+
+        if permissions.contains(Permissions::ADMINISTRATOR) {
+            return Ok(Self::remove_unnecessary_voice_permissions(channel, Permissions::all()));
+        }
+
+        for overwrite in &channel.permission_overwrites {
+            if let PermissionOverwriteType::Role(permissions_role_id) = overwrite.kind {
+                if permissions_role_id == role.id {
+                    permissions = (permissions & !overwrite.deny) | overwrite.allow;
+
+                    break;
+                }
+            }
+        }
+
+        Self::remove_unusable_permissions(&mut permissions);
+
+        Ok(permissions)
+    }
+
+    pub(crate) fn remove_unusable_permissions(permissions: &mut Permissions) {
+        // No SEND_MESSAGES => no message-sending-related actions
+        // If the member does not have the `SEND_MESSAGES` permission, then throw out message-able
+        // permissions.
+        if !permissions.contains(Permissions::SEND_MESSAGES) {
+            *permissions &= !(Permissions::SEND_TTS_MESSAGES
+                | Permissions::MENTION_EVERYONE
+                | Permissions::EMBED_LINKS
+                | Permissions::ATTACH_FILES);
+        }
+
+        // If the permission does not have the `VIEW_CHANNEL` permission, then throw out actionable
+        // permissions.
+        if !permissions.contains(Permissions::VIEW_CHANNEL) {
+            *permissions &= !(Permissions::KICK_MEMBERS
+                | Permissions::BAN_MEMBERS
+                | Permissions::ADMINISTRATOR
+                | Permissions::MANAGE_GUILD
+                | Permissions::CHANGE_NICKNAME
+                | Permissions::MANAGE_NICKNAMES);
+        }
+    }
+
+    pub(crate) fn remove_unnecessary_voice_permissions(
+        channel: &GuildChannel,
+        mut permissions: Permissions,
+    ) -> Permissions {
+        // If this is a text channel, then throw out voice permissions.
+        if channel.kind == ChannelType::Text {
+            permissions &= !(Permissions::CONNECT
+                | Permissions::SPEAK
+                | Permissions::MUTE_MEMBERS
+                | Permissions::DEAFEN_MEMBERS
+                | Permissions::MOVE_MEMBERS
+                | Permissions::USE_VAD
+                | Permissions::STREAM);
+        }
+
+        permissions
+    }
+
+}
+
+#[cfg(feature = "model")]
+pub(crate) struct CalculatePermissions {
+    /// Whether the guild member is the guild owner
+    pub is_guild_owner: bool,
+    /// Base permissions given to @everyone (guild level)
+    pub everyone_permissions: Permissions,
+    /// Permissions allowed to a user by their roles (guild level)
+    pub user_roles_permissions: Vec<Permissions>,
+    /// Overwrites that deny permissions for @everyone (channel level)
+    pub everyone_allow_overwrites: Permissions,
+    /// Overwrites that allow permissions for @everyone (channel level)
+    pub everyone_deny_overwrites: Permissions,
+    /// Overwrites that deny permissions for specific roles (channel level)
+    pub roles_allow_overwrites: Vec<Permissions>,
+    /// Overwrites that allow permissions for specific roles (channel level)
+    pub roles_deny_overwrites: Vec<Permissions>,
+    /// Member-specific overwrites that deny permissions (channel level)
+    pub member_allow_overwrites: Permissions,
+    /// Member-specific overwrites that allow permissions (channel level)
+    pub member_deny_overwrites: Permissions,
+}
+
+#[cfg(feature = "model")]
+impl Default for CalculatePermissions {
+    fn default() -> Self {
+        Self {
+            is_guild_owner: false,
+            everyone_permissions: Permissions::empty(),
+            user_roles_permissions: Vec::new(),
+            everyone_allow_overwrites: Permissions::empty(),
+            everyone_deny_overwrites: Permissions::empty(),
+            roles_allow_overwrites: Vec::new(),
+            roles_deny_overwrites: Vec::new(),
+            member_allow_overwrites: Permissions::empty(),
+            member_deny_overwrites: Permissions::empty(),
+        }
+    }
+}
+
+/// Translated from the pseudo code at https://docs.discord.com/developers/topics/permissions#permission-overwrites
+///
+/// The comments within this file refer to the above link
+#[cfg(feature = "model")]
+pub(crate) fn calculate_permissions(data: CalculatePermissions) -> Permissions {
+    if data.is_guild_owner {
+        return Permissions::all();
+    }
+
+    // 1. Base permissions given to @everyone are applied at a guild level
+    let mut permissions = data.everyone_permissions;
+    // 2. Permissions allowed to a user by their roles are applied at a guild level
+    for role_permission in data.user_roles_permissions {
+        permissions |= role_permission;
+    }
+
+    if permissions.contains(Permissions::ADMINISTRATOR) {
+        return Permissions::all();
+    }
+
+    // 3. Overwrites that deny permissions for @everyone are applied at a channel level
+    permissions &= !data.everyone_deny_overwrites;
+    // 4. Overwrites that allow permissions for @everyone are applied at a channel level
+    permissions |= data.everyone_allow_overwrites;
+
+    // 5. Overwrites that deny permissions for specific roles are applied at a channel level
+    let mut role_deny_permissions = Permissions::empty();
+    for p in data.roles_deny_overwrites {
+        role_deny_permissions |= p;
+    }
+    permissions &= !role_deny_permissions;
+
+    // 6. Overwrites that allow permissions for specific roles are applied at a channel level
+    let mut role_allow_permissions = Permissions::empty();
+    for p in data.roles_allow_overwrites {
+        role_allow_permissions |= p;
+    }
+    permissions |= role_allow_permissions;
+
+    // 7. Member-specific overwrites that deny permissions are applied at a channel level
+    permissions &= !data.member_deny_overwrites;
+    // 8. Member-specific overwrites that allow permissions are applied at a channel level
+    permissions |= data.member_allow_overwrites;
+
+    permissions
+}
+
+/// Checks if a `&str` contains another `&str`.
+#[cfg(feature = "model")]
+pub fn contains(haystack: &str, needle: &str, case_sensitive: bool) -> bool {
+    if case_sensitive {
+        haystack.contains(needle)
+    } else {
+        haystack.to_lowercase().contains(&needle.to_lowercase())
+    }
+}
+
+/// Takes a `&str` as `origin` and tests if either `word_a` or `word_b` is closer.
+///
+/// **Note**: Normally `word_a` and `word_b` are expected to contain `origin` as substring. If not,
+/// using `closest_to_origin` would sort these the end.
+#[cfg(feature = "model")]
+pub fn closest_to_origin(origin: &str, word_a: &str, word_b: &str) -> std::cmp::Ordering {
+    let value_a = match word_a.find(origin) {
+        Some(value) => value + word_a.len(),
+        None => return std::cmp::Ordering::Greater,
+    };
+
+    let value_b = match word_b.find(origin) {
+        Some(value) => value + word_b.len(),
+        None => return std::cmp::Ordering::Less,
+    };
+
+    value_a.cmp(&value_b)
+}
+
+/// A [`Guild`] widget.
+///
+/// [Discord docs](https://docs.discord.com/developers/resources/guild#guild-widget-settings-object).
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct GuildWidget {
+    /// Whether the widget is enabled.
+    pub enabled: bool,
+    /// The widget channel id.
+    pub channel_id: Option<ChannelId>,
+}
+
+/// Representation of the number of members that would be pruned by a guild prune operation.
+///
+/// [Discord docs](https://docs.discord.com/developers/resources/guild#get-guild-prune-count).
+#[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct GuildPrune {
+    /// The number of members that would be pruned by the operation.
+    pub pruned: u64,
+}
+
+/// Variant of [`Guild`] returned from [`Http::get_guilds`].
+///
+/// [Discord docs](https://docs.discord.com/developers/resources/guild#guild-object),
+/// [subset example](https://docs.discord.com/developers/resources/user#get-current-user-guilds-example-partial-guild).
+#[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct GuildInfo {
+    /// The unique Id of the guild.
+    ///
+    /// Can be used to calculate creation date.
+    pub id: GuildId,
+    /// The name of the guild.
+    pub name: String,
+    /// The hash of the icon of the guild.
+    ///
+    /// This can be used to generate a URL to the guild's icon image.
+    pub icon: Option<ImageHash>,
+    /// Indicator of whether the current user is the owner.
+    pub owner: bool,
+    /// The permissions that the current user has.
+    pub permissions: Permissions,
+    /// See [`Guild::features`].
+    pub features: Vec<String>,
+}
+
+/// Data for an unavailable guild.
+///
+/// [Discord docs](https://docs.discord.com/developers/resources/guild#unavailable-guild-object).
+#[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct UnavailableGuild {
+    /// The Id of the [`Guild`] that may be unavailable.
+    pub id: GuildId,
+    /// Indicator of whether the guild is unavailable.
+    #[serde(default)]
+    pub unavailable: bool,
+}
+
+enum_number! {
+    /// Default message notification level for a guild.
+    ///
+    /// [Discord docs](https://docs.discord.com/developers/resources/guild#guild-object-default-message-notification-level).
+    #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
+    #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+    #[serde(from = "u8", into = "u8")]
+    #[non_exhaustive]
+    pub enum DefaultMessageNotificationLevel {
+        /// Receive notifications for everything.
+        #[default]
+        All = 0,
+        /// Receive only mentions.
+        Mentions = 1,
+        _ => Unknown(u8),
+    }
+}
+
+enum_number! {
+    /// Setting used to filter explicit messages from members.
+    ///
+    /// [Discord docs](https://docs.discord.com/developers/resources/guild#guild-object-explicit-content-filter-level).
+    #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
+    #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+    #[serde(from = "u8", into = "u8")]
+    #[non_exhaustive]
+    pub enum ExplicitContentFilter {
+        /// Don't scan any messages.
+        #[default]
+        None = 0,
+        /// Scan messages from members without a role.
+        WithoutRole = 1,
+        /// Scan messages sent by all members.
+        All = 2,
+        _ => Unknown(u8),
+    }
+}
+
+enum_number! {
+    /// Multi-Factor Authentication level for guild moderators.
+    ///
+    /// [Discord docs](https://docs.discord.com/developers/resources/guild#guild-object-mfa-level).
+    #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
+    #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+    #[serde(from = "u8", into = "u8")]
+    #[non_exhaustive]
+    pub enum MfaLevel {
+        /// MFA is disabled.
+        #[default]
+        None = 0,
+        /// MFA is enabled.
+        Elevated = 1,
+        _ => Unknown(u8),
+    }
+}
+
+enum_number! {
+    /// The level to set as criteria prior to a user being able to send
+    /// messages in a [`Guild`].
+    ///
+    /// [Discord docs](https://docs.discord.com/developers/resources/guild#guild-object-verification-level).
+    #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
+    #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+    #[serde(from = "u8", into = "u8")]
+    #[non_exhaustive]
+    pub enum VerificationLevel {
+        /// Does not require any verification.
+        #[default]
+        None = 0,
+        /// Must have a verified email on the user's Discord account.
+        Low = 1,
+        /// Must also be a registered user on Discord for longer than 5 minutes.
+        Medium = 2,
+        /// Must also be a member of the guild for longer than 10 minutes.
+        High = 3,
+        /// Must have a verified phone on the user's Discord account.
+        Higher = 4,
+        _ => Unknown(u8),
+    }
+}
+
+enum_number! {
+    /// The [`Guild`] nsfw level.
+    ///
+    /// [Discord docs](https://docs.discord.com/developers/resources/guild#guild-object-guild-nsfw-level).
+    #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
+    #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+    #[serde(from = "u8", into = "u8")]
+    #[non_exhaustive]
+    pub enum NsfwLevel {
+        /// The nsfw level is not specified.
+        #[default]
+        Default = 0,
+        /// The guild is considered as explicit.
+        Explicit = 1,
+        /// The guild is considered as safe.
+        Safe = 2,
+        /// The guild is age restricted.
+        AgeRestricted = 3,
+        _ => Unknown(u8),
+    }
+}
+
+enum_number! {
+    /// The [`Guild`] AFK timeout length.
+    ///
+    /// See [AfkMetadata::afk_timeout].
+    #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
+    #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+    #[serde(from = "u16", into = "u16")]
+    #[non_exhaustive]
+    pub enum AfkTimeout {
+        OneMinute = 60,
+        FiveMinutes = 300,
+        FifteenMinutes = 900,
+        ThirtyMinutes = 1800,
+        OneHour = 3600,
+        _ => Unknown(u16),
+    }
+}
+
+/// The [`Guild`]'s incident's data.
+///
+/// [Discord docs](https://docs.discord.com/developers/resources/guild#incidents-data-object).
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+#[non_exhaustive]
+pub struct IncidentsData {
+    /// The time that invites get enabled again.
+    pub invites_disabled_until: Option<Timestamp>,
+    /// The time that dms get enabled again.
+    pub dms_disabled_until: Option<Timestamp>,
+    /// The time when elevated dm activity was triggered.
+    pub dm_spam_detected_at: Option<Timestamp>,
+    /// The time when raid alerts were triggered.
+    pub raid_detected_at: Option<Timestamp>,
+}
+
+

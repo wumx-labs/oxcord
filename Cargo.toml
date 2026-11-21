@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+members = ["crates/*", "examples/*"]
+
+[workspace.package]
+documentation = "https://docs.rs/oxcord"
+homepage = "https://github.com/wumx-labs/oxcord"
+repository = "https://github.com/wumx-labs/oxcord.git"
+keywords = ["discord", "api"]
+license = "Apache-2.0"
+edition = "2024"
+rust-version = "1.85"

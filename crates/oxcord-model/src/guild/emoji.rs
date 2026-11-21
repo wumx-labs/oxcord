@@ -1,0 +1,74 @@
+use std::fmt;
+
+use crate::model::id::{EmojiId, RoleId};
+use crate::model::user::User;
+use crate::model::utils::default_true;
+
+/// Represents a custom guild emoji, which can either be created using the API, or via an
+/// integration. Emojis created using the API only work within the guild it was created in.
+///
+/// [Discord docs](https://docs.discord.com/developers/resources/emoji#emoji-object).
+#[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Emoji {
+    /// Whether the emoji is animated.
+    #[serde(default)]
+    pub animated: bool,
+    /// Whether the emoji can be used. This may be false when the guild loses boosts, reducing the
+    /// emoji limit.
+    #[serde(default = "default_true")]
+    pub available: bool,
+    /// The Id of the emoji.
+    pub id: EmojiId,
+    /// The name of the emoji. It must be at least 2 characters long and can only contain
+    /// alphanumeric characters and underscores.
+    pub name: String,
+    /// Whether the emoji is managed via an [`Integration`] service.
+    ///
+    /// [`Integration`]: super::Integration
+    #[serde(default)]
+    pub managed: bool,
+    /// Whether the emoji name needs to be surrounded by colons in order to be used by the client.
+    #[serde(default)]
+    pub require_colons: bool,
+    /// A list of [`Role`]s that are allowed to use the emoji. If there are no roles specified,
+    /// then usage is unrestricted.
+    ///
+    /// [`Role`]: super::Role
+    #[serde(default)]
+    pub roles: Vec<RoleId>,
+    /// The user who created the emoji.
+    pub user: Option<User>,
+}
+
+impl fmt::Display for Emoji {
+    /// Formats the emoji into a string that will cause Discord clients to render the emoji.
+    ///
+    /// This is in the format of either `<:NAME:EMOJI_ID>` for normal emojis, or
+    /// `<a:NAME:EMOJI_ID>` for animated emojis.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.animated {
+            f.write_str("<a:")?;
+        } else {
+            f.write_str("<:")?;
+        }
+        f.write_str(&self.name)?;
+        fmt::Write::write_char(f, ':')?;
+        fmt::Display::fmt(&self.id, f)?;
+        fmt::Write::write_char(f, '>')
+    }
+}
+
+impl From<Emoji> for EmojiId {
+    /// Gets the Id of an [`Emoji`].
+    fn from(emoji: Emoji) -> EmojiId {
+        emoji.id
+    }
+}
+
+impl From<&Emoji> for EmojiId {
+    /// Gets the Id of an [`Emoji`].
+    fn from(emoji: &Emoji) -> EmojiId {
+        emoji.id
+    }
+}

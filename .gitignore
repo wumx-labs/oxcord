@@ -1,0 +1,19 @@
+# IDE directories and folders
+.vscode/
+.idea/
+
+# Target directory
+target/
+
+# Lockfile
+Cargo.lock
+
+# Misc
+rls/
+*.iml
+.env
+
+# VitePress docs
+docs/node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/

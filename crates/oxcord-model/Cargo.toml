@@ -1,0 +1,48 @@
+[package]
+name = "oxcord-model"
+version = "0.0.1"
+authors = ["NoxlyDev"]
+description = "Discord API data models and types for the Oxcord library."
+readme = "../../README.md"
+include = ["src/**/*", "Cargo.toml"]
+
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+bitflags = "2.4.2"
+tracing = { version = "0.1.40", features = ["log"] }
+serde = { version = "1.0.192", features = ["derive"] }
+serde_json = "1.0.108"
+url = { version = "2.4.1", features = ["serde"] }
+time = { version = "0.3.36", features = ["formatting", "parsing", "serde-well-known"] }
+base64 = "0.22.0"
+secrecy = { version = "0.8.0", features = ["serde"] }
+arrayvec = { version = "0.7.4", features = ["serde"] }
+serde_cow = "0.1.0"
+percent-encoding = "2.3.0"
+simd-json = { version = "0.13.4", optional = true }
+chrono = { version = "0.4.31", default-features = false, features = ["clock", "serde"], optional = true }
+typesize = { version = "0.1.2", optional = true, features = ["url", "time", "serde_json", "secrecy", "details"] }
+oxcord-voice-model = { version = "0.2.1", path = "../oxcord-voice-model", optional = true }
+
+[features]
+default = ["chrono", "model", "utils"]
+model = []
+utils = []
+chrono = ["dep:chrono", "typesize?/chrono"]
+simd_json = ["simd-json", "typesize?/simd_json"]
+typesize = ["dep:typesize"]
+voice_model = ["oxcord-voice-model"]
+unstable_discord_api = []
+
+[lints.cargo]
+unused_dependencies = "allow"
+
+[lints.rust]
+unexpected_cfgs = { level = "allow" }
