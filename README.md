@@ -9,7 +9,7 @@
   <a href="https://discord.gg/JnTRems5CT"><img src="https://img.shields.io/badge/join%20us-on%20discord-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
   <br>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rustc-1.85%2B%20%282024%29-orange?logo=rust&logoColor=white" alt="Rust Version"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue?logo=apache&logoColor=white" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0%20OR%20ISC-blue?logo=apache&logoColor=white" alt="License"></a>
   <a href="https://github.com/wumx-labs/oxcord/graphs/contributors"><img src="https://img.shields.io/badge/contributors-NoxlyDev-blueviolet?logo=github&logoColor=white" alt="Contributors"></a>
   <a href="crates/"><img src="https://img.shields.io/badge/crates-12%20packages-informational?logo=cargo&logoColor=white" alt="Workspace"></a>
   <br>
@@ -188,8 +188,16 @@ DISCORD_TOKEN="your_token_here" cargo run -p e20_components_v2
 
 ---
 
+## 🙏 Acknowledgements
+
+OXCORD builds upon foundational architecture, data models, and ergonomics originally established by the [Serenity](https://github.com/serenity-rs/serenity) project (licensed under the ISC License by Serenity Contributors). We express our gratitude to the Serenity community for paving the way for Rust in Discord bots.
+
+OXCORD evolves these concepts into a modern 12-crate modular ecosystem featuring pure async microservices, pluggable message brokers (NATS, Redis, Kafka), modern Voice Gateway v8 with AEAD ciphers, and zero-allocation interaction webhooks.
+
+---
+
 ## 📄 License
 
-- Licensed under the **Apache License, Version 2.0** ([LICENSE](LICENSE) or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)).
+- Dual-licensed under **Apache License, Version 2.0** ([LICENSE](LICENSE)) and **ISC License** ([NOTICE](NOTICE)).
 - For third-party license notices and historical copyright attributions, see [NOTICE](NOTICE).
 - **Disclaimer**: `oxcord` is an independent open-source project and is not affiliated with, endorsed by, or sponsored by Discord Inc.

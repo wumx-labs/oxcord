@@ -467,6 +467,14 @@ Audio streaming transmits 48 kHz Opus frames (960 samples per frame at 20ms inte
 
 ---
 
+## 🛡️ Discord DAVE (E2EE) Protocol Status
+
+> [!NOTE] DAVE Protocol Roadmap
+> Discord is rolling out the **DAVE (Discord Audio & Video End-to-End Encryption)** protocol based on Messaging Layer Security (MLS). 
+> In OXCORD, DAVE protocol support is currently **in development / planned on the roadmap** as the upstream specification stabilizes. Voice currently operates securely over Discord Voice Gateway v8 with transport-layer AEAD ciphers (`aead_xchacha20_poly1305_rtpsize` and `aead_aes256_gcm_rtpsize`).
+
+---
+
 ## Distributed Message Broker
 
 # Distributed Message Broker (`oxcord-broker`)
@@ -2197,7 +2205,7 @@ unexpected_cfgs = { level = "allow" }
   <a href="https://discord.gg/JnTRems5CT"><b>Discord Community</b></a>
 </p>
 
-**Discord Voice Gateway v8 & Encryption** — Voice client with modern AEAD ciphers (AES-256-GCM, ChaCha20-Poly1305), IP discovery, and DAVE readiness.
+**Discord Voice Gateway v8 & Encryption** — Voice client with modern AEAD ciphers (AES-256-GCM, XChaCha20-Poly1305), IP discovery, and modular audio pipeline.
 
 Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 
@@ -2208,7 +2216,7 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 - **Modern AEAD Encryption**: Supports `aead_xchacha20_poly1305_rtpsize` and `aead_aes256_gcm_rtpsize`.
 - **IP Discovery**: Built-in UDP hole punching and endpoint resolution.
 - **Voice Gateway v8**: Full voice handshake, heartbeat, and speaking status events.
-- **DAVE Ready**: Prepared for Discord's End-to-End Audio/Video Encryption protocol.
+- **DAVE Protocol Status**: In active development / roadmap (Discord's MLS-based end-to-end encryption specification; not yet available for production audio streams).
 
 ## Usage
 

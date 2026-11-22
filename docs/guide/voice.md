@@ -67,3 +67,12 @@ Audio streaming transmits 48 kHz Opus frames (960 samples per frame at 20ms inte
 - **RTP Header**: Payload type `120`, monotonically increasing sequence number and timestamp.
 - **Payload**: Opus frame encrypted with `VoiceCryptor`.
 - **Nonce Counter**: 4-byte counter appended to the packet tail.
+
+---
+
+## 🛡️ Discord DAVE (E2EE) Protocol Status
+
+> [!NOTE] DAVE Protocol Roadmap
+> Discord is rolling out the **DAVE (Discord Audio & Video End-to-End Encryption)** protocol based on Messaging Layer Security (MLS). 
+> In OXCORD, DAVE protocol support is currently **in development / planned on the roadmap** as the upstream specification stabilizes. Voice currently operates securely over Discord Voice Gateway v8 with transport-layer AEAD ciphers (`aead_xchacha20_poly1305_rtpsize` and `aead_aes256_gcm_rtpsize`).
+
