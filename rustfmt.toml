@@ -9,9 +9,9 @@ use_try_shorthand = true
 # width_heuristics = "Max"
 
 # nightly/unstable features
-wrap_comments = true
+# wrap_comments = true          # disabled: corrupts closing ``` fences in doc comments
+# format_code_in_doc_comments = true  # disabled: same bug as wrap_comments
 comment_width = 100
-format_code_in_doc_comments = true
 group_imports = "StdExternalCrate"
 imports_granularity = "Module"
 imports_layout = "HorizontalVertical"
