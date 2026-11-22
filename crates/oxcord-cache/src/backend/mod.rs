@@ -16,10 +16,14 @@ use oxcord_model::user::{CurrentUser, User};
 pub mod engine;
 pub mod in_memory;
 pub mod key_value;
+#[cfg(feature = "redis")]
+pub mod redis;
 
 pub use self::engine::{StateEngine, StateStats};
 pub use self::in_memory::InMemoryBackend;
 pub use self::key_value::{KeyValueStateBackend, KeyValueStore, MemoryKeyValueStore};
+#[cfg(feature = "redis")]
+pub use self::redis::{RedisStateBackend, RedisStore};
 
 /// Errors produced by state storage backends.
 #[derive(Debug)]

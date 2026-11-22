@@ -138,6 +138,9 @@ zstd = ["oxcord-gateway?/zstd"]
 # Enables temporary caching in functions that retrieve data via the HTTP API.
 temp_cache = ["cache", "oxcord-cache/temp_cache", "mini-moka", "typesize?/mini_moka"]
 
+# Enables native Redis / Key-Value state backend in oxcord-cache.
+redis_cache = ["cache", "oxcord-cache/redis"]
+
 # Removed feature
 absolute_ratelimits = []
 

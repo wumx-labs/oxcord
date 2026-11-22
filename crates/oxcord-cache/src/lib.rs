@@ -54,6 +54,8 @@ pub use backend::{
     StateEngine,
     StateStats,
 };
+#[cfg(feature = "redis")]
+pub use backend::{RedisStateBackend, RedisStore};
 
 mod cache_update;
 mod event;
