@@ -134,8 +134,7 @@ impl SessionStore {
     /// Persist all active sessions to the configured file path atomically.
     pub fn save(&self) -> Result<(), std::io::Error> {
         let sessions = self.sessions.read().clone();
-        let json = serde_json::to_string_pretty(&sessions)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+        let json = serde_json::to_string_pretty(&sessions).map_err(std::io::Error::other)?;
 
         if let Some(parent) = self.path.parent() {
             if !parent.as_os_str().is_empty() {

@@ -63,7 +63,7 @@ pub struct Context<'a> {
     pub(crate) http: Arc<FrameworkHttp>,
 }
 
-impl<'a> Context<'a> {
+impl Context<'_> {
     /// Reply to the user with a plain text message.
     ///
     /// For slash commands this sends an interaction response; for prefix
@@ -72,6 +72,7 @@ impl<'a> Context<'a> {
     /// # Errors
     ///
     /// Returns [`FrameworkError::Http`] if the Discord API call fails.
+    #[allow(clippy::unused_async, clippy::unused_async_trait_impl)]
     pub async fn say(&self, content: impl Into<String>) -> Result<(), FrameworkError> {
         let content = content.into();
         match self.invocation {

@@ -53,7 +53,7 @@ impl Dispatcher {
     ///
     /// Returns the first [`FrameworkError`] encountered (cooldown, permission
     /// check, or a propagated handler error).
-    pub async fn dispatch<'a>(&self, inv: Invocation<'a>) -> Result<(), FrameworkError> {
+    pub async fn dispatch(&self, inv: Invocation<'_>) -> Result<(), FrameworkError> {
         let cmd = self
             .find_command(inv.command_name)
             .ok_or_else(|| FrameworkError::UnknownCommand(inv.command_name.to_owned()))?;

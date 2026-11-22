@@ -42,7 +42,9 @@
     clippy::module_name_repetitions,
     clippy::too_many_lines,
     clippy::doc_markdown,
-    clippy::type_complexity
+    clippy::type_complexity,
+    clippy::unused_async,
+    clippy::unused_async_trait_impl
 )]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 

@@ -102,7 +102,7 @@ impl CooldownManager {
         if let Some(&last) = buckets.get(&key) {
             let elapsed = last.elapsed();
             if elapsed < self.config.duration {
-                return Some(self.config.duration - elapsed);
+                return self.config.duration.checked_sub(elapsed);
             }
         }
         None

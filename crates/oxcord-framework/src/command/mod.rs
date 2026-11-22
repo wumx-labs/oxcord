@@ -75,9 +75,10 @@ impl std::fmt::Debug for AutocompleteHandler {
 }
 
 /// Whether a command supports slash, prefix, or both invocation styles.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum CommandKind {
     /// Slash (application) command only.
+    #[default]
     Slash,
     /// Prefix (text) command only.
     Prefix,
@@ -241,11 +242,5 @@ impl CommandBuilder {
             owner_only: self.owner_only,
             required_permissions: self.required_permissions,
         }
-    }
-}
-
-impl Default for CommandKind {
-    fn default() -> Self {
-        Self::Slash
     }
 }
