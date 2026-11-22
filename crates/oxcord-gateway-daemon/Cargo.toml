@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-gateway-daemon"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["NoxlyDev"]
 description = "Standalone Discord Gateway Daemon for enterprise-scale distributed sharding"
 
