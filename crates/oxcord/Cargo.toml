@@ -59,6 +59,7 @@ command_attr = { package = "oxcord-command-attr", version = "0.5.4", path = "../
 oxcord-voice-model = { version = "0.2.1", path = "../oxcord-voice-model", optional = true }
 oxcord-voice = { version = "0.0.1", path = "../oxcord-voice", optional = true }
 oxcord-broker = { version = "0.1.0", path = "../oxcord-broker", optional = true }
+oxcord-framework = { version = "0.0.1", path = "../oxcord-framework", optional = true }
 
 [dev-dependencies.http_crate]
 version = "0.2"
@@ -127,7 +128,9 @@ chrono = ["dep:chrono", "typesize?/chrono"]
 
 # This enables all parts of the oxcord codebase
 # (Note: all feature-gated APIs to be documented should have their features listed here!)
-full = ["default", "collector", "unstable_discord_api", "voice", "voice_model", "interactions_endpoint", "broker"]
+full = ["default", "collector", "unstable_discord_api", "voice", "voice_model", "interactions_endpoint", "broker", "oxcord_framework"]
+# Enables the high-level poise-style command framework (slash + prefix + cooldowns + autocomplete).
+oxcord_framework = ["oxcord-framework"]
 
 # Enables simd accelerated parsing.
 simd_json = ["simd-json", "typesize?/simd_json"]

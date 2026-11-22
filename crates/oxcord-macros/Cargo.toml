@@ -1,0 +1,24 @@
+[package]
+name = "oxcord-macros"
+version = "0.0.1"
+authors = ["NoxlyDev"]
+description = "Proc-macro helpers for oxcord-framework: #[command], #[check], and autocomplete attributes."
+
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = { version = "2.0", features = ["full", "extra-traits"] }
+
+[package.metadata.docs.rs]
+all-features = true

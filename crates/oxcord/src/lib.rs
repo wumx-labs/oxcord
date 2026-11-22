@@ -118,6 +118,9 @@ pub mod interactions_endpoint;
 pub mod utils;
 #[cfg(feature = "broker")]
 pub use oxcord_broker as broker;
+#[cfg(feature = "oxcord_framework")]
+#[cfg_attr(docsrs, doc(cfg(feature = "oxcord_framework")))]
+pub use oxcord_framework as framework_v2;
 #[cfg(feature = "voice")]
 pub use oxcord_voice as voice;
 

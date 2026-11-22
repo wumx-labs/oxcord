@@ -1,0 +1,40 @@
+[package]
+name = "oxcord-framework"
+version = "0.0.1"
+authors = ["NoxlyDev"]
+description = "A high-level, poise-style command framework for Oxcord: unified slash + prefix commands, argument extraction, cooldowns, and autocomplete."
+readme = "README.md"
+categories = ["discord", "api-bindings"]
+
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+oxcord-model = { version = "0.0.1", path = "../oxcord-model" }
+oxcord-macros = { version = "0.0.1", path = "../oxcord-macros", optional = true }
+
+async-trait = { version = "0.1.74", optional = true }
+tracing = { version = "0.1.40", features = ["log"] }
+tokio = { version = "1.34.0", features = ["rt", "sync", "time", "macros"], optional = true }
+futures = { version = "0.3.32", default-features = false, features = ["std"], optional = true }
+parking_lot = "0.12.1"
+dashmap = { version = "5.5.3" }
+thiserror = "1.0"
+
+[features]
+default = ["macros"]
+# Enables proc-macro helpers (#[oxcord::command])
+macros = ["oxcord-macros"]
+# Enables prefix (text) command support
+prefix = []
+# Enables slash (application) command support – always on
+slash = []
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

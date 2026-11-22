@@ -1,0 +1,16 @@
+[package]
+name = "e26_declarative_slash_bot"
+version = "0.0.1"
+publish = false
+edition.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "e26_declarative_slash_bot"
+path = "src/main.rs"
+
+[dependencies]
+oxcord-framework = { path = "../../crates/oxcord-framework" }
+oxcord-macros = { path = "../../crates/oxcord-macros" }
+tokio = { version = "1.34.0", features = ["full"] }
+tracing-subscriber = "0.3"
