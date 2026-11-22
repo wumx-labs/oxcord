@@ -42,8 +42,6 @@ use super::Permissions;
 /// ```
 ///
 /// [`Error`]: crate::error::Error
-/// [`Error::Model`]: crate::error::Error::Model
-/// [`GuildId::ban`]: super::id::GuildId::ban
 /// [`model`]: crate::model
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 #[non_exhaustive]
@@ -60,25 +58,21 @@ pub enum Error {
     ///
     /// [`Guild`]: super::guild::Guild
     /// [`GuildId`]: super::id::GuildId
-    /// [`Cache`]: crate::cache::Cache
     GuildNotFound,
     /// An indication that a [`Role`] could not be found by [Id][`RoleId`] in the [`Cache`].
     ///
     /// [`Role`]: super::guild::Role
     /// [`RoleId`]: super::id::RoleId
-    /// [`Cache`]: crate::cache::Cache
     RoleNotFound,
     /// An indication that a [`Member`] could not be found by [Id][`UserId`] in the [`Cache`].
     ///
     /// [`Member`]: super::guild::Member
     /// [`UserId`]: super::id::UserId
-    /// [`Cache`]: crate::cache::Cache
     MemberNotFound,
     /// An indication that a [`Channel`] could not be found by [Id][`ChannelId`] in the [`Cache`].
     ///
     /// [`Channel`]: super::channel::Channel
     /// [`ChannelId`]: super::id::ChannelId
-    /// [`Cache`]: crate::cache::Cache
     ChannelNotFound,
     /// An indication that a [`Message`] has already been crossposted, and cannot be crossposted
     /// twice.
@@ -113,8 +107,6 @@ pub enum Error {
     InvalidUser,
     /// An indicator that an item is missing from the [`Cache`], and the action can not be
     /// continued.
-    ///
-    /// [`Cache`]: crate::cache::Cache
     ItemMissing,
     /// Indicates that a member, role or channel from the wrong [`Guild`] was provided.
     ///
