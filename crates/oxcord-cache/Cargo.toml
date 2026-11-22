@@ -1,14 +1,19 @@
 [package]
 name = "oxcord-cache"
 version = "0.0.1"
-edition = "2024"
-rust-version = "1.85"
 description = "In-memory Discord state cache for oxcord"
 authors = ["NoxlyDev"]
-license = "Apache-2.0"
+
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [dependencies]
-oxcord-model = { path = "../oxcord-model" }
+oxcord-model = { version = "0.0.1", path = "../oxcord-model" }
 dashmap = { version = "5.5.3", features = ["serde"] }
 parking_lot = "0.12.1"
 rustc-hash = "2.1.1"
