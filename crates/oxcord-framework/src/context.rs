@@ -34,8 +34,10 @@ pub enum InvocationData {
 #[derive(Clone)]
 pub struct FrameworkHttp {
     /// Interaction token for slash commands, or `None` for prefix.
+    #[allow(dead_code)]
     pub(crate) interaction_token: Option<String>,
     /// Application ID, needed to follow up interactions.
+    #[allow(dead_code)]
     pub(crate) application_id: u64,
     /// Inner HTTP handle (type-erased to avoid a full `oxcord` dep).
     pub(crate) channel_id: ChannelId,
@@ -57,6 +59,7 @@ pub struct Context<'a> {
     /// Raw invocation data (slash token or prefix args).
     pub invocation: &'a InvocationData,
     /// A lightweight handle used by helper methods.
+    #[allow(dead_code)]
     pub(crate) http: Arc<FrameworkHttp>,
 }
 

@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["NoxlyDev"]
 description = "A high-level, poise-style command framework for Oxcord: unified slash + prefix commands, argument extraction, cooldowns, and autocomplete."
 readme = "README.md"
-categories = ["discord", "api-bindings"]
+categories = ["api-bindings", "network-programming"]
 
 documentation.workspace = true
 homepage.workspace = true
