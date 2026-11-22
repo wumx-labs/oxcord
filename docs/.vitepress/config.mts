@@ -15,7 +15,8 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Architecture', link: '/guide/architecture' },
       { text: 'Migration', link: '/guide/migrating-from-serenity' },
-      { text: 'API Reference', link: 'https://docs.rs/oxcord' }
+      { text: 'API Reference', link: 'https://docs.rs/oxcord' },
+      { text: 'llms.txt (AI)', link: '/llms.txt' }
     ],
     sidebar: [
       {

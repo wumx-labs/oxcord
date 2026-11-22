@@ -1,0 +1,86 @@
+# OXCORD: High-Performance Modular Discord Library for Rust (Edition 2024)
+
+> Official Documentation & AI Developer Context for OXCORD (`oxcord`)
+> Repository: https://github.com/wumx-labs/oxcord
+> Documentation Portal: https://oxcord.noxlydev.xyz
+> Discord Support: https://discord.gg/JnTRems5CT
+> Crates.io: https://crates.io/crates/oxcord
+
+## Overview
+OXCORD is an enterprise-grade, ultra-scalable Rust library for the Discord API, built on Rust Edition 2024 and Rust 1.85+.
+It scales seamlessly from a single-process weekend bot to massive enterprise bots serving tens of thousands of guilds across distributed container clusters.
+
+## Core Philosophy & Architecture
+- **Zero Lock Contention**: State cache built on concurrent lock-free data structures.
+- **Modular Architecture**: 12 independent crates (use only what you need, from pure models to distributed brokers).
+- **Distributed by Design**: Native pluggable message brokers (`oxcord-broker`) supporting In-Process, NATS, and Redis Streams.
+- **Full Discord Feature Parity**: Components v2, Application Commands, Voice v4/v8, Polls, AutoMod, Onboarding, and Webhooks.
+
+## Quick Start Example
+```rust
+use oxcord::prelude::*;
+
+struct Handler;
+
+#[async_trait]
+impl EventHandler for Handler {
+    async fn message(&self, ctx: Context, msg: Message) {
+        if msg.content == "!ping" {
+            if let Err(why) = msg.channel_id.say(&ctx.http, "Pong! 🏓").await {
+                eprintln!("Error sending message: {why:?}");
+            }
+        }
+    }
+}
+
+#[tokio::main]
+async fn main() {
+    let token = std::env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN must be set");
+    let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::MESSAGE_CONTENT;
+
+    let mut client = Client::builder(&token, intents)
+        .event_handler(Handler)
+        .await
+        .expect("Error creating client");
+
+    if let Err(why) = client.start().await {
+        eprintln!("Client error: {why:?}");
+    }
+}
+```
+
+## Documentation Index
+Full detailed text for all sections below is compiled in [llms-full.txt](https://oxcord.noxlydev.xyz/llms-full.txt).
+
+- [What is OXCORD](https://oxcord.noxlydev.xyz/guide/what-is-oxcord): Core philosophy, performance characteristics, and multi-tier scaling
+- [Getting Started](https://oxcord.noxlydev.xyz/guide/getting-started): Installation, setting up your bot application, and writing your first ping bot
+- [Architecture & Modular Crates](https://oxcord.noxlydev.xyz/guide/architecture): Detailed breakdown of the 12 modular crates and zero-cost abstractions
+- [Gateway & Sharding](https://oxcord.noxlydev.xyz/guide/gateway): WebSocket connection, Gateway intents, reconnect handling, and transparent sharding
+- [Cache Engine](https://oxcord.noxlydev.xyz/guide/cache): Lock-free in-memory state caching, cache configuration, and automated sweepers
+- [Voice & Audio Driver](https://oxcord.noxlydev.xyz/guide/voice): Voice connection protocol, UDP RTP audio pipeline, and AES-GCM encryption
+- [Distributed Message Broker](https://oxcord.noxlydev.xyz/guide/broker): Pluggable broker abstraction with NATS, Redis Streams, and In-Process bus for large-scale bots
+- [Slash Commands & Interactions](https://oxcord.noxlydev.xyz/guide/slash-commands): Application commands, subcommands, autocomplete, and interaction responses
+- [Webhooks](https://oxcord.noxlydev.xyz/guide/webhooks): Creating, executing, editing, and managing Discord Webhooks with builders
+- [Migrating from Serenity](https://oxcord.noxlydev.xyz/guide/migrating-from-serenity): Step-by-step mapping of types, client initialization, and handler patterns from Serenity to OXCORD
+- [Migrating from Twilight](https://oxcord.noxlydev.xyz/guide/migrating-from-twilight): Mapping from Twilight's raw model/http/gateway crates to OXCORD's unified ergonomics
+- [Example: Basic Ping Bot](https://oxcord.noxlydev.xyz/guide/examples/e01-basic-ping): Complete source code and explanation for a minimalist ping bot
+- [Example: Distributed Cache Bot](https://oxcord.noxlydev.xyz/guide/examples/e22-distributed-cache): Architecture and code for enterprise multi-process bots with shared distributed cache
+
+## Crates & API Reference
+- [`oxcord`](https://docs.rs/oxcord): Unified facade crate providing high-level ergonomics, client, framework, and full re-exports
+- [`oxcord-model`](https://docs.rs/oxcord-model): Complete Discord API data models, snowflakes, events, channels, messages, and permissions
+- [`oxcord-builders`](https://docs.rs/oxcord-builders): Type-safe fluent request builders for messages, embeds, buttons, selects, modals, and commands
+- [`oxcord-rest`](https://docs.rs/oxcord-rest): High-performance HTTP client with automated rate-limiting buckets and multipart support
+- [`oxcord-gateway`](https://docs.rs/oxcord-gateway): WebSocket connection manager, heartbeat monitor, compression, and shard manager
+- [`oxcord-cache`](https://docs.rs/oxcord-cache): Zero-lock-contention in-memory cache engine for guilds, channels, roles, and members
+- [`oxcord-voice`](https://docs.rs/oxcord-voice): Voice gateway driver, RTP audio streaming, Opus encoder integration, and encryption
+- [`oxcord-voice-model`](https://docs.rs/oxcord-voice-model): Voice gateway v4/v8 data protocol models and encryption payload structures
+- [`oxcord-broker`](https://docs.rs/oxcord-broker): Distributed microservices message broker supporting In-Process, Redis Streams, and NATS
+- [`oxcord-command-attr`](https://docs.rs/oxcord-command-attr): Procedural attribute macros (`#[command]`, `#[group]`, `#[check]`) for command routing
+- [`oxcord-proxy`](https://docs.rs/oxcord-proxy): Standalone reverse-proxy binary for centralized REST API Discord rate-limiting
+- [`oxcord-gateway-daemon`](https://docs.rs/oxcord-gateway-daemon): Standalone daemon binary for distributed multi-server gateway sharder nodes
+
+## AI Usage Instructions
+For LLM agents (Claude, ChatGPT, Cursor, Copilot) requiring 100% of all guides, architecture deep-dives, and comprehensive API definitions:
+Fetch the complete uncompressed documentation bundle directly at:
+`https://oxcord.noxlydev.xyz/llms-full.txt`

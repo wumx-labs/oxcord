@@ -5,6 +5,7 @@
   "description": "Official documentation portal for OXCORD Discord Rust library",
   "scripts": {
     "dev": "vitepress dev",
+    "prebuild": "python3 ../scripts/generate_llms.py",
     "build": "vitepress build",
     "preview": "vitepress preview"
   },
