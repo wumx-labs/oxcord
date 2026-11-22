@@ -1,19 +1,52 @@
 //! # oxcord-proxy
 //!
-//! Centralized Discord REST API Rate Limiting Proxy.
+//! Centralized Discord REST API Rate Limiting Proxy — built on **hyper 1.0**.
 //!
-//! - Runs as a standalone HTTP proxy daemon.
-//! - Centrally coordinates Discord rate limit buckets across hundreds of worker containers.
-//! - Injects the Discord Bot token securely so individual worker nodes don't need direct token
-//!   exposure.
-//! - Completely prevents HTTP 429 Cloudflare bans for enterprise-scale bot fleets.
+//! ## Why
+//!
+//! When running hundreds of shards across multiple worker processes (T3/T4), each
+//! process makes independent Discord REST calls and each has its own view of the
+//! rate limit windows. Without coordination, concurrent 429s pile up. This proxy
+//! acts as the single chokepoint:
+//!
+//! - All worker containers send REST requests **here** instead of directly to Discord.
+//! - Rate limit buckets are tracked in-process (`DashMap`) with per-route token
+//!   bucket scheduling.
+//! - The Discord Bot token is injected here, so individual shard containers never
+//!   hold the token.
+//! - On overload the proxy queues requests and drains in bucket order, preventing
+//!   Cloudflare 429 bans at enterprise scale.
+//!
+//! ## Configuration
+//!
+//! | Env var | Default | Description |
+//! |---|---|---|
+//! | `PORT` | `8080` | Local listen port |
+//! | `DISCORD_TOKEN` | *(required)* | Bot token (without `Bot ` prefix) |
+//! | `GLOBAL_RATE_LIMIT` | `50` | Requests-per-second global cap |
+//!
+//! ## Running
+//!
+//! ```bash
+//! DISCORD_TOKEN=your_token cargo run -p oxcord-proxy
+//! ```
 
+mod proxy;
+mod ratelimit;
+
+use std::convert::Infallible;
 use std::env;
+use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 
-use reqwest::header::{AUTHORIZATION, HeaderName, HeaderValue};
-use tiny_http::{Header, Response, Server, StatusCode};
+use hyper::server::conn::http1;
+use hyper::service::service_fn;
+use hyper_util::rt::TokioIo;
+use proxy::ProxyState;
+use ratelimit::GlobalLimiter;
+use tokio::net::TcpListener;
+use tokio::signal;
 use tracing::{error, info, warn};
 
 const DISCORD_API_BASE: &str = "https://discord.com";
@@ -23,120 +56,94 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "oxcord_proxy=info".parse().unwrap()),
+                .unwrap_or_else(|_| "oxcord_proxy=info".parse().expect("valid filter")),
         )
         .init();
 
     let port: u16 = env::var("PORT").ok().and_then(|p| p.parse().ok()).unwrap_or(8080);
 
-    let token = env::var("DISCORD_TOKEN").unwrap_or_else(|_| {
-        warn!("DISCORD_TOKEN not set; proxy running in transparent forwarding mode.");
-        String::new()
-    });
+    let token = match env::var("DISCORD_TOKEN") {
+        Ok(t) if !t.is_empty() => t,
+        _ => {
+            warn!(
+                "DISCORD_TOKEN not set; running in transparent forwarding mode (no auth injection)"
+            );
+            String::new()
+        },
+    };
 
-    let addr = format!("0.0.0.0:{port}");
-    let server = Arc::new(Server::http(&addr).map_err(|e| format!("Failed to bind {addr}: {e}"))?);
-    info!("OXCORD Central REST Rate Limiter Proxy listening on http://{addr}");
+    let global_rps: u32 =
+        env::var("GLOBAL_RATE_LIMIT").ok().and_then(|v| v.parse().ok()).unwrap_or(50);
 
     let http_client = reqwest::Client::builder().timeout(Duration::from_secs(30)).build()?;
 
-    let token_arc = Arc::new(token);
+    let state = Arc::new(ProxyState {
+        token: Arc::new(token),
+        discord_base: DISCORD_API_BASE,
+        client: http_client,
+        limiter: GlobalLimiter::new(global_rps),
+    });
 
-    // Accept incoming proxy requests
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    let listener = TcpListener::bind(addr).await?;
+    info!("OXCORD Central REST Rate Limiter Proxy listening on http://{addr}");
+    info!("Global rate limit cap: {global_rps} req/s");
+
     loop {
-        let server = Arc::clone(&server);
-        let client = http_client.clone();
-        let token = Arc::clone(&token_arc);
+        tokio::select! {
+            conn = listener.accept() => {
+                match conn {
+                    Ok((stream, remote)) => {
+                        let io = TokioIo::new(stream);
+                        let state = Arc::clone(&state);
 
-        // tiny_http recv is blocking, run in spawned blocking task
-        let mut request = match tokio::task::spawn_blocking(move || server.recv()).await? {
-            Ok(req) => req,
-            Err(e) => {
-                error!("Error accepting HTTP connection: {e}");
-                continue;
-            },
-        };
+                        tokio::spawn(async move {
+                            let svc = service_fn(move |req| {
+                                let state = Arc::clone(&state);
+                                proxy::handle(state, req)
+                            });
 
-        tokio::spawn(async move {
-            let url_path = request.url().to_string();
-            let target_url = format!("{DISCORD_API_BASE}{url_path}");
-            let method = reqwest::Method::from_bytes(request.method().as_str().as_bytes())
-                .unwrap_or(reqwest::Method::GET);
-
-            let mut body = Vec::new();
-            let _ = request.as_reader().read_to_end(&mut body);
-
-            let mut req_builder = client.request(method, &target_url);
-
-            // Forward incoming headers except host
-            for h in request.headers() {
-                let field_str = h.field.as_str().as_str();
-                if !field_str.eq_ignore_ascii_case("host") {
-                    if let Ok(name) = HeaderName::from_bytes(field_str.as_bytes()) {
-                        if let Ok(val) = HeaderValue::from_bytes(h.value.as_bytes()) {
-                            req_builder = req_builder.header(name, val);
-                        }
-                    }
-                }
-            }
-
-            // Inject Bot Token if not present or configured centrally
-            if !token.is_empty() {
-                let auth_val = if token.starts_with("Bot ") {
-                    token.to_string()
-                } else {
-                    format!("Bot {token}")
-                };
-                if let Ok(val) = HeaderValue::from_str(&auth_val) {
-                    req_builder = req_builder.header(AUTHORIZATION, val);
-                }
-            }
-
-            if !body.is_empty() {
-                req_builder = req_builder.body(body);
-            }
-
-            match req_builder.send().await {
-                Ok(resp) => {
-                    let status = resp.status().as_u16();
-                    let resp_headers = resp.headers().clone();
-
-                    match resp.bytes().await {
-                        Ok(resp_bytes) => {
-                            let mut response = Response::new(
-                                StatusCode(status),
-                                Vec::new(),
-                                resp_bytes.as_ref(),
-                                Some(resp_bytes.len()),
-                                None,
-                            );
-
-                            for (k, v) in &resp_headers {
-                                if let Ok(h) =
-                                    Header::from_bytes(k.as_str().as_bytes(), v.as_bytes())
-                                {
-                                    response.add_header(h);
-                                }
+                            if let Err(e) = http1::Builder::new()
+                                .keep_alive(true)
+                                .serve_connection(io, svc)
+                                .await
+                            {
+                                error!(remote = %remote, "connection error: {e}");
                             }
-
-                            let _ = request.respond(response);
-                        },
-                        Err(e) => {
-                            let _ = request.respond(
-                                Response::from_string(format!("Proxy read error: {e}"))
-                                    .with_status_code(502),
-                            );
-                        },
-                    }
-                },
-                Err(e) => {
-                    error!("Proxy request to Discord failed: {e}");
-                    let _ = request.respond(
-                        Response::from_string(format!("Proxy Gateway error: {e}"))
-                            .with_status_code(502),
-                    );
-                },
+                        });
+                    },
+                    Err(e) => error!("accept error: {e}"),
+                }
             }
-        });
+            _ = shutdown_signal() => {
+                info!("Shutdown signal received — stopping proxy");
+                break;
+            }
+        }
     }
+
+    Ok(())
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c().await.expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    {
+        let terminate = async {
+            signal::unix::signal(signal::unix::SignalKind::terminate())
+                .expect("failed to install SIGTERM handler")
+                .recv()
+                .await;
+        };
+        tokio::select! {
+            () = ctrl_c => {},
+            () = terminate => {},
+        }
+    }
+
+    #[cfg(not(unix))]
+    ctrl_c.await;
 }
