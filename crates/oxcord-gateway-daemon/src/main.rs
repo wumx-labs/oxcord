@@ -4,37 +4,63 @@
 //!
 //! - Connects and maintains WebSocket connections for assigned shard ranges.
 //! - Publishes all received Discord events to the message broker (`discord.events.<name>`).
-//! - Accepts operational commands from workers via broker (status updates, voice joins).
+//! - Persists gateway sessions (`session_id`, `resume_gateway_url`) to disk across restarts.
+//! - Exposes a lightweight `/health` and `/metrics` HTTP endpoint for Prometheus/K8s probes.
 //! - Enables zero-downtime bot redeployments without dropping Discord shard connections.
+
+mod session;
+mod status;
 
 use std::env;
 use std::sync::Arc;
+use std::sync::atomic::Ordering;
 
 use oxcord::async_trait;
 use oxcord::broker::{Broker, BrokerMessage, InProcessBroker};
 use oxcord::client::{Client, Context, EventHandler, RawEventHandler};
 use oxcord::model::event::Event;
 use oxcord::model::gateway::{GatewayIntents, Ready};
+use session::SessionStore;
+use status::{DaemonMetrics, start_status_server};
 use tracing::{error, info, warn};
 
-/// Event forwarder that blasts every received Discord event into the message broker.
+/// Event forwarder that blasts every received Discord event into the message broker
+/// and tracks shard session lifecycle.
 struct GatewayDaemonForwarder {
     broker: Arc<dyn Broker>,
+    session_store: SessionStore,
+    metrics: Arc<DaemonMetrics>,
 }
 
 #[async_trait]
 impl EventHandler for GatewayDaemonForwarder {
     async fn ready(&self, _ctx: Context, ready: Ready) {
+        let shard_id = ready.shard.map(|s| s.id.0).unwrap_or(0);
         info!(
-            "[Gateway Daemon] Shard ready! Connected as {} (id: {})",
-            ready.user.name, ready.user.id
+            shard_id = shard_id,
+            username = %ready.user.name,
+            user_id = %ready.user.id,
+            "[Gateway Daemon] Shard ready! Connected"
         );
+
+        self.session_store.record_ready(
+            shard_id,
+            ready.session_id.clone(),
+            ready.resume_gateway_url.clone(),
+        );
+
+        // Auto-persist immediately on successful identification
+        if let Err(e) = self.session_store.save() {
+            warn!("[Gateway Daemon] Failed to auto-save session on Ready: {e}");
+        }
     }
 }
 
 #[async_trait]
 impl RawEventHandler for GatewayDaemonForwarder {
     async fn raw_event(&self, _ctx: Context, event: Event) {
+        self.metrics.events_forwarded.fetch_add(1, Ordering::Relaxed);
+
         let event_name = event_to_name(&event);
         let topic = format!("discord.events.{}", event_name.to_lowercase());
 
@@ -132,6 +158,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Starting OXCORD Gateway Daemon (Zero-Downtime Sharding Service)…");
 
+    let session_file = env::var("SESSION_FILE").unwrap_or_else(|_| "./sessions.json".to_string());
+    let session_store = SessionStore::new(&session_file);
+
+    let status_port: u16 =
+        env::var("STATUS_PORT").ok().and_then(|p| p.parse().ok()).unwrap_or(8081);
+
+    let metrics = Arc::new(DaemonMetrics::default());
+    start_status_server(status_port, Arc::clone(&metrics), session_store.clone());
+
     let token = env::var("DISCORD_TOKEN").unwrap_or_else(|_| {
         warn!("DISCORD_TOKEN environment variable not set. Running in dry-run mode.");
         String::new()
@@ -142,12 +177,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if token.is_empty() {
         info!("No token provided. Gateway Daemon initialized successfully in dry-run mode.");
+        info!("Metrics and Health endpoint active on port {status_port}.");
+        wait_for_shutdown().await;
+        let _ = session_store.save();
         return Ok(());
     }
 
     let intents = GatewayIntents::all();
     let handler = GatewayDaemonForwarder {
         broker,
+        session_store: session_store.clone(),
+        metrics,
     };
 
     let mut client = Client::builder(&token, intents).event_handler(handler).await?;
@@ -158,10 +198,39 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 error!("Client exited with error: {e:?}");
             }
         }
-        _ = tokio::signal::ctrl_c() => {
-            info!("Received SIGINT/Ctrl+C. Shutting down Gateway Daemon gracefully…");
+        _ = wait_for_shutdown() => {
+            info!("Shutdown signal received. Flusing shard sessions to disk…");
+            if let Err(e) = session_store.save() {
+                error!("Failed to save gateway sessions during shutdown: {e}");
+            } else {
+                info!("Gateway sessions persisted successfully.");
+            }
         }
     }
 
     Ok(())
+}
+
+async fn wait_for_shutdown() {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c().await.expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    {
+        let mut terminate =
+            tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+                .expect("failed to install SIGTERM handler");
+        tokio::select! {
+            () = ctrl_c => {
+                info!("Received SIGINT/Ctrl+C.");
+            },
+            _ = terminate.recv() => {
+                info!("Received SIGTERM signal.");
+            },
+        }
+    }
+
+    #[cfg(not(unix))]
+    ctrl_c.await;
 }
