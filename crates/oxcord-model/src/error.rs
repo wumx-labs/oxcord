@@ -7,12 +7,12 @@ use super::Permissions;
 
 /// An error returned from the [`model`] module.
 ///
-/// This is always wrapped within the library's [`Error::Model`] variant.
+/// This is always wrapped within the library's `Error::Model` variant.
 ///
 /// # Examples
 ///
 /// Matching an [`Error`] with this variant would look something like the following for the
-/// [`GuildId::ban`] method, which in this example is used to re-ban all members.
+/// `GuildId::ban` method, which in this example is used to re-ban all members.
 ///
 /// ```rust,ignore
 /// use oxcord_model::prelude::*;
@@ -54,22 +54,22 @@ pub enum Error {
     EmbedAmount,
     /// Indicates that the textual content of an embed exceeds the maximum length.
     EmbedTooLarge(usize),
-    /// An indication that a [`Guild`] could not be found by [Id][`GuildId`] in the [`Cache`].
+    /// An indication that a [`Guild`] could not be found by [Id][`GuildId`] in the Cache.
     ///
     /// [`Guild`]: super::guild::Guild
     /// [`GuildId`]: super::id::GuildId
     GuildNotFound,
-    /// An indication that a [`Role`] could not be found by [Id][`RoleId`] in the [`Cache`].
+    /// An indication that a [`Role`] could not be found by [Id][`RoleId`] in the Cache.
     ///
     /// [`Role`]: super::guild::Role
     /// [`RoleId`]: super::id::RoleId
     RoleNotFound,
-    /// An indication that a [`Member`] could not be found by [Id][`UserId`] in the [`Cache`].
+    /// An indication that a [`Member`] could not be found by [Id][`UserId`] in the Cache.
     ///
     /// [`Member`]: super::guild::Member
     /// [`UserId`]: super::id::UserId
     MemberNotFound,
-    /// An indication that a [`Channel`] could not be found by [Id][`ChannelId`] in the [`Cache`].
+    /// An indication that a [`Channel`] could not be found by [Id][`ChannelId`] in the Cache.
     ///
     /// [`Channel`]: super::channel::Channel
     /// [`ChannelId`]: super::id::ChannelId
@@ -105,7 +105,7 @@ pub enum Error {
     ///
     /// [current user]: super::user::CurrentUser
     InvalidUser,
-    /// An indicator that an item is missing from the [`Cache`], and the action can not be
+    /// An indicator that an item is missing from the Cache, and the action can not be
     /// continued.
     ItemMissing,
     /// Indicates that a member, role or channel from the wrong [`Guild`] was provided.

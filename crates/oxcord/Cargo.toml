@@ -61,7 +61,7 @@ oxcord-voice = { version = "0.0.1", path = "../oxcord-voice", optional = true }
 oxcord-broker = { version = "0.1.0", path = "../oxcord-broker", optional = true }
 
 [dev-dependencies.http_crate]
-version = "1.0"
+version = "0.2"
 package = "http"
 
 [features]

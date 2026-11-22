@@ -308,8 +308,7 @@ mod test {
         builder = builder.status(403);
         builder = builder.url(String::from("https://ferris.crab").parse().unwrap());
         let body_string = to_string(&error).unwrap();
-        let body: reqwest::Body = body_string.into();
-        let response = builder.body(body).unwrap();
+        let response = builder.body(body_string).unwrap();
 
         let reqwest_response: reqwest::Response = response.into();
         let error_response = ErrorResponse::from_response(reqwest_response, Method::POST).await;
