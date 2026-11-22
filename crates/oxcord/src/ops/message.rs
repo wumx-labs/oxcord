@@ -59,7 +59,7 @@ pub trait MessageExt: Sized {
     #[cfg(feature = "model")]
     /// A util function for determining whether this message was sent by someone else, or the bot.
     #[cfg(feature = "cache")]
-    #[deprecated = "Check Message::author is equal to Cache::current_user"]
+    #[deprecated(since = "0.0.1", note = "Check Message::author is equal to Cache::current_user")]
     fn is_own(&self, cache: impl AsRef<Cache>) -> bool;
     #[cfg(feature = "model")]
     /// Calculates the permissions of the message author in the current channel.
@@ -224,7 +224,10 @@ pub trait MessageExt: Sized {
     /// objects from HTTP requests, like [`ChannelId::send_message`], because [`Self::guild_id`] is
     /// never set for those, which this method relies on.
     #[must_use]
-    #[deprecated = "Check if guild_id is None if the message is received from the gateway."]
+    #[deprecated(
+        since = "0.0.1",
+        note = "Check if guild_id is None if the message is received from the gateway."
+    )]
     fn is_private(&self) -> bool;
     #[cfg(feature = "model")]
     /// Retrieves a clone of the author's Member instance, if this message was sent in a guild.
@@ -389,7 +392,10 @@ pub trait MessageExt: Sized {
     ///
     /// [`guild_id`]: Self::guild_id
     #[allow(deprecated)]
-    #[deprecated = "Use Self::link if Message was recieved via an event, otherwise use MessageId::link to provide the guild_id yourself."]
+    #[deprecated(
+        since = "0.0.1",
+        note = "Use Self::link if Message was recieved via an event, otherwise use MessageId::link to provide the guild_id yourself."
+    )]
     async fn link_ensured(&self, cache_http: impl CacheHttp) -> String;
     #[cfg(feature = "model")]
     /// Returns a builder which can be awaited to obtain a reaction or stream of reactions on this
@@ -808,7 +814,7 @@ pub trait MessageIdExt: Sized {
     fn link(&self, channel_id: ChannelId, guild_id: Option<GuildId>) -> String;
     #[cfg(feature = "model")]
     /// Same as [`Self::link`] but tries to find the [`GuildId`] if it is not provided.
-    #[deprecated = "Use GuildChannel::guild_id if you have no GuildId"]
+    #[deprecated(since = "0.0.1", note = "Use GuildChannel::guild_id if you have no GuildId")]
     async fn link_ensured(
         &self,
         cache_http: impl CacheHttp,

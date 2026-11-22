@@ -239,7 +239,7 @@ pub struct PermissionOverwrite {
 
 /// The type of edit being made to a Channel's permissions.
 ///
-/// This is for use with methods such as [`GuildChannel::create_permission`].
+/// This is for use with methods such as `GuildChannel::create_permission`.
 ///
 /// If you would like to modify the default permissions of a channel, you can get its [`RoleId`]
 /// from [`GuildId::everyone_role`].

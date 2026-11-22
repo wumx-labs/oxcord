@@ -100,7 +100,10 @@ pub trait MemberExt: Sized {
     #[cfg(feature = "model")]
     /// Returns the DiscordTag of a Member, taking possible nickname into account.
     #[must_use]
-    #[deprecated = "Use User::tag to get the correct Discord username format or Self::display_name for the name that users will see."]
+    #[deprecated(
+        since = "0.0.1",
+        note = "Use User::tag to get the correct Discord username format or Self::display_name for the name that users will see."
+    )]
     fn distinct(&self) -> String;
     #[cfg(feature = "model")]
     /// Edits the member in place with the given data.
@@ -138,7 +141,7 @@ pub trait MemberExt: Sized {
     /// The "highest role in hierarchy" is defined as the role with the highest position. If two or
     /// more roles have the same highest position, then the role with the lowest ID is the highest.
     #[cfg(feature = "cache")]
-    #[deprecated = "Use Guild::member_highest_role"]
+    #[deprecated(since = "0.0.1", note = "Use Guild::member_highest_role")]
     fn highest_role_info(&self, cache: impl AsRef<Cache>) -> Option<(RoleId, u16)>;
     #[cfg(feature = "model")]
     /// Kick the member from the guild.
@@ -256,7 +259,10 @@ pub trait MemberExt: Sized {
     /// And/or returns [`ModelError::ItemMissing`] if the "default channel" of the guild is not
     /// found.
     #[cfg(feature = "cache")]
-    #[deprecated = "Use Guild::user_permissions_in, as this doesn't consider permission overwrites"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "Use Guild::user_permissions_in, as this doesn't consider permission overwrites"
+    )]
     fn permissions(&self, cache: impl AsRef<Cache>) -> Result<Permissions>;
     #[cfg(feature = "model")]
     /// Removes a [`Role`] from the member.

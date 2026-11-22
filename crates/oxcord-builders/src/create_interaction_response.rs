@@ -65,7 +65,10 @@ pub enum CreateInteractionResponse {
     /// Responds to the interaction with an upgrade button.
     ///
     /// Corresponds to Discord's `PREMIUM_REQUIRED'.
-    #[deprecated = "use premium button components via `CreateButton::new_premium` instead"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "use premium button components via `CreateButton::new_premium` instead"
+    )]
     PremiumRequired,
     /// Not valid for autocomplete and Ping interactions. Only available for applications with
     /// Activities enabled.

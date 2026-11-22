@@ -132,7 +132,7 @@ pub trait GuildExt: Sized {
     fn default_channel_guaranteed(&self) -> Option<&GuildChannel>;
     #[cfg(feature = "model")]
     #[cfg(feature = "cache")]
-    #[deprecated = "Iterate through Guild::channels and use Iterator::find"]
+    #[deprecated(since = "0.0.1", note = "Iterate through Guild::channels and use Iterator::find")]
     fn channel_id_from_name(
         &self,
         #[allow(unused_variables)] cache: impl AsRef<Cache>,
@@ -294,7 +294,10 @@ pub trait GuildExt: Sized {
     /// Returns [`Error::Http`] if the current user cannot create a Guild.
     ///
     /// [`Shard`]: crate::gateway::Shard
-    #[deprecated = "This endpoint has been deprecated by Discord and will stop functioning after July 15, 2025. For more information, see: https://docs.discord.com/developers/change-log#deprecating-guild-creation-by-apps"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "This endpoint has been deprecated by Discord and will stop functioning after July 15, 2025. For more information, see: https://docs.discord.com/developers/change-log#deprecating-guild-creation-by-apps"
+    )]
     async fn create(
         http: impl AsRef<Http>,
         name: &str,
@@ -961,7 +964,7 @@ pub trait GuildExt: Sized {
     ///
     /// A guild is considered large if it has more than 250 members.
     #[must_use]
-    #[deprecated = "Use Guild::large"]
+    #[deprecated(since = "0.0.1", note = "Use Guild::large")]
     fn is_large(&self) -> bool;
     #[cfg(feature = "model")]
     /// Kicks a [`Member`] from the guild.
@@ -1231,7 +1234,10 @@ pub trait GuildExt: Sized {
     /// # Errors
     ///
     /// Will return an [`Error::Model`] if the [`Role`] or [`Channel`] is not from this [`Guild`].
-    #[deprecated = "this function ignores other roles the user may have as well as user-specific permissions; use user_permissions_in instead"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "this function ignores other roles the user may have as well as user-specific permissions; use user_permissions_in instead"
+    )]
     fn role_permissions_in(&self, channel: &GuildChannel, role: &Role) -> Result<Permissions>;
     #[cfg(feature = "model")]
     /// Retrieves the count of the number of [`Member`]s that would be pruned with the number of

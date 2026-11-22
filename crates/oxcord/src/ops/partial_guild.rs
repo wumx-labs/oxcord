@@ -201,7 +201,7 @@ pub trait PartialGuildExt: Sized {
     async fn channels(&self, http: impl AsRef<Http>) -> Result<HashMap<ChannelId, GuildChannel>>;
     #[cfg(feature = "model")]
     #[cfg(feature = "cache")]
-    #[deprecated = "Use Cache::guild and Guild::channels"]
+    #[deprecated(since = "0.0.1", note = "Use Cache::guild and Guild::channels")]
     fn channel_id_from_name(
         &self,
         cache: impl AsRef<Cache>,
@@ -718,7 +718,7 @@ pub trait PartialGuildExt: Sized {
     ///
     /// [`position`]: Role::position
     #[cfg(feature = "cache")]
-    #[deprecated = "Use Cache::guild and Guild::greater_member_hierarchy"]
+    #[deprecated(since = "0.0.1", note = "Use Cache::guild and Guild::greater_member_hierarchy")]
     fn greater_member_hierarchy(
         &self,
         cache: impl AsRef<Cache>,
@@ -956,7 +956,10 @@ pub trait PartialGuildExt: Sized {
     /// # Errors
     ///
     /// Returns [`Error::Model`] if the [`Role`] or [`Channel`] is not from this [`Guild`].
-    #[deprecated = "this function ignores other roles the user may have as well as user-specific permissions; use user_permissions_in instead"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "this function ignores other roles the user may have as well as user-specific permissions; use user_permissions_in instead"
+    )]
     fn role_permissions_in(&self, channel: &GuildChannel, role: &Role) -> Result<Permissions>;
     #[cfg(feature = "model")]
     /// Gets the number of [`Member`]s that would be pruned with the given number of days.

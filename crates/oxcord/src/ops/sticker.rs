@@ -105,7 +105,7 @@ pub trait StickerIdExt: Sized {
     ///
     /// [Create Guild Expressions]: Permissions::CREATE_GUILD_EXPRESSIONS
     /// [Manage Guild Expressions]: Permissions::MANAGE_GUILD_EXPRESSIONS
-    #[deprecated = "use `GuildId::delete_sticker` instead"]
+    #[deprecated(since = "0.0.1", note = "use `GuildId::delete_sticker` instead")]
     async fn delete(self, http: impl AsRef<Http>, guild_id: impl Into<GuildId>) -> Result<()>;
     #[cfg(feature = "model")]
     /// Requests the sticker via the REST API to get a [`Sticker`] with all details.
@@ -128,7 +128,7 @@ pub trait StickerIdExt: Sized {
     ///
     /// [Create Guild Expressions]: Permissions::CREATE_GUILD_EXPRESSIONS
     /// [Manage Guild Expressions]: Permissions::MANAGE_GUILD_EXPRESSIONS
-    #[deprecated = "use `GuildId::edit_sticker` instead"]
+    #[deprecated(since = "0.0.1", note = "use `GuildId::edit_sticker` instead")]
     async fn edit(
         self,
         cache_http: impl CacheHttp,

@@ -74,7 +74,10 @@ pub trait ChannelExt: Sized {
     /// Determines if the channel is NSFW.
     #[must_use]
     #[cfg(feature = "model")]
-    #[deprecated = "Use the GuildChannel::nsfw field, as PrivateChannel is never NSFW"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "Use the GuildChannel::nsfw field, as PrivateChannel is never NSFW"
+    )]
     fn is_nsfw(&self) -> bool;
 }
 impl ChannelExt for Channel {

@@ -312,7 +312,7 @@ pub trait ChannelIdExt: Sized {
     #[cfg(feature = "model")]
     /// Attempts to find a [`GuildChannel`] by its Id in the cache.
     #[cfg(feature = "cache")]
-    #[deprecated = "Use Cache::guild and Guild::channels instead"]
+    #[deprecated(since = "0.0.1", note = "Use Cache::guild and Guild::channels instead")]
     fn to_channel_cached(self, cache: &Cache) -> Option<GuildChannelRef<'_>>;
     #[cfg(feature = "model")]
     /// First attempts to retrieve the channel from the `temp_cache` if enabled, otherwise performs

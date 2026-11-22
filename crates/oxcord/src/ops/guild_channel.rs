@@ -440,7 +440,7 @@ pub trait GuildChannelExt: Sized {
     #[cfg(feature = "model")]
     /// Determines if the channel is NSFW.
     #[must_use]
-    #[deprecated = "Use the GuildChannel::nsfw field"]
+    #[deprecated(since = "0.0.1", note = "Use the GuildChannel::nsfw field")]
     fn is_nsfw(&self) -> bool;
     #[cfg(feature = "model")]
     /// Gets a message from the channel.
@@ -515,7 +515,7 @@ pub trait GuildChannelExt: Sized {
     /// [Attach Files]: Permissions::ATTACH_FILES
     /// [Send Messages]: Permissions::SEND_MESSAGES
     #[cfg(feature = "cache")]
-    #[deprecated = "Use `Guild::user_permissions_in`"]
+    #[deprecated(since = "0.0.1", note = "Use `Guild::user_permissions_in`")]
     fn permissions_for_user(
         &self,
         cache: impl AsRef<Cache>,
@@ -534,7 +534,10 @@ pub trait GuildChannelExt: Sized {
     /// Returns a [`ModelError::RoleNotFound`] if the given role could not be found in the
     /// [`Cache`].
     #[cfg(feature = "cache")]
-    #[deprecated = "this function ignores other roles the user may have as well as user-specific permissions; use Guild::user_permissions_in instead"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "this function ignores other roles the user may have as well as user-specific permissions; use Guild::user_permissions_in instead"
+    )]
     #[allow(deprecated)]
     fn permissions_for_role(
         &self,

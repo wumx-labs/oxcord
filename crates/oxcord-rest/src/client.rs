@@ -701,7 +701,10 @@ impl Http {
     /// ```rust,ignore
     ///
     /// [`Shard`]: crate::gateway::Shard
-    #[deprecated = "This endpoint has been deprecated by Discord and will stop functioning after July 15, 2025. For more information, see: https://docs.discord.com/developers/change-log#deprecating-guild-creation-by-apps"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "This endpoint has been deprecated by Discord and will stop functioning after July 15, 2025. For more information, see: https://docs.discord.com/developers/change-log#deprecating-guild-creation-by-apps"
+    )]
     pub async fn create_guild(&self, map: &Value) -> Result<PartialGuild> {
         self.fire(Request {
             body: Some(to_vec(map)?),

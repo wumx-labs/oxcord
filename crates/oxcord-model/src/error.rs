@@ -41,8 +41,8 @@ use super::Permissions;
 /// }
 /// ```
 ///
-/// [`Error`]: crate::Error
-/// [`Error::Model`]: crate::Error::Model
+/// [`Error`]: crate::error::Error
+/// [`Error::Model`]: crate::error::Error::Model
 /// [`GuildId::ban`]: super::id::GuildId::ban
 /// [`model`]: crate::model
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]

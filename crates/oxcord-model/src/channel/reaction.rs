@@ -22,7 +22,7 @@ pub struct Reaction {
     /// The Id of the [`User`] that sent the reaction.
     ///
     /// Always present when received from gateway.
-    /// Set to [`None`] by [`Message::react`] when cache is not available.
+    /// Set to [`None`] by `Message::react` when cache is not available.
     pub user_id: Option<UserId>,
     /// The [`Channel`] of the associated [`Message`].
     pub channel_id: ChannelId,

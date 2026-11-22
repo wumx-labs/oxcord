@@ -20,8 +20,8 @@
 //! | Driver | Feature Flag | Use Case |
 //! |---|---|---|
 //! | [`InProcessBroker`] | *(Default)* | Testing, development, single-node multi-tasking |
-//! | [`RedisBroker`] | `redis` | Multi-container setups with existing Redis/Dragonfly |
-//! | [`NatsBroker`] | `nats` | Ultra-high-throughput, sub-millisecond cloud microservices |
+//! | `RedisBroker` | `redis` | Multi-container setups with existing Redis/Dragonfly |
+//! | `NatsBroker` | `nats` | Ultra-high-throughput, sub-millisecond cloud microservices |
 
 pub mod envelope;
 pub mod error;

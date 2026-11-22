@@ -110,7 +110,7 @@ pub trait PrivateChannelExt: Sized {
     /// Determines if the channel is NSFW.
     #[must_use]
     #[allow(clippy::unused_self)]
-    #[deprecated = "This always returns false"]
+    #[deprecated(since = "0.0.1", note = "This always returns false")]
     fn is_nsfw(&self) -> bool;
     #[cfg(feature = "model")]
     /// Gets a message from the channel.

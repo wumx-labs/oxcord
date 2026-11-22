@@ -193,7 +193,7 @@ make_specific_collector!(
     guild_id: GuildId => message.guild_id.is_none_or(|g| g == *guild_id),
 );
 make_specific_collector!(
-    #[deprecated = "prefer the stand-alone collect() function to collect arbitrary events"]
+    #[deprecated(since = "0.0.1", note = "prefer the stand-alone collect() function to collect arbitrary events")]
     EventCollector, Event,
     event => event,
 );

@@ -90,7 +90,10 @@ pub trait RoleIdExt: Sized {
     #[cfg(feature = "model")]
     /// Tries to find the [`Role`] by its Id in the cache.
     #[cfg(feature = "cache")]
-    #[deprecated = "Use Guild::roles. This performs a loop over the entire cache!"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "Use Guild::roles. This performs a loop over the entire cache!"
+    )]
     fn to_role_cached(self, cache: impl AsRef<Cache>) -> Option<Role>;
 }
 impl RoleIdExt for RoleId {

@@ -409,7 +409,7 @@ impl Cache {
 
     /// Retrieves a [`GuildChannel`] from the cache based on the given Id.
     #[inline]
-    #[deprecated = "Use Cache::guild and Guild::channels instead"]
+    #[deprecated(since = "0.0.1", note = "Use Cache::guild and Guild::channels instead")]
     pub fn channel<C: Into<ChannelId>>(&self, id: C) -> Option<GuildChannelRef<'_>> {
         self.channel_(id.into())
     }
@@ -526,7 +526,7 @@ impl Cache {
     /// [`EventHandler::message`]: crate::client::EventHandler::message
     /// [`members`]: crate::model::guild::Guild::members
     #[inline]
-    #[deprecated = "Use Cache::guild and Guild::members instead"]
+    #[deprecated(since = "0.0.1", note = "Use Cache::guild and Guild::members instead")]
     pub fn member(
         &self,
         guild_id: impl Into<GuildId>,
@@ -541,7 +541,7 @@ impl Cache {
     }
 
     #[inline]
-    #[deprecated = "Use Cache::guild and Guild::roles instead"]
+    #[deprecated(since = "0.0.1", note = "Use Cache::guild and Guild::roles instead")]
     pub fn guild_roles(&self, guild_id: impl Into<GuildId>) -> Option<GuildRolesRef<'_>> {
         self.guild_roles_(guild_id.into())
     }
@@ -559,7 +559,7 @@ impl Cache {
 
     /// This method returns all channels from a guild of with the given `guild_id`.
     #[inline]
-    #[deprecated = "Use Cache::guild and Guild::channels instead"]
+    #[deprecated(since = "0.0.1", note = "Use Cache::guild and Guild::channels instead")]
     pub fn guild_channels(&self, guild_id: impl Into<GuildId>) -> Option<GuildChannelsRef<'_>> {
         self.guild_channels_(guild_id.into())
     }
@@ -645,7 +645,7 @@ impl Cache {
     /// [`Guild`]: crate::model::guild::Guild
     /// [`roles`]: crate::model::guild::Guild::roles
     #[inline]
-    #[deprecated = "Use Cache::guild and Guild::roles instead"]
+    #[deprecated(since = "0.0.1", note = "Use Cache::guild and Guild::roles instead")]
     pub fn role<G, R>(&self, guild_id: G, role_id: R) -> Option<GuildRoleRef<'_>>
     where
         G: Into<GuildId>,
@@ -741,7 +741,10 @@ impl Cache {
     }
 
     /// Returns a channel category matching the given ID
-    #[deprecated = "Use Cache::guild, Guild::channels, and GuildChannel::kind"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "Use Cache::guild, Guild::channels, and GuildChannel::kind"
+    )]
     pub fn category(&self, channel_id: ChannelId) -> Option<GuildChannelRef<'_>> {
         #[allow(deprecated)]
         let channel = self.channel(channel_id)?;
@@ -749,7 +752,10 @@ impl Cache {
     }
 
     /// Returns the parent category of the given channel ID.
-    #[deprecated = "Use Cache::guild, Guild::channels, and GuildChannel::parent_id"]
+    #[deprecated(
+        since = "0.0.1",
+        note = "Use Cache::guild, Guild::channels, and GuildChannel::parent_id"
+    )]
     pub fn channel_category_id(&self, channel_id: ChannelId) -> Option<ChannelId> {
         #[allow(deprecated)]
         self.channel(channel_id)?.parent_id

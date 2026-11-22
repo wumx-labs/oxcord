@@ -21,13 +21,13 @@ pub enum EncryptionMode {
     /// Preferred mode when hardware AES acceleration is available.
     AeadAes256GcmRtpSize,
     /// Legacy XSalsa20-Poly1305 mode.
-    #[deprecated(note = "Discontinued by Discord; use AEAD modes")]
+    #[deprecated(since = "0.0.1", note = "Discontinued by Discord; use AEAD modes")]
     XSalsa20Poly1305,
     /// Legacy XSalsa20-Poly1305 suffix mode.
-    #[deprecated(note = "Discontinued by Discord; use AEAD modes")]
+    #[deprecated(since = "0.0.1", note = "Discontinued by Discord; use AEAD modes")]
     XSalsa20Poly1305Suffix,
     /// Legacy XSalsa20-Poly1305 lite mode.
-    #[deprecated(note = "Discontinued by Discord; use AEAD modes")]
+    #[deprecated(since = "0.0.1", note = "Discontinued by Discord; use AEAD modes")]
     XSalsa20Poly1305Lite,
     /// Unknown or future encryption mode for forward-compatibility.
     Unknown(String),
