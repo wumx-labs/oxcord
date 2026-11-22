@@ -54,7 +54,8 @@ Full detailed text for all sections below is compiled in [llms-full.txt](https:/
 
 - [What is OXCORD](https://oxcord.noxlydev.xyz/guide/what-is-oxcord): Core philosophy, performance characteristics, and multi-tier scaling
 - [Getting Started](https://oxcord.noxlydev.xyz/guide/getting-started): Installation, setting up your bot application, and writing your first ping bot
-- [Architecture & Modular Crates](https://oxcord.noxlydev.xyz/guide/architecture): Detailed breakdown of the 12 modular crates and zero-cost abstractions
+- [Architecture & Modular Crates](https://oxcord.noxlydev.xyz/guide/architecture): Detailed breakdown of the 14 modular crates and zero-cost abstractions
+- [API Coverage Matrix](https://oxcord.noxlydev.xyz/guide/coverage): Complete Discord API v10 Gateway, REST, Voice, and Components coverage breakdown
 - [Gateway & Sharding](https://oxcord.noxlydev.xyz/guide/gateway): WebSocket connection, Gateway intents, reconnect handling, and transparent sharding
 - [Cache Engine](https://oxcord.noxlydev.xyz/guide/cache): Lock-free in-memory state caching, cache configuration, and automated sweepers
 - [Voice & Audio Driver](https://oxcord.noxlydev.xyz/guide/voice): Voice connection protocol, UDP RTP audio pipeline, and AES-GCM encryption
@@ -76,7 +77,9 @@ Full detailed text for all sections below is compiled in [llms-full.txt](https:/
 - [`oxcord-voice`](https://docs.rs/oxcord-voice): Voice gateway driver, RTP audio streaming, Opus encoder integration, and encryption
 - [`oxcord-voice-model`](https://docs.rs/oxcord-voice-model): Voice gateway v4/v8 data protocol models and encryption payload structures
 - [`oxcord-broker`](https://docs.rs/oxcord-broker): Distributed microservices message broker supporting In-Process, Redis Pub/Sub, Kafka, and NATS
-- [`oxcord-command-attr`](https://docs.rs/oxcord-command-attr): Procedural attribute macros (`#[command]`, `#[group]`, `#[check]`) for command routing
+- [`oxcord-framework`](https://docs.rs/oxcord-framework): High-level poise-equivalent unified slash + prefix command framework with cooldowns and autocomplete
+- [`oxcord-macros`](https://docs.rs/oxcord-macros): Procedural macros (#[command]) for oxcord-framework declarative commands
+- [`oxcord-command-attr`](https://docs.rs/oxcord-command-attr): Procedural attribute macros (`#[command]`, `#[group]`, `#[check]`) for legacy text command routing
 - [`oxcord-proxy`](https://docs.rs/oxcord-proxy): Standalone reverse-proxy binary for centralized REST API Discord rate-limiting
 - [`oxcord-gateway-daemon`](https://docs.rs/oxcord-gateway-daemon): Standalone daemon binary for distributed multi-server gateway sharder nodes
 

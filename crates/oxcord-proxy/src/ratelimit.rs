@@ -36,6 +36,7 @@ pub struct GlobalLimiter {
     /// Per-bucket window tracking keyed by Discord bucket hash.
     buckets: DashMap<String, BucketState>,
     /// Maximum concurrent in-flight global requests.
+    #[allow(dead_code)]
     max_rps: u32,
 }
 
@@ -97,6 +98,7 @@ impl GlobalLimiter {
 
     /// Maximum global requests-per-second cap.
     #[must_use]
+    #[allow(dead_code)]
     pub fn max_rps(&self) -> u32 {
         self.max_rps
     }

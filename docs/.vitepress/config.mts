@@ -19,7 +19,8 @@ export default defineConfig({
         items: [
           { text: 'What is OXCORD?', link: '/guide/what-is-oxcord' },
           { text: 'Getting Started', link: '/guide/getting-started' },
-          { text: 'Modular Architecture', link: '/guide/architecture' }
+          { text: 'Modular Architecture', link: '/guide/architecture' },
+          { text: 'API Coverage Matrix', link: '/guide/coverage' }
         ]
       },
       {
@@ -55,7 +56,8 @@ export default defineConfig({
         items: [
           { text: 'What is OXCORD?', link: '/guide/what-is-oxcord' },
           { text: 'Getting Started', link: '/guide/getting-started' },
-          { text: 'Modular Architecture', link: '/guide/architecture' }
+          { text: 'Modular Architecture', link: '/guide/architecture' },
+          { text: 'API Coverage Matrix', link: '/guide/coverage' }
         ]
       },
       {

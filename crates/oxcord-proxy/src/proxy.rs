@@ -2,7 +2,6 @@
 
 use std::convert::Infallible;
 use std::sync::Arc;
-use std::time::Duration;
 
 use bytes::Bytes;
 use http_body_util::{BodyExt, Full};

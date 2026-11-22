@@ -12,7 +12,7 @@ Enable the `zstd` feature in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-oxcord = { version = "0.0.1", features = ["client", "gateway", "zstd"] }
+oxcord = { version = "0.1.0", features = ["client", "gateway", "zstd"] }
 ```
 
 OXCORD automatically negotiates `compress=zstd-stream` with Discord Gateway v10, utilizing shared Zstandard dictionary decompression for significantly lower payload overhead and faster decompression cycles compared to legacy zlib streams.

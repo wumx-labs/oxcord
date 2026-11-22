@@ -13,7 +13,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-oxcord-rest = { version = "0.0.1", path = "../oxcord-rest", features = ["rustls_backend"] }
+oxcord-rest = { version = "0.1.0", path = "../oxcord-rest", features = ["rustls_backend"] }
 
 # HTTP server — hyper 1.0 (fully async, no blocking threads)
 hyper = { version = "1.0", features = ["http1", "http2", "server"] }

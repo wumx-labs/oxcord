@@ -34,7 +34,6 @@
 mod proxy;
 mod ratelimit;
 
-use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;

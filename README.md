@@ -72,7 +72,7 @@ Add `oxcord` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-oxcord = { version = "0.0.1", features = ["client", "gateway", "rustls_backend", "model"] }
+oxcord = { version = "0.1.0", features = ["client", "gateway", "rustls_backend", "model"] }
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 ```
 

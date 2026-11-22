@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-macros"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["NoxlyDev"]
 description = "Proc-macro helpers for oxcord-framework: #[command], #[check], and autocomplete attributes."
 

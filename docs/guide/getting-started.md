@@ -10,7 +10,7 @@ Add `oxcord` and `tokio` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-oxcord = { version = "0.0.1", features = ["client", "gateway", "model", "rustls_backend"] }
+oxcord = { version = "0.1.0", features = ["client", "gateway", "model", "rustls_backend"] }
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 ```
 

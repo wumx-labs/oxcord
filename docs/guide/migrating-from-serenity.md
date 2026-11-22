@@ -13,7 +13,7 @@ Change your `Cargo.toml`:
 # serenity = { version = "0.12", features = ["client", "gateway", "rustls_backend", "model"] }
 
 # New:
-oxcord = { version = "0.0.1", features = ["client", "gateway", "rustls_backend", "model"] }
+oxcord = { version = "0.1.0", features = ["client", "gateway", "rustls_backend", "model"] }
 ```
 
 ---

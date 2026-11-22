@@ -16,7 +16,8 @@ os.makedirs(PUBLIC_DIR, exist_ok=True)
 GUIDE_FILES = [
     ("What is OXCORD", "docs/guide/what-is-oxcord.md", "Core philosophy, performance characteristics, and multi-tier scaling"),
     ("Getting Started", "docs/guide/getting-started.md", "Installation, setting up your bot application, and writing your first ping bot"),
-    ("Architecture & Modular Crates", "docs/guide/architecture.md", "Detailed breakdown of the 12 modular crates and zero-cost abstractions"),
+    ("Architecture & Modular Crates", "docs/guide/architecture.md", "Detailed breakdown of the 14 modular crates and zero-cost abstractions"),
+    ("API Coverage Matrix", "docs/guide/coverage.md", "Complete Discord API v10 Gateway, REST, Voice, and Components coverage breakdown"),
     ("Gateway & Sharding", "docs/guide/gateway.md", "WebSocket connection, Gateway intents, reconnect handling, and transparent sharding"),
     ("Cache Engine", "docs/guide/cache.md", "Lock-free in-memory state caching, cache configuration, and automated sweepers"),
     ("Voice & Audio Driver", "docs/guide/voice.md", "Voice connection protocol, UDP RTP audio pipeline, and AES-GCM encryption"),
@@ -39,7 +40,9 @@ CRATE_ORDER = [
     ("oxcord-voice", "Voice gateway driver, RTP audio streaming, Opus encoder integration, and encryption"),
     ("oxcord-voice-model", "Voice gateway v4/v8 data protocol models and encryption payload structures"),
     ("oxcord-broker", "Distributed microservices message broker supporting In-Process, Redis Pub/Sub, Kafka, and NATS"),
-    ("oxcord-command-attr", "Procedural attribute macros (`#[command]`, `#[group]`, `#[check]`) for command routing"),
+    ("oxcord-framework", "High-level poise-equivalent unified slash + prefix command framework with cooldowns and autocomplete"),
+    ("oxcord-macros", "Procedural macros (#[command]) for oxcord-framework declarative commands"),
+    ("oxcord-command-attr", "Procedural attribute macros (`#[command]`, `#[group]`, `#[check]`) for legacy text command routing"),
     ("oxcord-proxy", "Standalone reverse-proxy binary for centralized REST API Discord rate-limiting"),
     ("oxcord-gateway-daemon", "Standalone daemon binary for distributed multi-server gateway sharder nodes"),
 ]
