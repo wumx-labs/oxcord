@@ -11,7 +11,7 @@
 //!
 //! 1. **Gateway Sharder Nodes**: Connect to Discord Gateway WebSocket, publish events to broker
 //!    topics.
-//! 2. **Message Broker**: NATS, Redis Streams, or In-Process broadcast bus.
+//! 2. **Message Broker**: NATS, Redis Pub/Sub, Kafka, or In-Process broadcast bus.
 //! 3. **Worker Nodes**: Subscribe to event topics, handle state cache, and execute bot commands.
 //! 4. **RPC Communication**: Cross-shard querying (e.g. asking Shard 42 for its voice status).
 //!
@@ -20,8 +20,9 @@
 //! | Driver | Feature Flag | Use Case |
 //! |---|---|---|
 //! | [`InProcessBroker`] | *(Default)* | Testing, development, single-node multi-tasking |
-//! | `RedisBroker` | `redis` | Multi-container setups with existing Redis/Dragonfly |
+//! | `RedisBroker` | `redis` | Multi-container setups with existing Redis/Dragonfly (Pub/Sub) |
 //! | `NatsBroker` | `nats` | Ultra-high-throughput, sub-millisecond cloud microservices |
+//! | `KafkaBroker` | `kafka` | Distributed streaming with Apache Kafka / Redpanda (`rskafka`) |
 
 pub mod envelope;
 pub mod error;

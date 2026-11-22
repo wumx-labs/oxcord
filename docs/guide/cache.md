@@ -1,6 +1,6 @@
 # Pluggable State & Cache Engine
 
-OXCORD decouples caching from in-process memory, allowing bots to switch seamlessly between single-process concurrent DashMap and distributed Redis backends.
+OXCORD decouples state caching into a modular, pluggable engine: a zero-lock-contention in-memory DashMap backend for single-node bots, and the `KeyValueStateBackend` trait for distributed stores (e.g., Redis, Dragonfly, or RocksDB). For distributed pub/sub messaging and cross-shard event routing, native Redis, NATS, and Kafka drivers are provided by [`oxcord-broker`](/guide/broker).
 
 ---
 

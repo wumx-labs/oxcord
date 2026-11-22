@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# LLM & AI Agent Context (https://llmstxt.org)
+# Standard AI Documentation Index: https://oxcord.noxlydev.xyz/llms.txt
+# Comprehensive Single-File AI Documentation: https://oxcord.noxlydev.xyz/llms-full.txt

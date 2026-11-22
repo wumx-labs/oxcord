@@ -6,17 +6,48 @@ export default defineConfig({
   description: 'Next-Generation Modular & High-Performance Rust Discord Library',
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
-    ['meta', { name: 'theme-color', content: '#5865F2' }]
+    ['meta', { name: 'theme-color', content: '#5865F2' }],
+    ['link', { rel: 'alternate', type: 'text/plain', href: '/llms.txt', title: 'LLMs.txt' }],
+    ['link', { rel: 'alternate', type: 'text/plain', href: '/llms-full.txt', title: 'LLMs Full Context' }]
   ],
   themeConfig: {
     logo: { light: '/icon-light-transparent.png', dark: '/icon-transparent.png', alt: 'OXCORD Logo' },
     siteTitle: 'OXCORD',
     nav: [
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Architecture', link: '/guide/architecture' },
-      { text: 'Migration', link: '/guide/migrating-from-serenity' },
-      { text: 'API Reference', link: 'https://docs.rs/oxcord' },
-      { text: 'llms.txt (AI)', link: '/llms.txt' }
+      {
+        text: 'Guide',
+        items: [
+          { text: 'What is OXCORD?', link: '/guide/what-is-oxcord' },
+          { text: 'Getting Started', link: '/guide/getting-started' },
+          { text: 'Modular Architecture', link: '/guide/architecture' }
+        ]
+      },
+      {
+        text: 'Features',
+        items: [
+          { text: 'Gateway & Zstd Compression', link: '/guide/gateway' },
+          { text: 'Pluggable State & Cache', link: '/guide/cache' },
+          { text: 'Distributed Message Broker', link: '/guide/broker' },
+          { text: 'Modern Voice (v8 & AEAD)', link: '/guide/voice' },
+          { text: 'Slash Commands & Modals', link: '/guide/slash-commands' },
+          { text: 'Zero-Alloc Webhooks', link: '/guide/webhooks' }
+        ]
+      },
+      {
+        text: 'Migration',
+        items: [
+          { text: 'From Serenity', link: '/guide/migrating-from-serenity' },
+          { text: 'From Twilight', link: '/guide/migrating-from-twilight' }
+        ]
+      },
+      { text: 'API Docs', link: 'https://docs.rs/oxcord' },
+      {
+        text: '🤖 AI / LLMs',
+        items: [
+          { text: 'Index (llms.txt)', link: '/llms.txt' },
+          { text: 'Full Context (llms-full.txt)', link: '/llms-full.txt' }
+        ]
+      }
     ],
     sidebar: [
       {

@@ -17,7 +17,7 @@
    - Gateway & Transparent Sharding
    - Lock-Free Cache Engine
    - Voice & Real-time Audio Driver
-   - Distributed Message Broker (NATS / Redis / InProcess)
+   - Distributed Message Broker (NATS / Redis Pub/Sub / Kafka / InProcess)
    - Slash Commands & Component Interactions
    - Discord Webhooks
    - Migrating from Serenity
@@ -39,11 +39,6 @@
 
 # PART 1: COMPREHENSIVE GUIDES
 
-
-
-<!-- ======================================================== -->
-<!-- CHAPTER: What is OXCORD -->
-<!-- ======================================================== -->
 
 ## What is OXCORD
 
@@ -94,11 +89,6 @@ With Discord's Interactions Endpoint URL, bots can receive Slash Commands over H
 By default, OXCORD uses `rustls` for all TLS connections. You don't need `libssl-dev`, `openssl`, or `pkg-config` installed on your host system. It compiles anywhere: Linux (musl/glibc), macOS, Windows, and scratch Docker containers.
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Getting Started -->
-<!-- ======================================================== -->
 
 ## Getting Started
 
@@ -206,11 +196,6 @@ OXCORD provides fine-grained feature flags so you only compile what your bot use
 
 ---
 
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Architecture & Modular Crates -->
-<!-- ======================================================== -->
-
 ## Architecture & Modular Crates
 
 # Modular Architecture
@@ -281,11 +266,6 @@ OXCORD is structured as a Cargo workspace with distinct, specialized crates. Thi
 
 ---
 
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Gateway & Sharding -->
-<!-- ======================================================== -->
-
 ## Gateway & Sharding
 
 # Gateway & Zstandard (zstd) Compression
@@ -305,7 +285,7 @@ Enable the `zstd` feature in your `Cargo.toml`:
 oxcord = { version = "0.0.1", features = ["client", "gateway", "zstd"] }
 ```
 
-OXCORD automatically negotiates `compress=zstd-stream` with Discord Gateway v10, reducing CPU usage and bandwidth by up to **40%**.
+OXCORD automatically negotiates `compress=zstd-stream` with Discord Gateway v10, utilizing shared Zstandard dictionary decompression for significantly lower payload overhead and faster decompression cycles compared to legacy zlib streams.
 
 ---
 
@@ -331,16 +311,11 @@ Where $B$ is the base delay and $M$ is the maximum ceiling. This distributes rec
 
 ---
 
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Cache Engine -->
-<!-- ======================================================== -->
-
 ## Cache Engine
 
 # Pluggable State & Cache Engine
 
-OXCORD decouples caching from in-process memory, allowing bots to switch seamlessly between single-process concurrent DashMap and distributed Redis backends.
+OXCORD decouples state caching into a modular, pluggable engine: a zero-lock-contention in-memory DashMap backend for single-node bots, and the `KeyValueStateBackend` trait for distributed stores (e.g., Redis, Dragonfly, or RocksDB). For distributed pub/sub messaging and cross-shard event routing, native Redis, NATS, and Kafka drivers are provided by [`oxcord-broker`](/guide/broker).
 
 ---
 
@@ -418,11 +393,6 @@ let state = StateEngine::new(backend);
 
 ---
 
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Voice & Audio Driver -->
-<!-- ======================================================== -->
-
 ## Voice & Audio Driver
 
 # Modern Voice Architecture (v8 & AEAD)
@@ -441,7 +411,7 @@ Discord has deprecated legacy `xsalsa20_poly1305` ciphers. OXCORD only uses mode
 2. **`aead_aes256_gcm_rtpsize`**
    - Hardware-accelerated AES-256 in Galois/Counter Mode.
 
-Both encryption modes are powered by the high-performance pure-Rust `ring` cryptographic engine.
+Both encryption modes are powered by the hardware-accelerated `ring` cryptographic engine (using AES-NI and ARM NEON instructions).
 
 ---
 
@@ -496,11 +466,6 @@ Audio streaming transmits 48 kHz Opus frames (960 samples per frame at 20ms inte
 - **Nonce Counter**: 4-byte counter appended to the packet tail.
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Distributed Message Broker -->
-<!-- ======================================================== -->
 
 ## Distributed Message Broker
 
@@ -620,11 +585,6 @@ println!("Shard 0 Latency: {}", String::from_utf8_lossy(&latency_bytes));
 
 ---
 
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Slash Commands & Interactions -->
-<!-- ======================================================== -->
-
 ## Slash Commands & Interactions
 
 # Slash Commands, Autocomplete & Modals
@@ -730,11 +690,6 @@ let response = CreateInteractionResponse::Message(
 
 ---
 
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Webhooks -->
-<!-- ======================================================== -->
-
 ## Webhooks
 
 # Zero-Alloc Webhooks (Serverless Bots)
@@ -799,11 +754,6 @@ let output = process_interaction(&verifier, &BotHandler, signature, timestamp, b
 ```
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Migrating from Serenity -->
-<!-- ======================================================== -->
 
 ## Migrating from Serenity
 
@@ -880,11 +830,6 @@ let output = process_interaction(&verifier, &handler, signature, timestamp, body
 
 ---
 
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Migrating from Twilight -->
-<!-- ======================================================== -->
-
 ## Migrating from Twilight
 
 # Migrating from Twilight to OXCORD
@@ -919,11 +864,6 @@ Twilight users appreciate granular crates and zero-copy performance. OXCORD deli
 You can use the unified `oxcord` facade crate or import individual crates directly just like you did with Twilight!
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Example: Basic Ping Bot -->
-<!-- ======================================================== -->
 
 ## Example: Basic Ping Bot
 
@@ -988,11 +928,6 @@ async fn main() {
 - [Architecture](/guide/architecture)
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CHAPTER: Example: Distributed Cache Bot -->
-<!-- ======================================================== -->
 
 ## Example: Distributed Cache Bot
 
@@ -1111,11 +1046,6 @@ For Redis, implement the `KeyValueStore` trait on your Redis client.
 # PART 2: CRATES & DETAILED API SPECIFICATION
 
 
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord -->
-<!-- ======================================================== -->
-
 ## Crate: `oxcord`
 **Description**: Unified facade crate providing high-level ergonomics, client, framework, and full re-exports
 **Docs.rs**: https://docs.rs/oxcord
@@ -1186,7 +1116,7 @@ oxcord-voice = { version = "0.0.1", path = "../oxcord-voice", optional = true }
 oxcord-broker = { version = "0.1.0", path = "../oxcord-broker", optional = true }
 
 [dev-dependencies.http_crate]
-version = "1.0"
+version = "0.2"
 package = "http"
 
 [features]
@@ -1361,7 +1291,6 @@ async fn main() {
 }
 ```
 
-
 ---
 
 ## License
@@ -1404,7 +1333,7 @@ Add the following to your `Cargo.toml` file:
 
 ```toml
 [dependencies]
-oxcord = "0.12"
+oxcord = "0.0.1"
 ```
 
 [`Cache`]: crate::cache::Cache
@@ -1449,11 +1378,6 @@ pub mod all {
 ```
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-model -->
-<!-- ======================================================== -->
 
 ## Crate: `oxcord-model`
 **Description**: Complete Discord API data models, snowflakes, events, channels, messages, and permissions
@@ -1554,7 +1478,6 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 oxcord-model = "0.0.1"
 ```
 
-
 ---
 
 ## License
@@ -1617,11 +1540,6 @@ pub mod prelude {
 ```
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-builders -->
-<!-- ======================================================== -->
 
 ## Crate: `oxcord-builders`
 **Description**: Type-safe fluent request builders for messages, embeds, buttons, selects, modals, and commands
@@ -1712,7 +1630,6 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 oxcord-builders = "0.0.1"
 ```
 
-
 ---
 
 ## License
@@ -1782,11 +1699,6 @@ pub use get_messages::*;
 
 ---
 
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-rest -->
-<!-- ======================================================== -->
-
 ## Crate: `oxcord-rest`
 **Description**: High-performance HTTP client with automated rate-limiting buckets and multipart support
 **Docs.rs**: https://docs.rs/oxcord-rest
@@ -1815,7 +1727,7 @@ oxcord-model = { version = "0.0.1", path = "../oxcord-model" }
 oxcord-cache = { version = "0.0.1", path = "../oxcord-cache", optional = true }
 serde = { version = "1.0.192", features = ["derive"] }
 serde_json = "1.0.108"
-reqwest = { version = ">=0.11.22", default-features = false, features = ["multipart", "stream"] }
+reqwest = { version = "0.11", default-features = false, features = ["multipart", "stream"] }
 tokio = { version = "1.34.0", features = ["sync", "time", "macros", "rt"] }
 tracing = { version = "0.1.40", features = ["log"] }
 percent-encoding = "2.3.0"
@@ -1836,7 +1748,7 @@ native_tls_backend = ["reqwest/native-tls"]
 simd_json = ["simd-json", "oxcord-model/simd_json"]
 
 [dev-dependencies.http_crate]
-version = "1.0"
+version = "0.2"
 package = "http"
 
 [lints.cargo]
@@ -1888,7 +1800,6 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 oxcord-rest = "0.0.1"
 ```
 
-
 ---
 
 ## License
@@ -1939,11 +1850,6 @@ pub enum MessagePagination {
 ```
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-gateway -->
-<!-- ======================================================== -->
 
 ## Crate: `oxcord-gateway`
 **Description**: WebSocket connection manager, heartbeat monitor, compression, and shard manager
@@ -2038,7 +1944,6 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 oxcord-gateway = "0.0.1"
 ```
 
-
 ---
 
 ## License
@@ -2071,11 +1976,6 @@ pub enum ChunkGuildFilter {
 ```
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-cache -->
-<!-- ======================================================== -->
 
 ## Crate: `oxcord-cache`
 **Description**: Zero-lock-contention in-memory cache engine for guilds, channels, roles, and members
@@ -2165,7 +2065,6 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 oxcord-cache = "0.0.1"
 ```
 
-
 ---
 
 ## License
@@ -2226,11 +2125,6 @@ pub struct Cache {
 ```
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-voice -->
-<!-- ======================================================== -->
 
 ## Crate: `oxcord-voice`
 **Description**: Voice gateway driver, RTP audio streaming, Opus encoder integration, and encryption
@@ -2323,7 +2217,6 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 oxcord-voice = "0.0.1"
 ```
 
-
 ---
 
 ## License
@@ -2366,11 +2259,6 @@ pub use rtp::{
 ```
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-voice-model -->
-<!-- ======================================================== -->
 
 ## Crate: `oxcord-voice-model`
 **Description**: Voice gateway v4/v8 data protocol models and encryption payload structures
@@ -2459,7 +2347,6 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 oxcord-voice-model = "0.2.1"
 ```
 
-
 ---
 
 ## License
@@ -2485,13 +2372,8 @@ pub use self::speaking_state::SpeakingState;
 
 ---
 
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-broker -->
-<!-- ======================================================== -->
-
 ## Crate: `oxcord-broker`
-**Description**: Distributed microservices message broker supporting In-Process, Redis Streams, and NATS
+**Description**: Distributed microservices message broker supporting In-Process, Redis Pub/Sub, Kafka, and NATS
 **Docs.rs**: https://docs.rs/oxcord-broker
 **Crates.io**: https://crates.io/crates/oxcord-broker
 
@@ -2580,7 +2462,6 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 oxcord-broker = { version = "0.1.0", features = ["nats"] } # or "redis", "kafka"
 ```
 
-
 ---
 
 ## License
@@ -2601,7 +2482,7 @@ architecture into distributed microservices:
 
 1. **Gateway Sharder Nodes**: Connect to Discord Gateway WebSocket, publish events to broker
 topics.
-2. **Message Broker**: NATS, Redis Streams, or In-Process broadcast bus.
+2. **Message Broker**: NATS, Redis Pub/Sub, Kafka, or In-Process broadcast bus.
 3. **Worker Nodes**: Subscribe to event topics, handle state cache, and execute bot commands.
 4. **RPC Communication**: Cross-shard querying (e.g. asking Shard 42 for its voice status).
 
@@ -2610,8 +2491,9 @@ topics.
 | Driver | Feature Flag | Use Case |
 |---|---|---|
 | [`InProcessBroker`] | *(Default)* | Testing, development, single-node multi-tasking |
-| `RedisBroker` | `redis` | Multi-container setups with existing Redis/Dragonfly |
+| `RedisBroker` | `redis` | Multi-container setups with existing Redis/Dragonfly (Pub/Sub) |
 | `NatsBroker` | `nats` | Ultra-high-throughput, sub-millisecond cloud microservices |
+| `KafkaBroker` | `kafka` | Distributed streaming with Apache Kafka / Redpanda (`rskafka`) |
 
 ### Primary Public Exports
 ```rust
@@ -2634,11 +2516,6 @@ pub use traits::{Broker, Subscription, SubscriptionStream};
 ```
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-command-attr -->
-<!-- ======================================================== -->
 
 ## Crate: `oxcord-command-attr`
 **Description**: Procedural attribute macros (`#[command]`, `#[group]`, `#[check]`) for command routing
@@ -2711,7 +2588,6 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 oxcord-command-attr = "0.5.4"
 ```
 
-
 ---
 
 ## License
@@ -2728,11 +2604,6 @@ pub fn hook(_attr: TokenStream, input: TokenStream) -> TokenStream {
 ```
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-proxy -->
-<!-- ======================================================== -->
 
 ## Crate: `oxcord-proxy`
 **Description**: Standalone reverse-proxy binary for centralized REST API Discord rate-limiting
@@ -2809,20 +2680,25 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 cargo run -p oxcord-proxy -- --bind 127.0.0.1:8080 --token "$DISCORD_TOKEN"
 ```
 
-
 ---
 
 ## License
 
 Licensed under the Apache License, Version 2.0 ([LICENSE](../../LICENSE)).
 
+### Module Documentation (`src/main.rs`)
+# oxcord-proxy
+
+Centralized Discord REST API Rate Limiting Proxy.
+
+- Runs as a standalone HTTP proxy daemon.
+- Centrally coordinates Discord rate limit buckets across hundreds of worker containers.
+- Injects the Discord Bot token securely so individual worker nodes don't need direct token
+exposure.
+- Completely prevents HTTP 429 Cloudflare bans for enterprise-scale bot fleets.
+
 
 ---
-
-
-<!-- ======================================================== -->
-<!-- CRATE: oxcord-gateway-daemon -->
-<!-- ======================================================== -->
 
 ## Crate: `oxcord-gateway-daemon`
 **Description**: Standalone daemon binary for distributed multi-server gateway sharder nodes
@@ -2895,12 +2771,21 @@ Part of the [**OXCORD**](../../README.md) multi-crate ecosystem.
 cargo run -p oxcord-gateway-daemon -- --token "$DISCORD_TOKEN"
 ```
 
-
 ---
 
 ## License
 
 Licensed under the Apache License, Version 2.0 ([LICENSE](../../LICENSE)).
+
+### Module Documentation (`src/main.rs`)
+# oxcord-gateway-daemon
+
+Dedicated Discord Gateway Sharding Daemon for enterprise-scale distributed bot deployments.
+
+- Connects and maintains WebSocket connections for assigned shard ranges.
+- Publishes all received Discord events to the message broker (`discord.events.<name>`).
+- Accepts operational commands from workers via broker (status updates, voice joins).
+- Enables zero-downtime bot redeployments without dropping Discord shard connections.
 
 
 ---

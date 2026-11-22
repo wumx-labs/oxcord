@@ -13,7 +13,7 @@ It scales seamlessly from a single-process weekend bot to massive enterprise bot
 ## Core Philosophy & Architecture
 - **Zero Lock Contention**: State cache built on concurrent lock-free data structures.
 - **Modular Architecture**: 12 independent crates (use only what you need, from pure models to distributed brokers).
-- **Distributed by Design**: Native pluggable message brokers (`oxcord-broker`) supporting In-Process, NATS, and Redis Streams.
+- **Distributed by Design**: Native pluggable message brokers (`oxcord-broker`) supporting In-Process, NATS, Kafka, and Redis Pub/Sub.
 - **Full Discord Feature Parity**: Components v2, Application Commands, Voice v4/v8, Polls, AutoMod, Onboarding, and Webhooks.
 
 ## Quick Start Example
@@ -58,7 +58,7 @@ Full detailed text for all sections below is compiled in [llms-full.txt](https:/
 - [Gateway & Sharding](https://oxcord.noxlydev.xyz/guide/gateway): WebSocket connection, Gateway intents, reconnect handling, and transparent sharding
 - [Cache Engine](https://oxcord.noxlydev.xyz/guide/cache): Lock-free in-memory state caching, cache configuration, and automated sweepers
 - [Voice & Audio Driver](https://oxcord.noxlydev.xyz/guide/voice): Voice connection protocol, UDP RTP audio pipeline, and AES-GCM encryption
-- [Distributed Message Broker](https://oxcord.noxlydev.xyz/guide/broker): Pluggable broker abstraction with NATS, Redis Streams, and In-Process bus for large-scale bots
+- [Distributed Message Broker](https://oxcord.noxlydev.xyz/guide/broker): Pluggable broker abstraction with NATS, Redis Pub/Sub, Kafka, and In-Process bus for large-scale bots
 - [Slash Commands & Interactions](https://oxcord.noxlydev.xyz/guide/slash-commands): Application commands, subcommands, autocomplete, and interaction responses
 - [Webhooks](https://oxcord.noxlydev.xyz/guide/webhooks): Creating, executing, editing, and managing Discord Webhooks with builders
 - [Migrating from Serenity](https://oxcord.noxlydev.xyz/guide/migrating-from-serenity): Step-by-step mapping of types, client initialization, and handler patterns from Serenity to OXCORD
@@ -75,7 +75,7 @@ Full detailed text for all sections below is compiled in [llms-full.txt](https:/
 - [`oxcord-cache`](https://docs.rs/oxcord-cache): Zero-lock-contention in-memory cache engine for guilds, channels, roles, and members
 - [`oxcord-voice`](https://docs.rs/oxcord-voice): Voice gateway driver, RTP audio streaming, Opus encoder integration, and encryption
 - [`oxcord-voice-model`](https://docs.rs/oxcord-voice-model): Voice gateway v4/v8 data protocol models and encryption payload structures
-- [`oxcord-broker`](https://docs.rs/oxcord-broker): Distributed microservices message broker supporting In-Process, Redis Streams, and NATS
+- [`oxcord-broker`](https://docs.rs/oxcord-broker): Distributed microservices message broker supporting In-Process, Redis Pub/Sub, Kafka, and NATS
 - [`oxcord-command-attr`](https://docs.rs/oxcord-command-attr): Procedural attribute macros (`#[command]`, `#[group]`, `#[check]`) for command routing
 - [`oxcord-proxy`](https://docs.rs/oxcord-proxy): Standalone reverse-proxy binary for centralized REST API Discord rate-limiting
 - [`oxcord-gateway-daemon`](https://docs.rs/oxcord-gateway-daemon): Standalone daemon binary for distributed multi-server gateway sharder nodes

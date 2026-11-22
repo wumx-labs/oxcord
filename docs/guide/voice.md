@@ -14,7 +14,7 @@ Discord has deprecated legacy `xsalsa20_poly1305` ciphers. OXCORD only uses mode
 2. **`aead_aes256_gcm_rtpsize`**
    - Hardware-accelerated AES-256 in Galois/Counter Mode.
 
-Both encryption modes are powered by the high-performance pure-Rust `ring` cryptographic engine.
+Both encryption modes are powered by the hardware-accelerated `ring` cryptographic engine (using AES-NI and ARM NEON instructions).
 
 ---
 

@@ -20,7 +20,7 @@ GUIDE_FILES = [
     ("Gateway & Sharding", "docs/guide/gateway.md", "WebSocket connection, Gateway intents, reconnect handling, and transparent sharding"),
     ("Cache Engine", "docs/guide/cache.md", "Lock-free in-memory state caching, cache configuration, and automated sweepers"),
     ("Voice & Audio Driver", "docs/guide/voice.md", "Voice connection protocol, UDP RTP audio pipeline, and AES-GCM encryption"),
-    ("Distributed Message Broker", "docs/guide/broker.md", "Pluggable broker abstraction with NATS, Redis Streams, and In-Process bus for large-scale bots"),
+    ("Distributed Message Broker", "docs/guide/broker.md", "Pluggable broker abstraction with NATS, Redis Pub/Sub, Kafka, and In-Process bus for large-scale bots"),
     ("Slash Commands & Interactions", "docs/guide/slash-commands.md", "Application commands, subcommands, autocomplete, and interaction responses"),
     ("Webhooks", "docs/guide/webhooks.md", "Creating, executing, editing, and managing Discord Webhooks with builders"),
     ("Migrating from Serenity", "docs/guide/migrating-from-serenity.md", "Step-by-step mapping of types, client initialization, and handler patterns from Serenity to OXCORD"),
@@ -38,7 +38,7 @@ CRATE_ORDER = [
     ("oxcord-cache", "Zero-lock-contention in-memory cache engine for guilds, channels, roles, and members"),
     ("oxcord-voice", "Voice gateway driver, RTP audio streaming, Opus encoder integration, and encryption"),
     ("oxcord-voice-model", "Voice gateway v4/v8 data protocol models and encryption payload structures"),
-    ("oxcord-broker", "Distributed microservices message broker supporting In-Process, Redis Streams, and NATS"),
+    ("oxcord-broker", "Distributed microservices message broker supporting In-Process, Redis Pub/Sub, Kafka, and NATS"),
     ("oxcord-command-attr", "Procedural attribute macros (`#[command]`, `#[group]`, `#[check]`) for command routing"),
     ("oxcord-proxy", "Standalone reverse-proxy binary for centralized REST API Discord rate-limiting"),
     ("oxcord-gateway-daemon", "Standalone daemon binary for distributed multi-server gateway sharder nodes"),
@@ -47,6 +47,10 @@ CRATE_ORDER = [
 def clean_markdown(content: str) -> str:
     # remove frontmatter
     content = re.sub(r"^---\n.*?\n---\n", "", content, flags=re.DOTALL)
+    # remove HTML comments
+    content = re.sub(r"<!--.*?-->\n?", "", content)
+    # collapse 3+ consecutive newlines
+    content = re.sub(r"\n{3,}", "\n\n", content)
     return content.strip()
 
 def build_llms_txt() -> str:
@@ -66,7 +70,7 @@ def build_llms_txt() -> str:
         "## Core Philosophy & Architecture",
         "- **Zero Lock Contention**: State cache built on concurrent lock-free data structures.",
         "- **Modular Architecture**: 12 independent crates (use only what you need, from pure models to distributed brokers).",
-        "- **Distributed by Design**: Native pluggable message brokers (`oxcord-broker`) supporting In-Process, NATS, and Redis Streams.",
+        "- **Distributed by Design**: Native pluggable message brokers (`oxcord-broker`) supporting In-Process, NATS, Kafka, and Redis Pub/Sub.",
         "- **Full Discord Feature Parity**: Components v2, Application Commands, Voice v4/v8, Polls, AutoMod, Onboarding, and Webhooks.",
         "",
         "## Quick Start Example",
@@ -146,7 +150,7 @@ def build_llms_full_txt() -> str:
         "   - Gateway & Transparent Sharding",
         "   - Lock-Free Cache Engine",
         "   - Voice & Real-time Audio Driver",
-        "   - Distributed Message Broker (NATS / Redis / InProcess)",
+        "   - Distributed Message Broker (NATS / Redis Pub/Sub / Kafka / InProcess)",
         "   - Slash Commands & Component Interactions",
         "   - Discord Webhooks",
         "   - Migrating from Serenity",
@@ -175,10 +179,7 @@ def build_llms_full_txt() -> str:
         if os.path.exists(full_path):
             with open(full_path, "r", encoding="utf-8") as gf:
                 content = clean_markdown(gf.read())
-            sections.append(f"\n\n<!-- ======================================================== -->")
-            sections.append(f"<!-- CHAPTER: {title} -->")
-            sections.append(f"<!-- ======================================================== -->\n")
-            sections.append(f"## {title}\n")
+            sections.append(f"\n## {title}\n")
             sections.append(content)
             sections.append("\n---")
 
@@ -188,11 +189,9 @@ def build_llms_full_txt() -> str:
         crate_readme_path = os.path.join(BASE_DIR, "crates", crate_name, "README.md")
         crate_cargo_path = os.path.join(BASE_DIR, "crates", crate_name, "Cargo.toml")
         crate_lib_path = os.path.join(BASE_DIR, "crates", crate_name, "src", "lib.rs")
+        crate_main_path = os.path.join(BASE_DIR, "crates", crate_name, "src", "main.rs")
 
-        sections.append(f"\n\n<!-- ======================================================== -->")
-        sections.append(f"<!-- CRATE: {crate_name} -->")
-        sections.append(f"<!-- ======================================================== -->\n")
-        sections.append(f"## Crate: `{crate_name}`")
+        sections.append(f"\n## Crate: `{crate_name}`")
         sections.append(f"**Description**: {desc}")
         sections.append(f"**Docs.rs**: https://docs.rs/{crate_name}")
         sections.append(f"**Crates.io**: https://crates.io/crates/{crate_name}\n")
@@ -214,20 +213,29 @@ def build_llms_full_txt() -> str:
             sections.append(readme_text)
             sections.append("")
 
+        source_file = None
+        source_label = None
         if os.path.exists(crate_lib_path):
-            with open(crate_lib_path, "r", encoding="utf-8") as lf:
-                lib_text = lf.read().strip()
+            source_file = crate_lib_path
+            source_label = "src/lib.rs"
+        elif os.path.exists(crate_main_path):
+            source_file = crate_main_path
+            source_label = "src/main.rs"
+
+        if source_file:
+            with open(source_file, "r", encoding="utf-8") as sf:
+                code_text = sf.read().strip()
             # extract module doc comment and public exports
             module_doc = []
             pub_exports = []
-            for line in lib_text.splitlines():
+            for line in code_text.splitlines():
                 if line.startswith("//!"):
                     module_doc.append(line.replace("//!", "").strip())
                 elif line.startswith("pub ") or line.startswith("#[macro_export]"):
                     pub_exports.append(line)
 
             if module_doc:
-                sections.append("### Module Documentation (`src/lib.rs`)")
+                sections.append(f"### Module Documentation (`{source_label}`)")
                 sections.append("\n".join(module_doc[:60]))
                 sections.append("")
 

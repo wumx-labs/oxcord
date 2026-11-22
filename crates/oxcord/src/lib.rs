@@ -33,7 +33,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! oxcord = "0.12"
+//! oxcord = "0.0.1"
 //! ```
 //!
 //! [`Cache`]: crate::cache::Cache
