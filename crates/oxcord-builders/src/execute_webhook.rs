@@ -52,7 +52,7 @@ use crate::internal::prelude::*;
 /// webhook.execute(&http, false, builder).await?;
 /// # Ok(())
 /// # }
-/// ```rust,ignore
+/// ```
 ///
 /// [Discord docs](https://docs.discord.com/developers/resources/webhook#execute-webhook)
 #[derive(Clone, Debug, Default, Serialize)]
@@ -126,7 +126,7 @@ impl ExecuteWebhook {
     /// webhook.execute(&http, false, builder).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn avatar_url(mut self, avatar_url: impl Into<String>) -> Self {
         self.avatar_url = Some(avatar_url.into());
         self
@@ -158,7 +158,7 @@ impl ExecuteWebhook {
     /// }
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn content(mut self, content: impl Into<String>) -> Self {
         self.content = Some(content.into());
         self
@@ -188,7 +188,7 @@ impl ExecuteWebhook {
     /// webhook.execute(&http, false, builder).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn in_thread(mut self, thread_id: impl Into<ChannelId>) -> Self {
         self.thread_id = Some(thread_id.into());
         self
@@ -276,7 +276,7 @@ impl ExecuteWebhook {
     /// }
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn tts(mut self, tts: bool) -> Self {
         self.tts = tts;
         self
@@ -305,7 +305,7 @@ impl ExecuteWebhook {
     /// }
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn username(mut self, username: impl Into<String>) -> Self {
         self.username = Some(username.into());
         self
@@ -337,7 +337,7 @@ impl ExecuteWebhook {
     /// }
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn flags(mut self, flags: MessageFlags) -> Self {
         self.flags = Some(flags);
         self

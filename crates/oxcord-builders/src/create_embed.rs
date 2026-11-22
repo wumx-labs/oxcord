@@ -139,7 +139,7 @@ impl CreateEmbed {
     /// # use oxcord::model::Timestamp;
     /// let timestamp: Timestamp = "2004-06-08T16:04:23Z".parse().expect("Invalid timestamp!");
     /// let embed = CreateEmbed::new().title("hello").timestamp(timestamp);
-    /// ```rust,ignore
+    /// ```
     #[inline]
     pub fn timestamp<T: Into<Timestamp>>(mut self, timestamp: T) -> Self {
         self.0.timestamp = Some(timestamp.into());

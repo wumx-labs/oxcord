@@ -139,7 +139,7 @@ enum NewOrExisting {
 /// # async fn foo_(ctx: Http, mut msg: Message) -> Result<(), Error> {
 /// msg.edit(ctx, EditMessage::new().attachments(EditAttachments::new())).await?;
 /// # Ok(()) }
-/// ```rust,ignore
+/// ```
 ///
 /// ## Adding a new attachment without deleting existing attachments
 ///
@@ -150,7 +150,7 @@ enum NewOrExisting {
 ///     EditAttachments::keep_all(&msg).add(my_attachment)
 /// )).await?;
 /// # Ok(()) }
-/// ```rust,ignore
+/// ```
 ///
 /// ## Delete all but the first attachment
 ///
@@ -161,7 +161,7 @@ enum NewOrExisting {
 ///     EditAttachments::new().keep(msg.attachments[0].id)
 /// )).await?;
 /// # Ok(()) }
-/// ```rust,ignore
+/// ```
 ///
 /// ## Delete only the first attachment
 ///
@@ -172,7 +172,7 @@ enum NewOrExisting {
 ///     EditAttachments::keep_all(&msg).remove(msg.attachments[0].id)
 /// )).await?;
 /// # Ok(()) }
-/// ```rust,ignore
+/// ```
 ///
 /// # Notes
 ///

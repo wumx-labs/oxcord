@@ -49,7 +49,7 @@ use crate::internal::prelude::*;
 /// let builder = CreateMessage::new().content("test").tts(true).embed(embed);
 /// let _ = channel_id.send_message(&http, builder).await;
 /// # }
-/// ```rust,ignore
+/// ```
 ///
 /// [Discord docs](https://docs.discord.com/developers/resources/message#create-message)
 #[derive(Clone, Debug, Default)]

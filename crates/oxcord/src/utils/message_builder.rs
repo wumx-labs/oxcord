@@ -221,7 +221,7 @@ impl MessageBuilder {
     /// ```
     /// 
     /// Pushing a codeblock without a language:
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new()
@@ -254,7 +254,7 @@ impl MessageBuilder {
     ///
     /// Display a server configuration value to the user:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let key = "prefix";
@@ -286,7 +286,7 @@ impl MessageBuilder {
     ///
     /// Emphasize information to the user:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new()
@@ -359,7 +359,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new().push_line("hello").push("world").build();
@@ -379,7 +379,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new().push_mono_line("hello").push("world").build();
@@ -399,7 +399,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new().push_italic_line("hello").push("world").build();
@@ -419,7 +419,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new().push_bold_line("hello").push("world").build();
@@ -439,7 +439,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new().push_underline_line("hello").push("world").build();
@@ -459,7 +459,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new().push_strike_line("hello").push("world").build();
@@ -479,7 +479,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new().push_spoiler_line("hello").push("world").build();
@@ -499,7 +499,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new().push_quote_line("hello").push("world").build();
@@ -646,7 +646,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content =
@@ -667,7 +667,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content =
@@ -688,7 +688,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content =
@@ -709,7 +709,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content =
@@ -730,7 +730,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content = MessageBuilder::new()
@@ -753,7 +753,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content =
@@ -774,7 +774,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content =
@@ -795,7 +795,7 @@ impl MessageBuilder {
     ///
     /// Push content and then append a newline:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     ///
     /// let content =
@@ -859,7 +859,7 @@ impl fmt::Display for MessageBuilder {
     /// Create a message builder, and format it into a string via the `format!`
     /// macro:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::MessageBuilder;
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -877,7 +877,7 @@ impl fmt::Display for MessageBuilder {
 ///
 /// Make a named link to Rust's GitHub organization:
 ///
-/// ```rust
+/// ```
 /// use oxcord::utils::{EmbedMessageBuilding, MessageBuilder};
 ///
 /// let msg = MessageBuilder::new()
@@ -893,7 +893,7 @@ pub trait EmbedMessageBuilding {
     ///
     /// Make a simple link to Rust's homepage for use in an embed:
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::{EmbedMessageBuilding, MessageBuilder};
     ///
     /// let mut msg = MessageBuilder::new();
@@ -912,7 +912,7 @@ pub trait EmbedMessageBuilding {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use oxcord::utils::{EmbedMessageBuilding, MessageBuilder};
     ///
     /// let mut msg = MessageBuilder::new();
@@ -969,7 +969,7 @@ impl EmbedMessageBuilding for MessageBuilder {
 ///
 /// Create a new Content type which describes a bold-italic "text":
 ///
-/// ```rust,no_run
+/// ```
 /// use oxcord::utils::Content;
 /// use oxcord::utils::ContentModifier::{Bold, Italic};
 /// let content: Content = Bold + Italic + "text";

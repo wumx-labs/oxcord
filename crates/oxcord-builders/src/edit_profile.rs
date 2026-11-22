@@ -40,7 +40,7 @@ impl EditProfile {
     /// current_user.edit(http, EditProfile::new().avatar(&avatar)).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn avatar(mut self, avatar: &CreateAttachment) -> Self {
         self.avatar = Some(Some(avatar.to_base64()));
         self

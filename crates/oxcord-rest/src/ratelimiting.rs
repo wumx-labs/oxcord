@@ -169,7 +169,7 @@ impl Ratelimiter {
     /// }
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     #[must_use]
     pub fn routes(&self) -> Arc<RwLock<HashMap<RatelimitingBucket, Arc<Mutex<Ratelimit>>>>> {
         Arc::clone(&self.routes)

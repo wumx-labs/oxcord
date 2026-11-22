@@ -67,7 +67,7 @@ impl CreateCommandOption {
     /// .name("age")
     /// .name_localized("zh-CN", "岁数")
     /// # ;
-    /// ```rust,ignore
+    /// ```
     pub fn name_localized(mut self, locale: impl Into<String>, name: impl Into<String>) -> Self {
         let map = self.0.name_localizations.get_or_insert_with(Default::default);
         map.insert(locale.into(), name.into());
@@ -90,7 +90,7 @@ impl CreateCommandOption {
     /// .description("Wish a friend a happy birthday")
     /// .description_localized("zh-CN", "祝你朋友生日快乐")
     /// # ;
-    /// ```rust,ignore
+    /// ```
     pub fn description_localized(
         mut self,
         locale: impl Into<String>,
@@ -364,7 +364,7 @@ impl CreateCommand {
     /// .name_localized("zh-CN", "生日")
     /// .name_localized("el", "γενέθλια")
     /// # ;
-    /// ```rust,ignore
+    /// ```
     pub fn name_localized(mut self, locale: impl Into<String>, name: impl Into<String>) -> Self {
         self.name_localizations.insert(locale.into(), name.into());
         self
@@ -404,7 +404,7 @@ impl CreateCommand {
     /// .description("Wish a friend a happy birthday")
     /// .description_localized("zh-CN", "祝你朋友生日快乐")
     /// # ;
-    /// ```rust,ignore
+    /// ```
     pub fn description_localized(
         mut self,
         locale: impl Into<String>,

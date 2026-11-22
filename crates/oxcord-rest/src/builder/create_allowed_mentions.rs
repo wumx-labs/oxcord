@@ -61,7 +61,7 @@ impl ParseAction {
 /// m.allowed_mentions(Am::new().everyone(true).users(vec![msg.author.id]));
 /// # Ok(())
 /// # }
-/// ```rust,ignore
+/// ```
 ///
 /// [Discord docs](https://docs.discord.com/developers/resources/message#allowed-mentions-object).
 #[derive(Clone, Debug, Default, Serialize, PartialEq)]

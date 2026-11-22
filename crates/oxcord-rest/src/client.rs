@@ -50,7 +50,7 @@ use crate::{Result, decode_resp};
 /// let http =
 ///     HttpBuilder::new("token").proxy("http://127.0.0.1:3000").ratelimiter_disabled(true).build();
 /// # }
-/// ```rust,ignore
+/// ```
 /// Default maximum idle connections per host in the connection pool.
 pub const DEFAULT_POOL_MAX_IDLE_PER_HOST: usize = 10;
 /// Default idle timeout for pooled connections.
@@ -698,7 +698,7 @@ impl Http {
     /// let _result = http.create_guild(&map).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     ///
     /// [`Shard`]: crate::gateway::Shard
     #[deprecated(
@@ -1048,7 +1048,7 @@ impl Http {
     /// let webhook = http.create_webhook(channel_id, &map, None).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn create_webhook(
         &self,
         channel_id: ChannelId,
@@ -1318,7 +1318,7 @@ impl Http {
     /// http.delete_message_reactions(channel_id, message_id).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn delete_message_reactions(
         &self,
         channel_id: ChannelId,
@@ -1550,7 +1550,7 @@ impl Http {
     /// http.delete_webhook(webhook_id, None).await?;
     /// Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn delete_webhook(
         &self,
         webhook_id: WebhookId,
@@ -1589,7 +1589,7 @@ impl Http {
     /// http.delete_webhook_with_token(id, token, None).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn delete_webhook_with_token(
         &self,
         webhook_id: WebhookId,
@@ -2365,7 +2365,7 @@ impl Http {
     /// http.edit_voice_state(guild_id, user_id, &map).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn edit_voice_state(
         &self,
         guild_id: GuildId,
@@ -2418,7 +2418,7 @@ impl Http {
     /// http.edit_voice_state_me(guild_id, &map).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn edit_voice_state_me(
         &self,
         guild_id: GuildId,
@@ -2513,7 +2513,7 @@ impl Http {
     /// let edited = http.edit_webhook(id, &map, None).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn edit_webhook(
         &self,
         webhook_id: WebhookId,
@@ -2557,7 +2557,7 @@ impl Http {
     /// let edited = http.edit_webhook_with_token(id, token, &map, None).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn edit_webhook_with_token(
         &self,
         webhook_id: WebhookId,
@@ -2628,7 +2628,7 @@ impl Http {
     /// let message = http.execute_webhook(id, None, token, true, files, &map).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     ///
     /// [Discord docs]: https://docs.discord.com/developers/resources/webhook#execute-webhook-query-string-params
     pub async fn execute_webhook(
@@ -3290,7 +3290,7 @@ impl Http {
     /// let webhooks = http.get_channel_webhooks(channel_id).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn get_channel_webhooks(&self, channel_id: ChannelId) -> Result<Vec<Webhook>> {
         self.fire(Request {
             body: None,
@@ -4368,7 +4368,7 @@ impl Http {
     /// let webhooks = http.get_guild_webhooks(guild_id).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn get_guild_webhooks(&self, guild_id: GuildId) -> Result<Vec<Webhook>> {
         self.fire(Request {
             body: None,
@@ -4406,7 +4406,7 @@ impl Http {
     /// let guilds = http.get_guilds(Some(GuildPagination::After(guild_id)), Some(10)).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     ///
     /// [docs]: https://docs.discord.com/developers/resources/user#get-current-user-guilds
     pub async fn get_guilds(
@@ -4460,7 +4460,7 @@ impl Http {
     /// let member = http.get_current_user_guild_member(guild_id).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     ///
     /// See the [Discord Developer Portal documentation][docs] for more.
     ///
@@ -4905,7 +4905,7 @@ impl Http {
     /// let webhook = http.get_webhook(id).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn get_webhook(&self, webhook_id: WebhookId) -> Result<Webhook> {
         self.fire(Request {
             body: None,
@@ -4940,7 +4940,7 @@ impl Http {
     /// let webhook = http.get_webhook_with_token(id, token).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub async fn get_webhook_with_token(
         &self,
         webhook_id: WebhookId,
@@ -4977,7 +4977,7 @@ impl Http {
     /// let webhook = http.get_webhook_from_url(url).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     #[cfg(feature = "utils")]
     pub async fn get_webhook_from_url(&self, url: &str) -> Result<Webhook> {
         let url = Url::parse(url).map_err(HttpError::Url)?;
@@ -5288,7 +5288,7 @@ impl Http {
     /// // Stop typing
     /// typing.stop();
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn start_typing(self: &Arc<Self>, channel_id: ChannelId) -> Typing {
         Typing::start(Arc::clone(self), channel_id)
     }
@@ -5484,7 +5484,7 @@ impl Http {
     /// println!("Message content: {}", message.content);
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     ///
     /// # Errors
     ///
@@ -5524,7 +5524,7 @@ impl Http {
     /// println!("Response successful?: {}", response.status().is_success());
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     #[instrument]
     pub async fn request(&self, req: Request<'_>) -> Result<ReqwestResponse> {
         let route_path = req.route.path();

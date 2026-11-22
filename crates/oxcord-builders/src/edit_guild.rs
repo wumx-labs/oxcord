@@ -97,7 +97,7 @@ impl<'a> EditGuild<'a> {
     /// guild.edit(&http, builder).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn icon(mut self, icon: Option<&CreateAttachment>) -> Self {
         self.icon = Some(icon.map(CreateAttachment::to_base64));
         self
@@ -262,7 +262,7 @@ impl<'a> EditGuild<'a> {
     /// }
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     #[inline]
     pub fn verification_level(mut self, verification_level: impl Into<VerificationLevel>) -> Self {
         self.verification_level = Some(verification_level.into());
@@ -293,7 +293,7 @@ impl<'a> EditGuild<'a> {
     /// }
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn system_channel_flags(mut self, system_channel_flags: SystemChannelFlags) -> Self {
         self.system_channel_flags = Some(system_channel_flags);
         self

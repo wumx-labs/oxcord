@@ -44,7 +44,7 @@ macro_rules! status {
 ///         _ => Unknown(u8),
 ///     }
 /// }
-/// ```rust,ignore
+/// ```
 ///
 /// Code like this will be generated:
 ///
@@ -82,7 +82,7 @@ macro_rules! status {
 ///         }
 ///     }
 /// }
-/// ```rust,ignore
+/// ```
 macro_rules! enum_number {
     (
         $(#[$outer:meta])*

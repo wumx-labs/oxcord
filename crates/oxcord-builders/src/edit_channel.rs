@@ -28,7 +28,7 @@ use crate::internal::prelude::*;
 /// }
 /// # Ok(())
 /// # }
-/// ```rust,ignore
+/// ```
 #[derive(Clone, Debug, Default, Serialize)]
 #[must_use]
 pub struct EditChannel<'a> {
@@ -230,7 +230,7 @@ impl<'a> EditChannel<'a> {
     /// channel.edit(http, builder).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn permissions(mut self, perms: impl IntoIterator<Item = PermissionOverwrite>) -> Self {
         let overwrites = perms.into_iter().map(Into::into).collect::<Vec<_>>();
 

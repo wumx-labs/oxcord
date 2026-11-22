@@ -38,7 +38,7 @@ use crate::internal::prelude::*;
 /// let role = guild_id.create_role(&http, builder).await?;
 /// # Ok(())
 /// # }
-/// ```rust,ignore
+/// ```
 ///
 /// [Discord docs](https://docs.discord.com/developers/resources/guild#modify-guild-role)
 #[derive(Clone, Debug, Default, Serialize)]

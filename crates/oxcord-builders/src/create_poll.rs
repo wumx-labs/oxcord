@@ -78,7 +78,7 @@ impl CreatePoll<NeedsQuestion> {
     ///     .duration(std::time::Duration::from_secs(60 * 60 * 24 * 7));
     ///
     /// let message = CreateMessage::new().poll(poll);
-    /// ```rust,ignore
+    /// ```
     pub fn new() -> Self {
         Self::default()
     }

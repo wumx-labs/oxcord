@@ -42,7 +42,7 @@ use crate::internal::prelude::*;
 /// let _messages = channel_id.messages(&http, builder).await?;
 /// # Ok(())
 /// # }
-/// ```rust,ignore
+/// ```
 ///
 /// [Discord docs](https://docs.discord.com/developers/resources/message#get-channel-messages)
 #[derive(Clone, Copy, Debug, Default)]

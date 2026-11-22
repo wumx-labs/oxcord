@@ -33,7 +33,7 @@ use crate::internal::prelude::*;
 /// message.edit(ctx, builder).await?;
 /// # Ok(())
 /// # }
-/// ```rust,ignore
+/// ```
 ///
 /// [Discord docs](https://docs.discord.com/developers/resources/message#edit-message)
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -175,7 +175,7 @@ impl EditMessage {
     /// let _ = tokio::time::timeout(Duration::from_millis(2000), message_updates.next()).await;
     /// msg.edit(&ctx, EditMessage::new().suppress_embeds(true)).await?;
     /// # Ok(()) }
-    /// ```rust,ignore
+    /// ```
     pub fn suppress_embeds(mut self, suppress: bool) -> Self {
         // See for details: https://docs.discord.com/developers/resources/message#edit-message
         self.flags

@@ -189,7 +189,7 @@ impl<'a> CreateChannel<'a> {
     /// guild.create_channel(&http, builder).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn permissions(mut self, perms: impl IntoIterator<Item = PermissionOverwrite>) -> Self {
         self.permission_overwrites = perms.into_iter().map(Into::into).collect();
         self

@@ -114,7 +114,7 @@ impl Shard {
     /// // their variants
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     ///
     /// # Errors
     ///
@@ -621,7 +621,7 @@ impl Shard {
     /// shard.chunk_guild(GuildId::new(81384788765712384), Some(2000), false, ChunkGuildFilter::None, None).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     ///
     /// Chunk a single guild by Id, limiting to 20 members, and specifying a query parameter of
     /// `"do"` and a nonce of `"request"`:
@@ -656,7 +656,7 @@ impl Shard {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     ///
     /// # Errors
     /// Errors if there is a problem with the WS connection.

@@ -42,7 +42,7 @@ use crate::internal::tokio::spawn_named;
 /// // Stop typing
 /// typing.stop();
 /// # }
-/// ```rust,ignore
+/// ```
 ///
 /// [`Channel`]: crate::model::channel::Channel
 #[derive(Debug)]

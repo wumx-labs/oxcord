@@ -20,7 +20,7 @@ use crate::internal::prelude::*;
 /// let creation = channel.create_invite(&context, builder).await?;
 /// # Ok(())
 /// # }
-/// ```rust,ignore
+/// ```
 ///
 /// [Discord docs](https://docs.discord.com/developers/resources/channel#create-channel-invite)
 #[derive(Clone, Debug, Default, Serialize)]
@@ -71,7 +71,7 @@ impl<'a> CreateInvite<'a> {
     /// let invite = channel.create_invite(context, builder).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn max_age(mut self, max_age: u32) -> Self {
         self.max_age = Some(max_age);
         self
@@ -99,7 +99,7 @@ impl<'a> CreateInvite<'a> {
     /// let invite = channel.create_invite(context, builder).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn max_uses(mut self, max_uses: u8) -> Self {
         self.max_uses = Some(max_uses);
         self
@@ -123,7 +123,7 @@ impl<'a> CreateInvite<'a> {
     /// let invite = channel.create_invite(context, builder).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn temporary(mut self, temporary: bool) -> Self {
         self.temporary = Some(temporary);
         self
@@ -147,7 +147,7 @@ impl<'a> CreateInvite<'a> {
     /// let invite = channel.create_invite(context, builder).await?;
     /// # Ok(())
     /// # }
-    /// ```rust,ignore
+    /// ```
     pub fn unique(mut self, unique: bool) -> Self {
         self.unique = Some(unique);
         self
