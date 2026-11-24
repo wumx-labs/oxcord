@@ -3,7 +3,10 @@
 use std::future::Future;
 use std::pin::Pin;
 
+use oxcord_model::application::CommandOptionType;
+
 use crate::context::Context;
+use crate::cooldown::CooldownConfig;
 use crate::error::FrameworkError;
 
 // ---------------------------------------------------------------------------
@@ -90,6 +93,22 @@ pub enum CommandKind {
 #[derive(Debug, Clone, Default)]
 pub struct CommandCategory(pub Option<String>);
 
+/// A slash-command option's registration metadata — what gets sent to
+/// Discord when (re-)registering commands. Generated automatically by the
+/// `#[oxcord_macros::command]` macro from each extra function parameter.
+#[derive(Debug, Clone)]
+pub struct CommandOptionSpec {
+    /// The option's name, exactly as the parameter is named.
+    pub name: String,
+    /// One-line description shown in Discord's command picker.
+    pub description: String,
+    /// The Discord option type (string, integer, user, channel, ...).
+    pub kind: CommandOptionType,
+    /// Whether Discord should require the user to supply this option.
+    /// `false` for `Option<T>` parameters.
+    pub required: bool,
+}
+
 /// A registered command and its metadata.
 #[derive(Clone, Debug)]
 pub struct Command {
@@ -115,6 +134,12 @@ pub struct Command {
     pub owner_only: bool,
     /// Minimum required permissions (slash commands).
     pub required_permissions: Option<oxcord_model::Permissions>,
+    /// The slash-command options to register with Discord, generated from
+    /// this command's extra function parameters.
+    pub options: Vec<CommandOptionSpec>,
+    /// Automatic per-command cooldown, applied without the caller needing to
+    /// call [`crate::dispatch::Dispatcher::register_cooldown`] manually.
+    pub cooldown: Option<CooldownConfig>,
 }
 
 impl Command {
@@ -139,6 +164,8 @@ pub struct CommandBuilder {
     guild_only: Option<bool>,
     owner_only: bool,
     required_permissions: Option<oxcord_model::Permissions>,
+    options: Vec<CommandOptionSpec>,
+    cooldown: Option<CooldownConfig>,
 }
 
 impl CommandBuilder {
@@ -226,6 +253,27 @@ impl CommandBuilder {
         self
     }
 
+    /// Add a slash-command option to register with Discord.
+    #[must_use]
+    pub fn option(mut self, option: CommandOptionSpec) -> Self {
+        self.options.push(option);
+        self
+    }
+
+    /// Set every slash-command option to register with Discord at once.
+    #[must_use]
+    pub fn options(mut self, options: Vec<CommandOptionSpec>) -> Self {
+        self.options = options;
+        self
+    }
+
+    /// Apply an automatic per-command cooldown.
+    #[must_use]
+    pub fn cooldown(mut self, cooldown: CooldownConfig) -> Self {
+        self.cooldown = Some(cooldown);
+        self
+    }
+
     /// Build the [`Command`].
     #[must_use]
     pub fn build(self) -> Command {
@@ -241,6 +289,8 @@ impl CommandBuilder {
             guild_only: self.guild_only,
             owner_only: self.owner_only,
             required_permissions: self.required_permissions,
+            options: self.options,
+            cooldown: self.cooldown,
         }
     }
 }

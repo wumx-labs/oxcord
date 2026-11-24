@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/*", "examples/*"]
-exclude = ["examples/e15_simple_dashboard"]
+members = ["crates/*"]
 
 [workspace.package]
 documentation = "https://docs.rs/oxcord"

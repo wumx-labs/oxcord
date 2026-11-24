@@ -83,6 +83,9 @@
 #[cfg(feature = "standard_framework")]
 pub mod standard;
 
+#[cfg(feature = "oxcord_framework")]
+mod v2_bridge;
+
 use async_trait::async_trait;
 
 #[cfg(feature = "standard_framework")]

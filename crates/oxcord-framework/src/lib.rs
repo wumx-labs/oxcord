@@ -63,8 +63,9 @@ pub use command::{
     CommandFn,
     CommandHandler,
     CommandKind,
+    CommandOptionSpec,
 };
-pub use context::Context;
+pub use context::{Context, FrameworkArgument, FrameworkHttp, InvocationData, Reply, ReplyHandle};
 pub use cooldown::{CooldownConfig, CooldownManager, CooldownScope};
 pub use error::FrameworkError;
 pub use framework::{Framework, FrameworkBuilder, FrameworkOptions};

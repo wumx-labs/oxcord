@@ -4,8 +4,10 @@
 //! matching [`Command`] handler, running pre-flight checks (cooldowns,
 //! guild-only, owner-only, permissions) before calling the user function.
 
+use std::any::Any;
 use std::collections::HashSet;
 use std::sync::Arc;
+use std::time::Instant;
 
 use oxcord_model::id::UserId;
 use tracing::{debug, warn};
@@ -27,6 +29,8 @@ pub struct Invocation<'a> {
     pub data: &'a InvocationData,
     /// A lightweight HTTP handle.
     pub http: Arc<FrameworkHttp>,
+    /// When the invocation was received, before any dispatch work started.
+    pub received_at: Instant,
 }
 
 /// Routes invocations to registered commands.
@@ -34,16 +38,29 @@ pub struct Dispatcher {
     commands: Vec<Command>,
     owners: HashSet<UserId>,
     cooldowns: dashmap::DashMap<String, CooldownManager>,
+    user_data: Option<Arc<dyn Any + Send + Sync>>,
 }
 
 impl Dispatcher {
     /// Build a new dispatcher from framework options.
+    ///
+    /// Any command built with [`crate::command::CommandBuilder::cooldown`]
+    /// (including via the `#[oxcord_macros::command]` macro) has its cooldown
+    /// manager registered automatically — no manual
+    /// [`Self::register_cooldown`] call needed.
     #[must_use]
     pub fn new(options: &FrameworkOptions) -> Self {
+        let cooldowns = dashmap::DashMap::new();
+        for cmd in &options.commands {
+            if let Some(config) = cmd.cooldown.clone() {
+                cooldowns.insert(cmd.name.clone(), CooldownManager::new(config));
+            }
+        }
         Self {
             commands: options.commands.clone(),
             owners: options.owners.clone(),
-            cooldowns: dashmap::DashMap::new(),
+            cooldowns,
+            user_data: options.user_data.clone(),
         }
     }
 
@@ -103,10 +120,57 @@ impl Dispatcher {
             guild_id,
             invocation: inv.data,
             http: inv.http,
+            data: self.user_data.clone(),
+            received_at: inv.received_at,
         };
 
         debug!(command = %cmd.name, "dispatching command");
         handler.call(ctx).await
+    }
+
+    /// Run the autocomplete handler registered for a named option of a
+    /// command, if any, returning its string suggestions.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`FrameworkError::UnknownCommand`] if no such command is
+    /// registered, or [`FrameworkError::Other`] if that command has no
+    /// autocomplete handler for `option_name`.
+    pub async fn dispatch_autocomplete<'a>(
+        &self,
+        command_name: &str,
+        option_name: &str,
+        partial: String,
+        author: &'a oxcord_model::user::User,
+        data: &'a InvocationData,
+        http: Arc<FrameworkHttp>,
+    ) -> Result<Vec<String>, FrameworkError> {
+        let cmd = self
+            .find_command(command_name)
+            .ok_or_else(|| FrameworkError::UnknownCommand(command_name.to_owned()))?;
+        let Some(handler) = cmd.autocomplete.get(option_name) else {
+            return Err(FrameworkError::Other(format!(
+                "'{command_name}' has no autocomplete handler for '{option_name}'"
+            )));
+        };
+        let guild_id = match data {
+            InvocationData::Slash {
+                guild_id, ..
+            }
+            | InvocationData::Prefix {
+                guild_id, ..
+            } => *guild_id,
+        };
+        let ctx = Context {
+            author,
+            channel_id: http.channel_id,
+            guild_id,
+            invocation: data,
+            http,
+            data: self.user_data.clone(),
+            received_at: Instant::now(),
+        };
+        handler.call(ctx, partial).await
     }
 
     /// Register a cooldown manager for a command by name.

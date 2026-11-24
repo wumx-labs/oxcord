@@ -16,6 +16,8 @@ rust-version.workspace = true
 
 [dependencies]
 oxcord-model = { version = "0.1.0", path = "../oxcord-model" }
+oxcord-rest = { version = "0.1.0", path = "../oxcord-rest" }
+oxcord-builders = { version = "0.1.0", path = "../oxcord-builders" }
 oxcord-macros = { version = "0.1.0", path = "../oxcord-macros", optional = true }
 
 async-trait = { version = "0.1.74", optional = true }

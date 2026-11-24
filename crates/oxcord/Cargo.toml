@@ -129,8 +129,9 @@ chrono = ["dep:chrono", "typesize?/chrono"]
 # This enables all parts of the oxcord codebase
 # (Note: all feature-gated APIs to be documented should have their features listed here!)
 full = ["default", "collector", "unstable_discord_api", "voice", "voice_model", "interactions_endpoint", "broker", "oxcord_framework"]
-# Enables the high-level poise-style command framework (slash + prefix + cooldowns + autocomplete).
-oxcord_framework = ["oxcord-framework"]
+# Enables the high-level poise-style command framework (slash + prefix + cooldowns + autocomplete),
+# and the glue that lets it be passed straight to `ClientBuilder::framework()`.
+oxcord_framework = ["oxcord-framework", "framework", "builder", "http"]
 
 # Enables simd accelerated parsing.
 simd_json = ["simd-json", "typesize?/simd_json"]
