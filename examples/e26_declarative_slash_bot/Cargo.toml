@@ -10,6 +10,7 @@ name = "e26_declarative_slash_bot"
 path = "src/main.rs"
 
 [dependencies]
+oxcord = { path = "../../crates/oxcord", features = ["oxcord_framework"] }
 oxcord-framework = { path = "../../crates/oxcord-framework" }
 oxcord-macros = { path = "../../crates/oxcord-macros" }
 tokio = { version = "1.34.0", features = ["full"] }

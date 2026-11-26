@@ -19,6 +19,8 @@
 //! | `category = "..."` | string | Group in the help page |
 //! | `cooldown_secs = N` | integer | Per-command cooldown duration |
 //! | `cooldown_scope = "..."` | string | `"global"`, `"user"` (default), `"guild"`, `"channel"`, or `"member"` |
+//! | `required_permissions = "A \| B"` | string | Permissions the invoking user must have (slash only — see [`oxcord_framework::Command::required_permissions`]) |
+//! | `required_bot_permissions = "A \| B"` | string | Permissions the bot must have (slash only — see [`oxcord_framework::Command::required_bot_permissions`]) |
 //!
 //! Any parameter after `ctx` becomes a typed command argument: extracted from
 //! the matching named slash option, or positionally from prefix text, and
@@ -92,6 +94,8 @@ struct CommandAttrs {
     category: Option<String>,
     cooldown_secs: Option<u64>,
     cooldown_scope: Option<String>,
+    required_permissions: Option<String>,
+    required_bot_permissions: Option<String>,
 }
 
 impl Parse for CommandAttrs {
@@ -129,6 +133,8 @@ impl Parse for CommandAttrs {
                         "description" => attrs.description = Some(s.value()),
                         "category" => attrs.category = Some(s.value()),
                         "cooldown_scope" => attrs.cooldown_scope = Some(s.value()),
+                        "required_permissions" => attrs.required_permissions = Some(s.value()),
+                        "required_bot_permissions" => attrs.required_bot_permissions = Some(s.value()),
                         other => {
                             return Err(syn::Error::new(
                                 s.span(),
@@ -267,6 +273,13 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
         }
     });
 
+    let required_permissions_expr = attrs.required_permissions.as_deref().map(|spec| {
+        quote! { .required_permissions(::oxcord_framework::parse_permissions(#spec)) }
+    });
+    let required_bot_permissions_expr = attrs.required_bot_permissions.as_deref().map(|spec| {
+        quote! { .required_bot_permissions(::oxcord_framework::parse_permissions(#spec)) }
+    });
+
     // The inner async fn keeps its original name; we emit a constructor fn
     // with the same name that returns a Command.
     let inner_fn_name = Ident::new(&format!("__{fn_name}_inner"), fn_name.span());
@@ -376,6 +389,8 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
                 #owner_only
                 #category_expr
                 #cooldown_expr
+                #required_permissions_expr
+                #required_bot_permissions_expr
                 #options_expr
                 .handler(__handler as ::oxcord_framework::CommandFn)
                 .build()
@@ -383,4 +398,112 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     output.into()
+}
+
+/// Derive [`oxcord_framework::ChoiceParameter`] dan [`oxcord_framework::FrameworkArgument`]
+/// untuk enum unit yang dipakai sebagai pilihan tetap pada slash command.
+#[proc_macro_derive(ChoiceParameter)]
+pub fn derive_choice_parameter(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as syn::DeriveInput);
+    let enum_ident = &input.ident;
+    let syn::Data::Enum(data_enum) = &input.data else {
+        return syn::Error::new_spanned(&input.ident, "#[derive(ChoiceParameter)] hanya mendukung enum")
+            .to_compile_error()
+            .into();
+    };
+
+    let mut list_entries = Vec::new();
+    let mut from_index_arms = Vec::new();
+    let mut from_name_arms = Vec::new();
+    let mut name_arms = Vec::new();
+
+    for (idx, variant) in data_enum.variants.iter().enumerate() {
+        if !matches!(variant.fields, syn::Fields::Unit) {
+            return syn::Error::new_spanned(
+                &variant.ident,
+                "#[derive(ChoiceParameter)] hanya mendukung varian unit tanpa field",
+            )
+            .to_compile_error()
+            .into();
+        }
+        let var_ident = &variant.ident;
+        let var_name = var_ident.to_string();
+        list_entries.push(quote! {
+            ::oxcord_framework::ChoiceParameterInfo {
+                name: ::std::borrow::Cow::Borrowed(#var_name),
+                localizations: ::std::vec::Vec::new(),
+            }
+        });
+        from_index_arms.push(quote! { #idx => ::std::option::Option::Some(Self::#var_ident), });
+        from_name_arms.push(quote! { s if s.eq_ignore_ascii_case(#var_name) => ::std::option::Option::Some(Self::#var_ident), });
+        name_arms.push(quote! { Self::#var_ident => #var_name, });
+    }
+
+    let expanded = quote! {
+        impl ::oxcord_framework::ChoiceParameter for #enum_ident {
+            fn list() -> ::std::vec::Vec<::oxcord_framework::ChoiceParameterInfo> {
+                ::std::vec![#(#list_entries),*]
+            }
+
+            fn from_index(index: usize) -> ::std::option::Option<Self> {
+                match index {
+                    #(#from_index_arms)*
+                    _ => ::std::option::Option::None,
+                }
+            }
+
+            fn from_name(name: &str) -> ::std::option::Option<Self> {
+                match name {
+                    #(#from_name_arms)*
+                    _ => ::std::option::Option::None,
+                }
+            }
+
+            fn name(&self) -> &'static str {
+                match self {
+                    #(#name_arms)*
+                }
+            }
+        }
+
+        impl ::oxcord_framework::FrameworkArgument for #enum_ident {
+            fn from_option(
+                value: &::oxcord_model::application::CommandDataOptionValue,
+            ) -> ::std::result::Result<Self, ::oxcord_framework::FrameworkError> {
+                match value {
+                    ::oxcord_model::application::CommandDataOptionValue::String(s) => {
+                        <Self as ::oxcord_framework::ChoiceParameter>::from_name(s).ok_or_else(|| {
+                            ::oxcord_framework::FrameworkError::ArgumentParse {
+                                input: ::std::option::Option::Some(s.clone()),
+                                error: ::std::boxed::Box::new(::std::io::Error::new(
+                                    ::std::io::ErrorKind::InvalidInput,
+                                    "unknown choice value",
+                                )),
+                            }
+                        })
+                    },
+                    other => ::std::result::Result::Err(::oxcord_framework::FrameworkError::Other(
+                        ::std::format!("expected String choice, got {:?}", other.kind()),
+                    )),
+                }
+            }
+
+            fn from_token(token: &str) -> ::std::result::Result<Self, ::oxcord_framework::FrameworkError> {
+                <Self as ::oxcord_framework::ChoiceParameter>::from_name(token).ok_or_else(|| {
+                    ::oxcord_framework::FrameworkError::ArgumentParse {
+                        input: ::std::option::Option::Some(token.to_owned()),
+                        error: ::std::boxed::Box::new(::std::io::Error::new(
+                            ::std::io::ErrorKind::InvalidInput,
+                            "unknown choice token",
+                        )),
+                    }
+                })
+            }
+
+            fn option_type() -> ::oxcord_model::application::CommandOptionType {
+                ::oxcord_model::application::CommandOptionType::String
+            }
+        }
+    };
+    expanded.into()
 }

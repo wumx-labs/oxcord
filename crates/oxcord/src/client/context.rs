@@ -8,7 +8,7 @@ use typemap_rev::TypeMap;
 pub use crate::cache::Cache;
 use crate::gateway::ActivityData;
 #[cfg(feature = "gateway")]
-use crate::gateway::{ShardMessenger, ShardRunner};
+use crate::gateway::{ShardManager, ShardMessenger, ShardRunner};
 use crate::http::Http;
 use crate::model::prelude::*;
 
@@ -40,6 +40,10 @@ pub struct Context {
     pub http: Arc<Http>,
     #[cfg(feature = "cache")]
     pub cache: Arc<Cache>,
+    /// Shard manager milik client ini. Dipakai buat baca info runner (misal latensi heartbeat)
+    /// lewat [`Self::latency`], setara `ctx.ping()` di poise.
+    #[cfg(feature = "gateway")]
+    pub(crate) shard_manager: Arc<ShardManager>,
 }
 
 // Used by the #[instrument] macro on client::dispatch::handle_event
@@ -69,7 +73,17 @@ impl Context {
             http,
             #[cfg(feature = "cache")]
             cache,
+            shard_manager: Arc::clone(&runner.manager),
         }
+    }
+
+    /// Latensi heartbeat gateway (selisih kirim heartbeat -> ACK) dari shard yang nerima event ini.
+    ///
+    /// Ini angka WebSocket asli dari shard runner, bukan hasil ukur REST. Balikin `None` kalau
+    /// shard belum pernah dapat heartbeat ACK (misal baru connect).
+    #[cfg(feature = "gateway")]
+    pub async fn latency(&self) -> Option<std::time::Duration> {
+        self.shard_manager.runners.lock().await.get(&self.shard_id).and_then(|info| info.latency)
     }
 
     #[cfg(all(not(feature = "cache"), not(feature = "gateway")))]

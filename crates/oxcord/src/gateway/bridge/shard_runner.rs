@@ -34,7 +34,7 @@ pub struct ShardRunner {
     raw_event_handlers: Vec<Arc<dyn RawEventHandler>>,
     #[cfg(feature = "framework")]
     framework: Option<Arc<dyn Framework>>,
-    manager: Arc<ShardManager>,
+    pub(crate) manager: Arc<ShardManager>,
     // channel to receive messages from the shard manager and dispatches
     runner_rx: Receiver<ShardRunnerMessage>,
     // channel to send messages to the shard runner from the shard manager

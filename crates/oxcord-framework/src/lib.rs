@@ -48,27 +48,52 @@
 )]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+pub mod builtins;
+pub mod choice_parameter;
 pub mod command;
 pub mod context;
 pub mod cooldown;
 pub mod dispatch;
 pub mod error;
 pub mod framework;
+pub mod modal;
+pub mod permissions;
+pub mod prefix;
+pub mod track_edits;
 
+pub use choice_parameter::{ChoiceParameter, ChoiceParameterInfo};
 pub use command::{
     AutocompleteFn,
     AutocompleteHandler,
+    CheckFn,
     Command,
     CommandCategory,
     CommandFn,
     CommandHandler,
     CommandKind,
     CommandOptionSpec,
+    ContextMenuAction,
+    MessageContextMenuFn,
+    UserContextMenuFn,
 };
-pub use context::{Context, FrameworkArgument, FrameworkHttp, InvocationData, Reply, ReplyHandle};
+pub use context::{
+    Context,
+    ErrorContext,
+    FrameworkArgument,
+    FrameworkHttp,
+    InteractionBus,
+    InvocationData,
+    Reply,
+    ReplyCallback,
+    ReplyHandle,
+};
 pub use cooldown::{CooldownConfig, CooldownManager, CooldownScope};
 pub use error::FrameworkError;
-pub use framework::{Framework, FrameworkBuilder, FrameworkOptions};
+pub use framework::{CommandHook, ErrorHook, Framework, FrameworkBuilder, FrameworkOptions};
+pub use modal::{execute_modal, execute_modal_on_component_interaction, Modal};
+pub use permissions::parse_permissions;
+pub use prefix::{DynamicPrefixFn, NonCommandMessageFn, PrefixOptions};
+pub use track_edits::{EditTracker, TrackedCommand};
 
 /// Convenience result type for command handlers.
 pub type Result<T, E = FrameworkError> = std::result::Result<T, E>;
