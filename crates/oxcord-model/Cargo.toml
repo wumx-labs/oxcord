@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-model"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["NoxlyDev"]
 description = "Discord API data models and types for the Oxcord library."
 readme = "../../README.md"

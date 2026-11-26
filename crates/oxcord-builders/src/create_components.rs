@@ -20,7 +20,7 @@ impl serde::Serialize for CreateActionRow {
         use serde::ser::SerializeMap as _;
 
         let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("type", &1_u8)?;
+        map.serialize_entry("type", &ComponentType::ActionRow)?;
 
         match self {
             CreateActionRow::Buttons(buttons) => map.serialize_entry("components", &buttons)?,
@@ -560,7 +560,7 @@ impl Serialize for CreateSection {
         use serde::ser::SerializeMap as _;
 
         let mut map = serializer.serialize_map(None)?;
-        map.serialize_entry("type", &9_u8)?;
+        map.serialize_entry("type", &ComponentType::Section)?;
         map.serialize_entry("components", &self.components)?;
         if let Some(acc) = &self.accessory {
             map.serialize_entry("accessory", acc)?;
@@ -638,7 +638,7 @@ impl Serialize for CreateMediaGallery {
         use serde::ser::SerializeMap as _;
 
         let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("type", &12_u8)?;
+        map.serialize_entry("type", &ComponentType::MediaGallery)?;
         map.serialize_entry("items", &self.items)?;
         map.end()
     }
@@ -759,7 +759,7 @@ impl Serialize for CreateContainer {
         use serde::ser::SerializeMap as _;
 
         let mut map = serializer.serialize_map(None)?;
-        map.serialize_entry("type", &15_u8)?;
+        map.serialize_entry("type", &ComponentType::Container)?;
         if let Some(color) = self.accent_color {
             map.serialize_entry("accent_color", &color)?;
         }
@@ -802,7 +802,7 @@ impl Serialize for CreateLabel {
         use serde::ser::SerializeMap as _;
 
         let mut map = serializer.serialize_map(None)?;
-        map.serialize_entry("type", &16_u8)?;
+        map.serialize_entry("type", &ComponentType::Label)?;
         map.serialize_entry("label", &self.label)?;
         if let Some(desc) = &self.description {
             map.serialize_entry("description", desc)?;
@@ -959,7 +959,7 @@ mod tests {
             .add_component(section);
 
         let json = serde_json::to_value(&container).unwrap();
-        assert_eq!(json["type"], 15);
+        assert_eq!(json["type"], 17);
         assert_eq!(json["accent_color"], 0x5865F2);
         assert_eq!(json["components"][0]["type"], 10);
         assert_eq!(json["components"][1]["type"], 14);
@@ -973,6 +973,21 @@ mod tests {
             msg_json["flags"].as_u64().unwrap() & MessageFlags::IS_COMPONENTS_V2.bits(),
             MessageFlags::IS_COMPONENTS_V2.bits()
         );
-        assert_eq!(msg_json["components"][0]["type"], 15);
+        assert_eq!(msg_json["components"][0]["type"], 17);
+
+        let label = CreateLabel::new(
+            "Username",
+            CreateInputText::new(
+                oxcord_model::application::InputTextStyle::Short,
+                "Username",
+                "username",
+            ),
+        );
+        let label_json = serde_json::to_value(&label).unwrap();
+        assert_eq!(label_json["type"], 18);
+
+        let round_trip: oxcord_model::application::Component =
+            serde_json::from_value(json).unwrap();
+        assert!(matches!(round_trip, oxcord_model::application::Component::Container(_)));
     }
 }

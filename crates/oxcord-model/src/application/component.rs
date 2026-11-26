@@ -27,8 +27,8 @@ enum_number! {
         MediaGallery = 12,
         File = 13,
         Separator = 14,
-        Container = 15,
-        Label = 16,
+        Container = 17,
+        Label = 18,
         _ => Unknown(u8),
     }
 }
@@ -894,7 +894,7 @@ mod tests {
             components: vec![Component::TextDisplay(text_disp.clone())],
         };
         let serialized = serde_json::to_value(&container).unwrap();
-        assert_eq!(serialized["type"], 15);
+        assert_eq!(serialized["type"], 17);
         assert_eq!(serialized["accent_color"], 0xFF00FF);
         assert_eq!(serialized["components"][0]["type"], 10);
         assert_eq!(serialized["components"][0]["content"], "Hello Discord V2!");
