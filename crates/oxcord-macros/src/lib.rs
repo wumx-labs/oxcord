@@ -42,8 +42,22 @@ use quote::quote;
 use syn::parse::{Parse, ParseStream, Result as SynResult};
 use syn::punctuated::Punctuated;
 use syn::{
-    Expr, ExprLit, FnArg, GenericArgument, Ident, ItemFn, Lit, LitStr, Meta, MetaList,
-    MetaNameValue, Pat, PathArguments, Token, Type, parse_macro_input,
+    Expr,
+    ExprLit,
+    FnArg,
+    GenericArgument,
+    Ident,
+    ItemFn,
+    Lit,
+    LitStr,
+    Meta,
+    MetaList,
+    MetaNameValue,
+    Pat,
+    PathArguments,
+    Token,
+    Type,
+    parse_macro_input,
 };
 
 /// If `ty` is `Option<Inner>`, returns `Inner`. Otherwise `None`.
@@ -107,7 +121,10 @@ impl Parse for CommandAttrs {
                 },
                 Meta::NameValue(MetaNameValue {
                     path,
-                    value: Expr::Lit(ExprLit { lit: Lit::Str(s), .. }),
+                    value:
+                        Expr::Lit(ExprLit {
+                            lit: Lit::Str(s), ..
+                        }),
                     ..
                 }) => {
                     let key = path.get_ident().map(|i| i.to_string()).unwrap_or_default();
@@ -130,7 +147,10 @@ impl Parse for CommandAttrs {
                 },
                 Meta::NameValue(MetaNameValue {
                     path,
-                    value: Expr::Lit(ExprLit { lit: Lit::Int(n), .. }),
+                    value:
+                        Expr::Lit(ExprLit {
+                            lit: Lit::Int(n), ..
+                        }),
                     ..
                 }) => {
                     let key = path.get_ident().map(|i| i.to_string()).unwrap_or_default();
@@ -146,7 +166,11 @@ impl Parse for CommandAttrs {
                         },
                     }
                 },
-                Meta::List(MetaList { path, tokens, .. }) => {
+                Meta::List(MetaList {
+                    path,
+                    tokens,
+                    ..
+                }) => {
                     let key = path.get_ident().map(|i| i.to_string()).unwrap_or_default();
                     if key == "aliases" {
                         // parse as comma-separated string literals

@@ -179,9 +179,12 @@ impl Dispatcher {
         let inv_data = &resolved_data;
 
         let guild_id = match inv_data {
-            InvocationData::Slash { guild_id, .. } | InvocationData::Prefix { guild_id, .. } => {
-                *guild_id
-            },
+            InvocationData::Slash {
+                guild_id, ..
+            }
+            | InvocationData::Prefix {
+                guild_id, ..
+            } => *guild_id,
         };
 
         // Context dibentuk DI AWAL (sebelum pre-flight check apa pun), supaya hook `on_error`
@@ -281,10 +284,16 @@ impl Dispatcher {
             // --- Pre-flight: permissions ---
             if cmd.required_permissions.is_some() || cmd.required_bot_permissions.is_some() {
                 let (member_permissions, app_permissions) = match inv_data {
-                    InvocationData::Slash { member_permissions, app_permissions, .. }
-                    | InvocationData::Prefix { member_permissions, app_permissions, .. } => {
-                        (*member_permissions, *app_permissions)
-                    },
+                    InvocationData::Slash {
+                        member_permissions,
+                        app_permissions,
+                        ..
+                    }
+                    | InvocationData::Prefix {
+                        member_permissions,
+                        app_permissions,
+                        ..
+                    } => (*member_permissions, *app_permissions),
                 };
                 if let Some(required) = cmd.required_permissions {
                     let Some(have) = member_permissions else {
@@ -292,7 +301,9 @@ impl Dispatcher {
                     };
                     let missing = required - have;
                     if !missing.is_empty() {
-                        return Err(FrameworkError::MissingUserPermissions { missing });
+                        return Err(FrameworkError::MissingUserPermissions {
+                            missing,
+                        });
                     }
                 }
                 if let Some(required) = cmd.required_bot_permissions {
@@ -301,7 +312,9 @@ impl Dispatcher {
                     };
                     let missing = required - have;
                     if !missing.is_empty() {
-                        return Err(FrameworkError::MissingBotPermissions { missing });
+                        return Err(FrameworkError::MissingBotPermissions {
+                            missing,
+                        });
                     }
                 }
             }
@@ -350,9 +363,9 @@ impl Dispatcher {
         debug!(command = %cmd.name, "dispatching command");
         let result = match CatchUnwindFuture(AssertUnwindSafe(handler.call(ctx.clone()))).await {
             Ok(res) => res,
-            Err(panic_payload) => {
-                Err(FrameworkError::CommandPanic { payload: extract_panic_payload(&panic_payload) })
-            },
+            Err(panic_payload) => Err(FrameworkError::CommandPanic {
+                payload: extract_panic_payload(&panic_payload),
+            }),
         };
 
         if result.is_ok() {
@@ -381,7 +394,9 @@ impl Dispatcher {
                 return cmd;
             }
             match data {
-                InvocationData::Slash { options, .. } => {
+                InvocationData::Slash {
+                    options, ..
+                } => {
                     let Some(opt) = options.first() else {
                         return cmd;
                     };
@@ -396,7 +411,9 @@ impl Dispatcher {
                     *options = inner;
                     cmd = sub;
                 },
-                InvocationData::Prefix { args, .. } => {
+                InvocationData::Prefix {
+                    args, ..
+                } => {
                     let mut parts = args.trim_start().splitn(2, char::is_whitespace);
                     let Some(candidate) = parts.next().filter(|s| !s.is_empty()) else {
                         return cmd;
@@ -451,9 +468,12 @@ impl Dispatcher {
             )));
         };
         let guild_id = match data {
-            InvocationData::Slash { guild_id, .. } | InvocationData::Prefix { guild_id, .. } => {
-                *guild_id
-            },
+            InvocationData::Slash {
+                guild_id, ..
+            }
+            | InvocationData::Prefix {
+                guild_id, ..
+            } => *guild_id,
         };
         let ctx = Context {
             author,
@@ -522,8 +542,12 @@ mod tests {
         let resolved = Dispatcher::resolve_subcommand(&cmd, &mut data);
         assert_eq!(resolved.name, "set");
         match data {
-            InvocationData::Prefix { args, .. } => assert_eq!(args, "foo bar"),
-            InvocationData::Slash { .. } => panic!("expected Prefix"),
+            InvocationData::Prefix {
+                args, ..
+            } => assert_eq!(args, "foo bar"),
+            InvocationData::Slash {
+                ..
+            } => panic!("expected Prefix"),
         }
     }
 
@@ -552,8 +576,12 @@ mod tests {
         let resolved = Dispatcher::resolve_subcommand(&cmd, &mut data);
         assert_eq!(resolved.name, "set");
         match data {
-            InvocationData::Prefix { args, .. } => assert_eq!(args, "!"),
-            InvocationData::Slash { .. } => panic!("expected Prefix"),
+            InvocationData::Prefix {
+                args, ..
+            } => assert_eq!(args, "!"),
+            InvocationData::Slash {
+                ..
+            } => panic!("expected Prefix"),
         }
     }
 
@@ -636,7 +664,9 @@ mod tests {
                 let seen = Arc::clone(&seen_in_hook);
                 Box::pin(async move {
                     let label = match error {
-                        FrameworkError::Cooldown { .. } => {
+                        FrameworkError::Cooldown {
+                            ..
+                        } => {
                             format!("cooldown:{}", ectx.command_name)
                         },
                         other => format!("other:{other}"),
@@ -658,7 +688,10 @@ mod tests {
 
     #[tokio::test]
     async fn without_on_error_hook_the_error_is_returned_as_before() {
-        let options = FrameworkOptions { commands: vec![cooldown_command()], ..Default::default() };
+        let options = FrameworkOptions {
+            commands: vec![cooldown_command()],
+            ..Default::default()
+        };
         let dispatcher = Dispatcher::new(&options);
         assert!(invoke_ping(&dispatcher).await.is_ok());
         assert!(matches!(invoke_ping(&dispatcher).await, Err(FrameworkError::Cooldown { .. })));
@@ -699,8 +732,10 @@ mod tests {
             .dm_only(true)
             .handler(ok_handler)
             .build();
-        let dispatcher =
-            Dispatcher::new(&FrameworkOptions { commands: vec![cmd], ..Default::default() });
+        let dispatcher = Dispatcher::new(&FrameworkOptions {
+            commands: vec![cmd],
+            ..Default::default()
+        });
         let author = oxcord_model::user::User::default();
 
         let dm_data = InvocationData::Prefix {
@@ -732,8 +767,10 @@ mod tests {
             .nsfw_only(true)
             .handler(ok_handler)
             .build();
-        let dispatcher =
-            Dispatcher::new(&FrameworkOptions { commands: vec![cmd], ..Default::default() });
+        let dispatcher = Dispatcher::new(&FrameworkOptions {
+            commands: vec![cmd],
+            ..Default::default()
+        });
         let author = oxcord_model::user::User::default();
         let data = InvocationData::Prefix {
             args: String::new(),
@@ -835,8 +872,14 @@ mod tests {
             ..Default::default()
         });
 
-        let owner_user = oxcord_model::user::User { id: UserId::new(999), ..Default::default() };
-        let normal_user = oxcord_model::user::User { id: UserId::new(111), ..Default::default() };
+        let owner_user = oxcord_model::user::User {
+            id: UserId::new(999),
+            ..Default::default()
+        };
+        let normal_user = oxcord_model::user::User {
+            id: UserId::new(111),
+            ..Default::default()
+        };
 
         let dm_data = InvocationData::Prefix {
             args: String::new(),
@@ -865,8 +908,10 @@ mod tests {
             .subcommand(sub)
             .subcommand_required(true)
             .build();
-        let dispatcher =
-            Dispatcher::new(&FrameworkOptions { commands: vec![grp], ..Default::default() });
+        let dispatcher = Dispatcher::new(&FrameworkOptions {
+            commands: vec![grp],
+            ..Default::default()
+        });
         let author = oxcord_model::user::User::default();
 
         let bare = InvocationData::Prefix {
@@ -967,17 +1012,14 @@ mod tests {
         assert!(dispatcher.dispatch(make_inv("boom", &author, &data, None, None)).await.is_ok());
 
         let entries = log.lock().expect("mutex").clone();
-        assert_eq!(
-            entries,
-            vec![
-                "pre:ok".to_owned(),
-                "post:ok".to_owned(),
-                "pre:fail".to_owned(),
-                "cmd_err:fail:boom".to_owned(),
-                "pre:boom".to_owned(),
-                "global_err:boom:Command panicked: handler exploded".to_owned(),
-            ]
-        );
+        assert_eq!(entries, vec![
+            "pre:ok".to_owned(),
+            "post:ok".to_owned(),
+            "pre:fail".to_owned(),
+            "cmd_err:fail:boom".to_owned(),
+            "pre:boom".to_owned(),
+            "global_err:boom:Command panicked: handler exploded".to_owned(),
+        ]);
     }
 
     #[tokio::test]
@@ -1124,7 +1166,10 @@ mod tests {
             .build();
 
         let fw = crate::Framework::builder()
-            .options(FrameworkOptions { commands: vec![slash, cm], ..Default::default() })
+            .options(FrameworkOptions {
+                commands: vec![slash, cm],
+                ..Default::default()
+            })
             .build();
 
         let built = fw.build_global_commands();

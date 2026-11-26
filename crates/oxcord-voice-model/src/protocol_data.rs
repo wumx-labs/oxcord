@@ -131,7 +131,11 @@ pub struct ProtocolData {
 impl ProtocolData {
     /// Creates a new `ProtocolData` instance.
     pub fn new(address: IpAddr, port: u16, mode: impl Into<String>) -> Self {
-        Self { address, mode: mode.into(), port }
+        Self {
+            address,
+            mode: mode.into(),
+            port,
+        }
     }
 
     /// Returns the parsed [`EncryptionMode`].

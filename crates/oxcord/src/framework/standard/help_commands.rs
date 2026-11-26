@@ -63,8 +63,15 @@ use tracing::warn;
 use super::structures::Command as InternalCommand;
 #[cfg(all(feature = "cache", feature = "http"))]
 use super::{
-    Args, Check, CommandGroup, CommandOptions, HelpBehaviour, HelpOptions, OnlyIn,
-    has_correct_permissions, has_correct_roles,
+    Args,
+    Check,
+    CommandGroup,
+    CommandOptions,
+    HelpBehaviour,
+    HelpOptions,
+    OnlyIn,
+    has_correct_permissions,
+    has_correct_roles,
 };
 #[cfg(all(feature = "cache", feature = "http"))]
 #[cfg(feature = "model")]
@@ -877,7 +884,10 @@ pub async fn create_customised_help_data<'a>(
             help_error_message: help_options.no_help_available_text,
         }
     } else {
-        CustomisedHelpData::GroupedCommands { help_description: description, groups: listed_groups }
+        CustomisedHelpData::GroupedCommands {
+            help_description: description,
+            groups: listed_groups,
+        }
     }
 }
 
@@ -1159,7 +1169,10 @@ pub async fn with_embeds(
         create_customised_help_data(ctx, msg, &args, groups, &owners, help_options).await;
 
     match formatted_help {
-        CustomisedHelpData::SuggestedCommands { ref help_description, ref suggestions } => {
+        CustomisedHelpData::SuggestedCommands {
+            ref help_description,
+            ref suggestions,
+        } => {
             send_suggestion_embed(
                 &ctx.http,
                 msg.channel_id,
@@ -1169,7 +1182,9 @@ pub async fn with_embeds(
             )
             .await
         },
-        CustomisedHelpData::NoCommandFound { help_error_message } => {
+        CustomisedHelpData::NoCommandFound {
+            help_error_message,
+        } => {
             send_error_embed(
                 &ctx.http,
                 msg.channel_id,
@@ -1178,7 +1193,10 @@ pub async fn with_embeds(
             )
             .await
         },
-        CustomisedHelpData::GroupedCommands { ref help_description, ref groups } => {
+        CustomisedHelpData::GroupedCommands {
+            ref help_description,
+            ref groups,
+        } => {
             send_grouped_commands_embed(
                 &ctx.http,
                 help_options,
@@ -1189,7 +1207,9 @@ pub async fn with_embeds(
             )
             .await
         },
-        CustomisedHelpData::SingleCommand { ref command } => {
+        CustomisedHelpData::SingleCommand {
+            ref command,
+        } => {
             send_single_command_embed(
                 &ctx.http,
                 help_options,
@@ -1352,16 +1372,20 @@ pub async fn plain(
         create_customised_help_data(ctx, msg, &args, groups, &owners, help_options).await;
 
     let result = match formatted_help {
-        CustomisedHelpData::SuggestedCommands { ref help_description, ref suggestions } => {
-            help_description.replace("{}", &suggestions.join("`, `"))
-        },
-        CustomisedHelpData::NoCommandFound { help_error_message } => help_error_message.to_string(),
-        CustomisedHelpData::GroupedCommands { ref help_description, ref groups } => {
-            grouped_commands_to_plain_string(help_options, help_description, groups)
-        },
-        CustomisedHelpData::SingleCommand { ref command } => {
-            single_command_to_plain_string(help_options, command)
-        },
+        CustomisedHelpData::SuggestedCommands {
+            ref help_description,
+            ref suggestions,
+        } => help_description.replace("{}", &suggestions.join("`, `")),
+        CustomisedHelpData::NoCommandFound {
+            help_error_message,
+        } => help_error_message.to_string(),
+        CustomisedHelpData::GroupedCommands {
+            ref help_description,
+            ref groups,
+        } => grouped_commands_to_plain_string(help_options, help_description, groups),
+        CustomisedHelpData::SingleCommand {
+            ref command,
+        } => single_command_to_plain_string(help_options, command),
     };
 
     msg.channel_id.say(&ctx, result).await
@@ -1376,9 +1400,18 @@ mod tests {
     #[allow(deprecated)]
     fn suggestions_join() {
         let names = vec![
-            SuggestedCommandName { name: "aa".to_owned(), levenshtein_distance: 0 },
-            SuggestedCommandName { name: "bbb".to_owned(), levenshtein_distance: 0 },
-            SuggestedCommandName { name: "cccc".to_owned(), levenshtein_distance: 0 },
+            SuggestedCommandName {
+                name: "aa".to_owned(),
+                levenshtein_distance: 0,
+            },
+            SuggestedCommandName {
+                name: "bbb".to_owned(),
+                levenshtein_distance: 0,
+            },
+            SuggestedCommandName {
+                name: "cccc".to_owned(),
+                levenshtein_distance: 0,
+            },
         ];
 
         let actual = Suggestions(names).join(", ");

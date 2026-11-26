@@ -261,7 +261,11 @@ pub fn parse_emoji(mention: impl AsRef<str>) -> Option<EmojiIdentifier> {
             name.push(x);
         }
 
-        id.parse().ok().map(|id| EmojiIdentifier { animated, id, name })
+        id.parse().ok().map(|id| EmojiIdentifier {
+            animated,
+            id,
+            name,
+        })
     } else {
         None
     }

@@ -129,8 +129,11 @@ fn decompress_payload(bytes: &[u8]) -> Result<Vec<u8>> {
 
 impl WsClient {
     pub async fn connect(url: Url) -> Result<Self> {
-        let config =
-            WebSocketConfig { max_message_size: None, max_frame_size: None, ..Default::default() };
+        let config = WebSocketConfig {
+            max_message_size: None,
+            max_frame_size: None,
+            ..Default::default()
+        };
         let (stream, _) = connect_async_with_config(url, Some(config), false).await?;
 
         Ok(Self(stream))
@@ -236,7 +239,9 @@ impl WsClient {
 
         self.send_json(&WebSocketMessage {
             op: Opcode::ReqeustSoundboardSounds,
-            d: WebSocketMessageData::SoundboardSounds { guild_ids },
+            d: WebSocketMessageData::SoundboardSounds {
+                guild_ids,
+            },
         })
         .await
     }
@@ -337,7 +342,11 @@ impl WsClient {
 
         self.send_json(&WebSocketMessage {
             op: Opcode::Resume,
-            d: WebSocketMessageData::Resume { session_id, token, seq },
+            d: WebSocketMessageData::Resume {
+                session_id,
+                token,
+                seq,
+            },
         })
         .await
     }

@@ -27,7 +27,9 @@ pub struct SubscriptionStream {
 impl SubscriptionStream {
     /// Wraps any [`Subscription`] into a [`Stream`].
     pub fn new(subscription: Box<dyn Subscription>) -> Self {
-        Self { subscription }
+        Self {
+            subscription,
+        }
     }
 }
 

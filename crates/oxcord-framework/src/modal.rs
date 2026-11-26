@@ -77,8 +77,12 @@ pub async fn execute_modal<M: Modal>(
         FrameworkError::Other("execute_modal only works on slash interactions".to_owned())
     })?;
     let token = match ctx.invocation {
-        crate::context::InvocationData::Slash { token, .. } => token.as_str(),
-        crate::context::InvocationData::Prefix { .. } => {
+        crate::context::InvocationData::Slash {
+            token, ..
+        } => token.as_str(),
+        crate::context::InvocationData::Prefix {
+            ..
+        } => {
             return Err(FrameworkError::Other(
                 "execute_modal only works on slash interactions".to_owned(),
             ));

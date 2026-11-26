@@ -139,13 +139,26 @@ impl Serialize for ButtonKind {
         }
 
         let helper = match self {
-            ButtonKind::Link { url } => {
-                Helper { style: 5, url: Some(url), custom_id: None, sku_id: None }
+            ButtonKind::Link {
+                url,
+            } => Helper {
+                style: 5,
+                url: Some(url),
+                custom_id: None,
+                sku_id: None,
             },
-            ButtonKind::Premium { sku_id } => {
-                Helper { style: 6, url: None, custom_id: None, sku_id: Some(*sku_id) }
+            ButtonKind::Premium {
+                sku_id,
+            } => Helper {
+                style: 6,
+                url: None,
+                custom_id: None,
+                sku_id: Some(*sku_id),
             },
-            ButtonKind::NonLink { custom_id, style } => Helper {
+            ButtonKind::NonLink {
+                custom_id,
+                style,
+            } => Helper {
                 style: (*style).into(),
                 url: None,
                 custom_id: Some(custom_id),
@@ -360,7 +373,10 @@ pub struct TextDisplay {
 impl TextDisplay {
     /// Constructs a new [`TextDisplay`] with the provided content.
     pub fn new(content: impl Into<String>) -> Self {
-        Self { kind: ComponentType::TextDisplay, content: content.into() }
+        Self {
+            kind: ComponentType::TextDisplay,
+            content: content.into(),
+        }
     }
 }
 
@@ -387,7 +403,12 @@ pub struct Thumbnail {
 impl Thumbnail {
     /// Constructs a new [`Thumbnail`] with the given media.
     pub fn new(media: UnfurlMedia) -> Self {
-        Self { kind: ComponentType::Thumbnail, media, description: None, spoiler: false }
+        Self {
+            kind: ComponentType::Thumbnail,
+            media,
+            description: None,
+            spoiler: false,
+        }
     }
 }
 
@@ -462,7 +483,11 @@ pub struct Section {
 impl Section {
     /// Creates a new empty [`Section`].
     pub fn new() -> Self {
-        Self { kind: ComponentType::Section, components: Vec::new(), accessory: None }
+        Self {
+            kind: ComponentType::Section,
+            components: Vec::new(),
+            accessory: None,
+        }
     }
 }
 
@@ -490,7 +515,11 @@ pub struct MediaGalleryItem {
 impl MediaGalleryItem {
     /// Constructs a new [`MediaGalleryItem`].
     pub fn new(media: UnfurlMedia) -> Self {
-        Self { media, description: None, spoiler: false }
+        Self {
+            media,
+            description: None,
+            spoiler: false,
+        }
     }
 }
 
@@ -512,7 +541,10 @@ pub struct MediaGallery {
 impl MediaGallery {
     /// Creates a new [`MediaGallery`] with items.
     pub fn new(items: Vec<MediaGalleryItem>) -> Self {
-        Self { kind: ComponentType::MediaGallery, items }
+        Self {
+            kind: ComponentType::MediaGallery,
+            items,
+        }
     }
 }
 
@@ -536,7 +568,11 @@ pub struct FileComponent {
 impl FileComponent {
     /// Creates a new [`FileComponent`].
     pub fn new(file: UnfurlMedia) -> Self {
-        Self { kind: ComponentType::File, file, spoiler: false }
+        Self {
+            kind: ComponentType::File,
+            file,
+            spoiler: false,
+        }
     }
 }
 
@@ -574,7 +610,11 @@ pub struct Separator {
 impl Separator {
     /// Creates a new [`Separator`] with default divider.
     pub fn new() -> Self {
-        Self { kind: ComponentType::Separator, divider: true, spacing: None }
+        Self {
+            kind: ComponentType::Separator,
+            divider: true,
+            spacing: None,
+        }
     }
 }
 
@@ -788,7 +828,10 @@ mod tests {
     fn test_button_serde() {
         let mut button = Button {
             kind: ComponentType::Button,
-            data: ButtonKind::NonLink { custom_id: "hello".into(), style: ButtonStyle::Danger },
+            data: ButtonKind::NonLink {
+                custom_id: "hello".into(),
+                style: ButtonStyle::Danger,
+            },
             label: Some("a".into()),
             emoji: None,
             disabled: false,
@@ -798,13 +841,17 @@ mod tests {
             json!({"type": 2, "style": 4, "custom_id": "hello", "label": "a", "disabled": false}),
         );
 
-        button.data = ButtonKind::Link { url: "https://google.com".into() };
+        button.data = ButtonKind::Link {
+            url: "https://google.com".into(),
+        };
         assert_json(
             &button,
             json!({"type": 2, "style": 5, "url": "https://google.com", "label": "a", "disabled": false}),
         );
 
-        button.data = ButtonKind::Premium { sku_id: 1234965026943668316.into() };
+        button.data = ButtonKind::Premium {
+            sku_id: 1234965026943668316.into(),
+        };
         assert_json(
             &button,
             json!({"type": 2, "style": 6, "sku_id": "1234965026943668316", "label": "a", "disabled": false}),

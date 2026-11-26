@@ -23,12 +23,16 @@ impl RedisStore {
         let mgr = ConnectionManager::new(client)
             .await
             .map_err(|e| StateBackendError::Storage(e.to_string()))?;
-        Ok(Self { mgr })
+        Ok(Self {
+            mgr,
+        })
     }
 
     /// Creates a `RedisStore` from an existing [`ConnectionManager`].
     pub fn from_manager(mgr: ConnectionManager) -> Self {
-        Self { mgr }
+        Self {
+            mgr,
+        }
     }
 }
 

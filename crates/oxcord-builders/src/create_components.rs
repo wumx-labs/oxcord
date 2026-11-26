@@ -45,7 +45,9 @@ impl CreateButton {
     pub fn new_link(url: impl Into<String>) -> Self {
         Self(Button {
             kind: ComponentType::Button,
-            data: ButtonKind::Link { url: url.into() },
+            data: ButtonKind::Link {
+                url: url.into(),
+            },
             label: None,
             emoji: None,
             disabled: false,
@@ -58,7 +60,9 @@ impl CreateButton {
     pub fn new_premium(sku_id: impl Into<SkuId>) -> Self {
         Self(Button {
             kind: ComponentType::Button,
-            data: ButtonKind::Premium { sku_id: sku_id.into() },
+            data: ButtonKind::Premium {
+                sku_id: sku_id.into(),
+            },
             label: None,
             emoji: None,
             disabled: false,
@@ -70,7 +74,10 @@ impl CreateButton {
     pub fn new(custom_id: impl Into<String>) -> Self {
         Self(Button {
             kind: ComponentType::Button,
-            data: ButtonKind::NonLink { style: ButtonStyle::Primary, custom_id: custom_id.into() },
+            data: ButtonKind::NonLink {
+                style: ButtonStyle::Primary,
+                custom_id: custom_id.into(),
+            },
             label: None,
             emoji: None,
             disabled: false,
@@ -82,7 +89,10 @@ impl CreateButton {
     ///
     /// Has no effect on link buttons and premium buttons.
     pub fn custom_id(mut self, id: impl Into<String>) -> Self {
-        if let ButtonKind::NonLink { custom_id, .. } = &mut self.0.data {
+        if let ButtonKind::NonLink {
+            custom_id, ..
+        } = &mut self.0.data
+        {
             *custom_id = id.into();
         }
         self
@@ -92,7 +102,10 @@ impl CreateButton {
     ///
     /// Has no effect on link buttons and premium buttons.
     pub fn style(mut self, new_style: ButtonStyle) -> Self {
-        if let ButtonKind::NonLink { style, .. } = &mut self.0.data {
+        if let ButtonKind::NonLink {
+            style, ..
+        } = &mut self.0.data
+        {
             *style = new_style;
         }
         self
@@ -511,7 +524,10 @@ pub struct CreateSection {
 impl CreateSection {
     /// Creates a new empty [`CreateSection`].
     pub fn new() -> Self {
-        Self { components: Vec::new(), accessory: None }
+        Self {
+            components: Vec::new(),
+            accessory: None,
+        }
     }
 
     /// Adds markdown text to the section.
@@ -593,7 +609,9 @@ pub struct CreateMediaGallery {
 impl CreateMediaGallery {
     /// Creates a new empty [`CreateMediaGallery`].
     pub fn new() -> Self {
-        Self { items: Vec::new() }
+        Self {
+            items: Vec::new(),
+        }
     }
 
     /// Adds an item to the media gallery.
@@ -698,7 +716,11 @@ pub struct CreateContainer {
 impl CreateContainer {
     /// Constructs a new empty [`CreateContainer`].
     pub fn new() -> Self {
-        Self { accent_color: None, spoiler: false, components: Vec::new() }
+        Self {
+            accent_color: None,
+            spoiler: false,
+            components: Vec::new(),
+        }
     }
 
     /// Sets an accent color as an RGB integer.
@@ -761,7 +783,11 @@ pub struct CreateLabel {
 impl CreateLabel {
     /// Constructs a new [`CreateLabel`].
     pub fn new(label: impl Into<String>, component: impl Into<CreateActionRowComponent>) -> Self {
-        Self { label: label.into(), description: None, component: Box::new(component.into()) }
+        Self {
+            label: label.into(),
+            description: None,
+            component: Box::new(component.into()),
+        }
     }
 
     /// Sets description text under the label.

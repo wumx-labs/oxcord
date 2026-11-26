@@ -119,6 +119,9 @@ impl Cache {
     /// This is called by the background sweeper task when
     /// [`Settings::sweep_interval`] is configured.
     pub fn sweep(&self) -> SweepStats {
-        SweepStats { messages_removed: self.sweep_messages(), users_removed: self.sweep_users() }
+        SweepStats {
+            messages_removed: self.sweep_messages(),
+            users_removed: self.sweep_users(),
+        }
     }
 }

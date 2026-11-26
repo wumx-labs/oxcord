@@ -13,7 +13,12 @@ use typemap_rev::TypeMap;
 #[cfg(feature = "voice")]
 use super::VoiceGatewayManager;
 use super::{
-    ShardId, ShardManager, ShardMessenger, ShardQueuerMessage, ShardRunner, ShardRunnerInfo,
+    ShardId,
+    ShardManager,
+    ShardMessenger,
+    ShardQueuerMessage,
+    ShardRunner,
+    ShardRunnerInfo,
     ShardRunnerOptions,
 };
 #[cfg(feature = "cache")]

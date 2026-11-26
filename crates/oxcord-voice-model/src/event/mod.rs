@@ -230,13 +230,12 @@ impl<'de> Visitor<'de> for EventVisitor {
                     },
                 },
                 Some(_) => {},
-                None => {
+                None =>
                     if d.is_none() {
                         return Err(DeError::missing_field("d"));
                     } else if op.is_none() {
                         return Err(DeError::missing_field("op"));
-                    }
-                },
+                    },
             }
 
             if d.is_some() && op.is_some() {

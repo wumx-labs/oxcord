@@ -44,7 +44,9 @@ struct BotState {
 
 impl BotState {
     fn new() -> Self {
-        Self { state: StateEngine::new(InMemoryBackend::new()) }
+        Self {
+            state: StateEngine::new(InMemoryBackend::new()),
+        }
     }
 }
 

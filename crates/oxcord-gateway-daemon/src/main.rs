@@ -184,7 +184,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let intents = GatewayIntents::all();
-    let handler = GatewayDaemonForwarder { broker, session_store: session_store.clone(), metrics };
+    let handler = GatewayDaemonForwarder {
+        broker,
+        session_store: session_store.clone(),
+        metrics,
+    };
 
     let mut client = Client::builder(&token, intents).event_handler(handler).await?;
 

@@ -35,7 +35,11 @@ pub struct GuildWelcomeChannel {
 impl GuildWelcomeChannel {
     #[must_use]
     pub fn new(channel_id: ChannelId, description: impl Into<String>) -> Self {
-        Self { channel_id, description: description.into(), emoji: None }
+        Self {
+            channel_id,
+            description: description.into(),
+            emoji: None,
+        }
     }
 }
 
@@ -49,16 +53,27 @@ impl<'de> Deserialize<'de> for GuildWelcomeChannel {
             emoji_id: Option<EmojiId>,
             emoji_name: Option<String>,
         }
-        let Helper { channel_id, description, emoji_id, emoji_name } =
-            Helper::deserialize(deserializer)?;
+        let Helper {
+            channel_id,
+            description,
+            emoji_id,
+            emoji_name,
+        } = Helper::deserialize(deserializer)?;
 
         let emoji = match (emoji_id, emoji_name) {
-            (Some(id), Some(name)) => Some(GuildWelcomeChannelEmoji::Custom { id, name }),
+            (Some(id), Some(name)) => Some(GuildWelcomeChannelEmoji::Custom {
+                id,
+                name,
+            }),
             (None, Some(name)) => Some(GuildWelcomeChannelEmoji::Unicode(name)),
             _ => None,
         };
 
-        Ok(Self { channel_id, description, emoji })
+        Ok(Self {
+            channel_id,
+            description,
+            emoji,
+        })
     }
 }
 
@@ -70,7 +85,10 @@ impl Serialize for GuildWelcomeChannel {
         s.serialize_field("channel_id", &self.channel_id)?;
         s.serialize_field("description", &self.description)?;
         let (emoji_id, emoji_name) = match &self.emoji {
-            Some(GuildWelcomeChannelEmoji::Custom { id, name }) => (Some(id), Some(name)),
+            Some(GuildWelcomeChannelEmoji::Custom {
+                id,
+                name,
+            }) => (Some(id), Some(name)),
             Some(GuildWelcomeChannelEmoji::Unicode(name)) => (None, Some(name)),
             None => (None, None),
         };

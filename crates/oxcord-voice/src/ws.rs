@@ -121,7 +121,10 @@ impl VoiceWsClient {
 
     /// Sends a [`Heartbeat`] message with the given nonce.
     pub async fn send_heartbeat(&mut self, nonce: u64) -> Result<()> {
-        self.send_event(&Event::Heartbeat(Heartbeat { nonce })).await
+        self.send_event(&Event::Heartbeat(Heartbeat {
+            nonce,
+        }))
+        .await
     }
 
     /// Returns the negotiated heartbeat interval.

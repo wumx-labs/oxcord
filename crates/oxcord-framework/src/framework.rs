@@ -10,8 +10,14 @@ use std::time::Instant;
 use oxcord_builders::{CreateAllowedMentions, CreateCommand, CreateCommandOption};
 use oxcord_model::Permissions;
 use oxcord_model::application::{
-    CommandDataOptionValue, CommandInteraction, CommandType, ComponentInteraction, MembershipState,
-    ModalInteraction, ResolvedTarget, TeamMemberRole,
+    CommandDataOptionValue,
+    CommandInteraction,
+    CommandType,
+    ComponentInteraction,
+    MembershipState,
+    ModalInteraction,
+    ResolvedTarget,
+    TeamMemberRole,
 };
 use oxcord_model::channel::{ChannelType, Message, MessageType};
 use oxcord_model::id::{GuildId, MessageId, UserId};
@@ -44,7 +50,9 @@ fn find_focused_option(
 ) -> Option<&oxcord_model::application::CommandDataOption> {
     for opt in options {
         match &opt.value {
-            CommandDataOptionValue::Autocomplete { .. } => return Some(opt),
+            CommandDataOptionValue::Autocomplete {
+                ..
+            } => return Some(opt),
             CommandDataOptionValue::SubCommand(inner)
             | CommandDataOptionValue::SubCommandGroup(inner) => {
                 if let Some(found) = find_focused_option(inner) {
@@ -483,7 +491,9 @@ impl Framework {
         let Some((matched_prefix, command_name, cmd, args)) = parsed else {
             if let Some(non_cmd) = &self.options.prefix_options.non_command_message {
                 if let Err(e) = non_cmd(msg.clone(), self.options.user_data.clone()).await {
-                    return Some(Err(FrameworkError::NonCommandMessage { error: Box::new(e) }));
+                    return Some(Err(FrameworkError::NonCommandMessage {
+                        error: Box::new(e),
+                    }));
                 }
             }
             return None;
@@ -816,7 +826,9 @@ impl Framework {
             ));
         };
         let partial = match &focused.value {
-            CommandDataOptionValue::Autocomplete { value, .. } => value.clone(),
+            CommandDataOptionValue::Autocomplete {
+                value, ..
+            } => value.clone(),
             _ => unreachable!("filtered above"),
         };
 
@@ -1007,6 +1019,9 @@ impl FrameworkBuilder {
     #[must_use]
     pub fn build(self) -> Framework {
         let dispatcher = Dispatcher::new(&self.options);
-        Framework { options: self.options, dispatcher }
+        Framework {
+            options: self.options,
+            dispatcher,
+        }
     }
 }

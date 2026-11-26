@@ -104,7 +104,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         | GatewayIntents::MESSAGE_CONTENT
         | GatewayIntents::GUILD_VOICE_STATES;
 
-    let handler = Handler { voice_tracker: Arc::clone(&voice_tracker) };
+    let handler = Handler {
+        voice_tracker: Arc::clone(&voice_tracker),
+    };
 
     let mut client = Client::builder(&token, intents)
         .event_handler(handler)

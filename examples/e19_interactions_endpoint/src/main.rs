@@ -1,7 +1,10 @@
 use oxcord::async_trait;
 use oxcord::builder::*;
 use oxcord::interactions_endpoint::{
-    process_interaction, InteractionHandler, InteractionProcessingError, Verifier,
+    process_interaction,
+    InteractionHandler,
+    InteractionProcessingError,
+    Verifier,
 };
 use oxcord::model::application::*;
 

@@ -305,7 +305,11 @@ impl CommandBuilder {
     /// Create a new builder with the given name.
     #[must_use]
     pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into(), kind: CommandKind::Slash, ..Default::default() }
+        Self {
+            name: name.into(),
+            kind: CommandKind::Slash,
+            ..Default::default()
+        }
     }
 
     /// Set the command description.

@@ -5,7 +5,11 @@ use std::fmt::Write as _;
 use std::time::Duration;
 
 use oxcord_builders::{
-    Builder, CreateActionRow, CreateButton, CreateEmbed, CreateInteractionResponse,
+    Builder,
+    CreateActionRow,
+    CreateButton,
+    CreateEmbed,
+    CreateInteractionResponse,
     CreateInteractionResponseMessage,
 };
 use oxcord_model::application::ButtonStyle;
@@ -348,17 +352,23 @@ pub async fn help(
 /// Handler error bawaan yang rapi untuk dipasang di `FrameworkOptions::on_error`.
 pub async fn on_error(error: FrameworkError, ctx: ErrorContext) {
     let reply_text = match &error {
-        FrameworkError::Cooldown { remaining_secs } => {
+        FrameworkError::Cooldown {
+            remaining_secs,
+        } => {
             format!("Tunggu {remaining_secs:.1} detik lagi sebelum pakai command ini.")
         },
         FrameworkError::GuildOnly => "Command ini cuma bisa dipakai di dalam server.".to_owned(),
         FrameworkError::DmOnly => "Command ini cuma bisa dipakai di DM.".to_owned(),
         FrameworkError::NsfwOnly => "Command ini cuma bisa dipakai di channel NSFW.".to_owned(),
         FrameworkError::OwnerOnly => "Command ini khusus untuk owner bot.".to_owned(),
-        FrameworkError::MissingUserPermissions { missing } => {
+        FrameworkError::MissingUserPermissions {
+            missing,
+        } => {
             format!("Kamu kekurangan permission: `{missing:?}`")
         },
-        FrameworkError::MissingBotPermissions { missing } => {
+        FrameworkError::MissingBotPermissions {
+            missing,
+        } => {
             format!("Bot kekurangan permission: `{missing:?}`")
         },
         FrameworkError::SubcommandRequired => "Silakan pilih subcommand yang valid.".to_owned(),

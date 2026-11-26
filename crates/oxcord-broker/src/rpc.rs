@@ -31,12 +31,18 @@ pub struct RpcDispatcher<B: Broker> {
 impl<B: Broker + 'static> RpcDispatcher<B> {
     /// Creates a new RPC dispatcher over the given broker.
     pub fn new(broker: B) -> Self {
-        Self { broker: Arc::new(broker), handlers: Arc::new(RwLock::new(HashMap::new())) }
+        Self {
+            broker: Arc::new(broker),
+            handlers: Arc::new(RwLock::new(HashMap::new())),
+        }
     }
 
     /// Creates a new RPC dispatcher from an existing `Arc<Broker>`.
     pub fn from_arc(broker: Arc<B>) -> Self {
-        Self { broker, handlers: Arc::new(RwLock::new(HashMap::new())) }
+        Self {
+            broker,
+            handlers: Arc::new(RwLock::new(HashMap::new())),
+        }
     }
 
     /// Registers an async handler for a given RPC topic.

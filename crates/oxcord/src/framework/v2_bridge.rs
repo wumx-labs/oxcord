@@ -65,7 +65,9 @@ fn compute_channel_nsfw_and_guild_cached(
 impl Framework for oxcord_framework::Framework {
     async fn dispatch(&self, ctx: Context, event: FullEvent) {
         match event {
-            FullEvent::Ready { .. } => {
+            FullEvent::Ready {
+                ..
+            } => {
                 if self.should_initialize_owners() {
                     if let Err(error) = self.initialize_owners(&ctx.http).await {
                         tracing::warn!(error = %error, "oxcord-framework: gagal initialize owners");
@@ -86,7 +88,9 @@ impl Framework for oxcord_framework::Framework {
                     },
                 }
             },
-            FullEvent::Message { new_message } => {
+            FullEvent::Message {
+                new_message,
+            } => {
                 #[cfg(feature = "cache")]
                 let (bot_user_id, member_permissions, app_permissions, is_nsfw, guild_in_cache) = {
                     let bot_id = ctx.cache.current_user().id;
@@ -141,7 +145,9 @@ impl Framework for oxcord_framework::Framework {
                     tracing::warn!(error = %error, "oxcord-framework: prefix command dispatch failed");
                 }
             },
-            FullEvent::MessageUpdate { new: Some(new_message), .. } => {
+            FullEvent::MessageUpdate {
+                new: Some(new_message), ..
+            } => {
                 let prefix_opts = self.prefix_options();
                 let Some(tracker) = &prefix_opts.edit_tracker else {
                     return;
@@ -222,7 +228,11 @@ impl Framework for oxcord_framework::Framework {
                     tracing::warn!(error = %error, "oxcord-framework: edited prefix command dispatch failed");
                 }
             },
-            FullEvent::MessageDelete { channel_id, deleted_message_id, .. } => {
+            FullEvent::MessageDelete {
+                channel_id,
+                deleted_message_id,
+                ..
+            } => {
                 let Some(tracker) = &self.prefix_options().edit_tracker else {
                     return;
                 };
@@ -243,7 +253,9 @@ impl Framework for oxcord_framework::Framework {
                     }
                 }
             },
-            FullEvent::InteractionCreate { interaction: Interaction::Command(command) } => {
+            FullEvent::InteractionCreate {
+                interaction: Interaction::Command(command),
+            } => {
                 #[cfg(feature = "cache")]
                 let (is_nsfw, guild_in_cache) = compute_channel_nsfw_and_guild_cached(
                     &ctx.cache,
@@ -270,13 +282,19 @@ impl Framework for oxcord_framework::Framework {
                     tracing::warn!(error = %error, command = %command.data.name, "oxcord-framework: slash command dispatch failed");
                 }
             },
-            FullEvent::InteractionCreate { interaction: Interaction::Component(component) } => {
+            FullEvent::InteractionCreate {
+                interaction: Interaction::Component(component),
+            } => {
                 self.notify_component(&component);
             },
-            FullEvent::InteractionCreate { interaction: Interaction::Modal(modal) } => {
+            FullEvent::InteractionCreate {
+                interaction: Interaction::Modal(modal),
+            } => {
                 self.notify_modal(&modal);
             },
-            FullEvent::InteractionCreate { interaction: Interaction::Autocomplete(command) } => {
+            FullEvent::InteractionCreate {
+                interaction: Interaction::Autocomplete(command),
+            } => {
                 let interaction_id = command.id;
                 let token = command.token.clone();
                 let gateway: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> =

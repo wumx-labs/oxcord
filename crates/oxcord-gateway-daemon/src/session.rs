@@ -73,7 +73,10 @@ impl SessionStore {
             }
         }
 
-        Self { path, sessions: Arc::new(RwLock::new(initial_sessions)) }
+        Self {
+            path,
+            sessions: Arc::new(RwLock::new(initial_sessions)),
+        }
     }
 
     /// Record or update a shard session from a `Ready` payload.

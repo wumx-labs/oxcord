@@ -219,13 +219,19 @@ impl StandardFramework {
     ) -> Option<DispatchError> {
         if let Some(min) = command.min_args {
             if args.len() < min as usize {
-                return Some(DispatchError::NotEnoughArguments { min, given: args.len() });
+                return Some(DispatchError::NotEnoughArguments {
+                    min,
+                    given: args.len(),
+                });
             }
         }
 
         if let Some(max) = command.max_args {
             if args.len() > max as usize {
-                return Some(DispatchError::TooManyArguments { max, given: args.len() });
+                return Some(DispatchError::TooManyArguments {
+                    max,
+                    given: args.len(),
+                });
             }
         }
 
@@ -607,7 +613,10 @@ impl StandardFramework {
 impl Framework for StandardFramework {
     #[instrument(skip(self, event))]
     async fn dispatch(&self, mut ctx: Context, event: FullEvent) {
-        let FullEvent::Message { new_message: msg } = event else {
+        let FullEvent::Message {
+            new_message: msg,
+        } = event
+        else {
             return;
         };
 
@@ -664,7 +673,10 @@ impl Framework for StandardFramework {
 
                 return;
             },
-            Err(ParseError::Dispatch { error, command_name }) => {
+            Err(ParseError::Dispatch {
+                error,
+                command_name,
+            }) => {
                 if let Some(dispatch) = &self.dispatch {
                     dispatch(&mut ctx, &msg, error, &command_name).await;
                 }
@@ -701,7 +713,10 @@ impl Framework for StandardFramework {
                     after(&mut ctx, &msg, name, res).await;
                 }
             },
-            Invoke::Command { command, group } => {
+            Invoke::Command {
+                command,
+                group,
+            } => {
                 let mut args = {
                     use std::borrow::Cow;
 

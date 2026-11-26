@@ -3,10 +3,23 @@ use std::borrow::Cow;
 
 #[cfg(feature = "model")]
 use crate::builder::{
-    AddMember, CreateChannel, CreateCommand, CreateScheduledEvent, CreateSoundboard, CreateSticker,
-    EditAutoModRule, EditCommandPermissions, EditGuild, EditGuildIncidentActions,
-    EditGuildWelcomeScreen, EditGuildWidget, EditMember, EditRole, EditScheduledEvent,
-    EditSoundboard, EditSticker,
+    AddMember,
+    CreateChannel,
+    CreateCommand,
+    CreateScheduledEvent,
+    CreateSoundboard,
+    CreateSticker,
+    EditAutoModRule,
+    EditCommandPermissions,
+    EditGuild,
+    EditGuildIncidentActions,
+    EditGuildWelcomeScreen,
+    EditGuildWidget,
+    EditMember,
+    EditRole,
+    EditScheduledEvent,
+    EditSoundboard,
+    EditSticker,
 };
 #[cfg(all(feature = "cache", feature = "model"))]
 use crate::cache::Cache;

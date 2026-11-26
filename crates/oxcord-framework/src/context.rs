@@ -7,15 +7,29 @@ use std::time::Instant;
 
 use oxcord_builders::create_poll::Ready as PollReady;
 use oxcord_builders::{
-    Builder, CreateActionRow, CreateAllowedMentions, CreateAttachment, CreateEmbed,
-    CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, CreatePoll,
-    EditInteractionResponse, EditMessage,
+    Builder,
+    CreateActionRow,
+    CreateAllowedMentions,
+    CreateAttachment,
+    CreateEmbed,
+    CreateInteractionResponse,
+    CreateInteractionResponseMessage,
+    CreateMessage,
+    CreatePoll,
+    EditInteractionResponse,
+    EditMessage,
 };
 use oxcord_model::application::{CommandDataOption, CommandDataOptionValue, CommandOptionType};
 use oxcord_model::channel::{Channel, GuildChannel};
 use oxcord_model::guild::{Member, PartialGuild};
 use oxcord_model::id::{
-    ApplicationId, ChannelId, GuildId, InteractionId, MessageId, RoleId, UserId,
+    ApplicationId,
+    ChannelId,
+    GuildId,
+    InteractionId,
+    MessageId,
+    RoleId,
+    UserId,
 };
 use oxcord_model::user::User;
 use oxcord_model::{Permissions, Timestamp};
@@ -499,8 +513,12 @@ impl ReplyHandle {
     #[must_use]
     pub fn message_id(&self) -> Option<MessageId> {
         match &self.target {
-            ReplyTarget::Prefix { message_id, .. } => Some(*message_id),
-            ReplyTarget::Slash { .. } => None,
+            ReplyTarget::Prefix {
+                message_id, ..
+            } => Some(*message_id),
+            ReplyTarget::Slash {
+                ..
+            } => None,
         }
     }
 
@@ -514,7 +532,9 @@ impl ReplyHandle {
         let allowed_mentions =
             reply.allowed_mentions.or_else(|| self.http.default_allowed_mentions.clone());
         match &self.target {
-            ReplyTarget::Slash { token } => {
+            ReplyTarget::Slash {
+                token,
+            } => {
                 let mut builder = EditInteractionResponse::new();
                 if let Some(content) = reply.content {
                     builder = builder.content(content);
@@ -537,7 +557,10 @@ impl ReplyHandle {
                     .map(|_| ())
                     .map_err(|e| FrameworkError::Http(e.to_string()))
             },
-            ReplyTarget::Prefix { channel_id, message_id } => {
+            ReplyTarget::Prefix {
+                channel_id,
+                message_id,
+            } => {
                 let mut builder = EditMessage::new();
                 if let Some(content) = reply.content {
                     builder = builder.content(content);
@@ -581,7 +604,10 @@ impl InteractionBus {
     pub fn new() -> Self {
         let (component_tx, _) = tokio::sync::broadcast::channel(128);
         let (modal_tx, _) = tokio::sync::broadcast::channel(64);
-        Self { component_tx, modal_tx }
+        Self {
+            component_tx,
+            modal_tx,
+        }
     }
 }
 
@@ -679,7 +705,9 @@ impl Context<'_> {
             reply.allowed_mentions.or_else(|| self.http.default_allowed_mentions.clone());
 
         match self.invocation {
-            InvocationData::Slash { token, .. } => {
+            InvocationData::Slash {
+                token, ..
+            } => {
                 let interaction_id = self.http.interaction_id.ok_or_else(|| {
                     FrameworkError::Other("slash invocation missing interaction id".to_owned())
                 })?;
@@ -708,10 +736,14 @@ impl Context<'_> {
                     .map_err(|e| FrameworkError::Http(e.to_string()))?;
                 Ok(ReplyHandle {
                     http: Arc::clone(&self.http),
-                    target: ReplyTarget::Slash { token: token.clone() },
+                    target: ReplyTarget::Slash {
+                        token: token.clone(),
+                    },
                 })
             },
-            InvocationData::Prefix { .. } => {
+            InvocationData::Prefix {
+                ..
+            } => {
                 // Kalau `reuse_response` aktif dan ada balasan lama dari `EditTracker`, edit pesan itu aja.
                 if let Some(reuse_id) = self.http.reuse_message_id {
                     let mut edit = EditMessage::new();
@@ -802,7 +834,9 @@ impl Context<'_> {
     /// (slash invocations only).
     pub async fn defer(&self, ephemeral: bool) -> Result<(), FrameworkError> {
         match self.invocation {
-            InvocationData::Slash { token, .. } => {
+            InvocationData::Slash {
+                token, ..
+            } => {
                 let interaction_id = self.http.interaction_id.ok_or_else(|| {
                     FrameworkError::Other("slash invocation missing interaction id".to_owned())
                 })?;
@@ -813,7 +847,9 @@ impl Context<'_> {
                     .map_err(|e| FrameworkError::Http(e.to_string()))?;
                 Ok(())
             },
-            InvocationData::Prefix { .. } => {
+            InvocationData::Prefix {
+                ..
+            } => {
                 let _ = self.http.http.broadcast_typing(self.channel_id).await;
                 Ok(())
             },
@@ -982,13 +1018,15 @@ impl Context<'_> {
     /// value of the wrong kind.
     pub fn option<T: FrameworkArgument>(&self, name: &str) -> Result<Option<T>, FrameworkError> {
         match self.invocation {
-            InvocationData::Slash { options, .. } => {
-                match options.iter().find(|o| o.name == name) {
-                    Some(opt) => T::from_option(&opt.value).map(Some),
-                    None => Ok(None),
-                }
+            InvocationData::Slash {
+                options, ..
+            } => match options.iter().find(|o| o.name == name) {
+                Some(opt) => T::from_option(&opt.value).map(Some),
+                None => Ok(None),
             },
-            InvocationData::Prefix { .. } => Ok(None),
+            InvocationData::Prefix {
+                ..
+            } => Ok(None),
         }
     }
 
@@ -999,8 +1037,12 @@ impl Context<'_> {
     #[must_use]
     pub fn raw_args(&self) -> &str {
         match self.invocation {
-            InvocationData::Prefix { args, .. } => args.as_str(),
-            InvocationData::Slash { .. } => "",
+            InvocationData::Prefix {
+                args, ..
+            } => args.as_str(),
+            InvocationData::Slash {
+                ..
+            } => "",
         }
     }
 
@@ -1013,11 +1055,15 @@ impl Context<'_> {
     /// Returns [`FrameworkError::Other`] if the token cannot be parsed as `T`.
     pub fn arg<T: FrameworkArgument>(&self, index: usize) -> Result<Option<T>, FrameworkError> {
         match self.invocation {
-            InvocationData::Prefix { args, .. } => match args.split_whitespace().nth(index) {
+            InvocationData::Prefix {
+                args, ..
+            } => match args.split_whitespace().nth(index) {
                 Some(token) => T::from_token(token).map(Some),
                 None => Ok(None),
             },
-            InvocationData::Slash { .. } => Ok(None),
+            InvocationData::Slash {
+                ..
+            } => Ok(None),
         }
     }
 
@@ -1038,8 +1084,12 @@ impl Context<'_> {
         index: usize,
     ) -> Result<Option<T>, FrameworkError> {
         match self.invocation {
-            InvocationData::Slash { .. } => self.option(name),
-            InvocationData::Prefix { .. } => self.arg(index),
+            InvocationData::Slash {
+                ..
+            } => self.option(name),
+            InvocationData::Prefix {
+                ..
+            } => self.arg(index),
         }
     }
 }

@@ -22,7 +22,10 @@ pub struct DaemonMetrics {
 
 impl Default for DaemonMetrics {
     fn default() -> Self {
-        Self { events_forwarded: AtomicU64::new(0), start_time: Instant::now() }
+        Self {
+            events_forwarded: AtomicU64::new(0),
+            start_time: Instant::now(),
+        }
     }
 }
 

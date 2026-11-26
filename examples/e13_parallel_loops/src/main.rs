@@ -113,7 +113,9 @@ async fn main() {
         | GatewayIntents::GUILDS
         | GatewayIntents::MESSAGE_CONTENT;
     let mut client = Client::builder(&token, intents)
-        .event_handler(Handler { is_loop_running: AtomicBool::new(false) })
+        .event_handler(Handler {
+            is_loop_running: AtomicBool::new(false),
+        })
         .await
         .expect("Error creating client");
 

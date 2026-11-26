@@ -47,7 +47,11 @@ impl VoiceCryptor {
             .map_err(|_| VoiceError::Crypto("failed to create unbound key"))?;
         let key = LessSafeKey::new(unbound_key);
 
-        Ok(Self { key, algorithm, nonce_counter: 0 })
+        Ok(Self {
+            key,
+            algorithm,
+            nonce_counter: 0,
+        })
     }
 
     /// Creates an AES-256-GCM cryptor (the preferred, hardware-accelerated mode for Discord).

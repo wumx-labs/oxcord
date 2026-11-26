@@ -13,8 +13,14 @@ use tracing::{debug, error, info, instrument, trace, warn};
 use url::Url;
 
 use super::{
-    ActivityData, ChunkGuildFilter, ConnectionStage, GatewayError, PresenceData, ReconnectType,
-    ShardAction, WsClient,
+    ActivityData,
+    ChunkGuildFilter,
+    ConnectionStage,
+    GatewayError,
+    PresenceData,
+    ReconnectType,
+    ShardAction,
+    WsClient,
 };
 use crate::internal::prelude::*;
 

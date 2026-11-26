@@ -10,7 +10,9 @@ use crate::builder::{CreateAllowedMentions, CreateMessage};
 use crate::cache::{Cache, GuildRef};
 #[cfg(feature = "collector")]
 use crate::collector::{
-    ComponentInteractionCollector, ModalInteractionCollector, ReactionCollector,
+    ComponentInteractionCollector,
+    ModalInteractionCollector,
+    ReactionCollector,
 };
 #[cfg(feature = "model")]
 use crate::constants;
@@ -951,8 +953,15 @@ mod tests {
 
     use crate::cache::{Cache, MaybeMap};
     use crate::model::prelude::{
-        Guild, GuildChannel, Member, Message, PermissionOverwrite, PermissionOverwriteType,
-        Permissions, User, UserId,
+        Guild,
+        GuildChannel,
+        Member,
+        Message,
+        PermissionOverwrite,
+        PermissionOverwriteType,
+        Permissions,
+        User,
+        UserId,
     };
     use crate::ops::*;
 
@@ -960,7 +969,10 @@ mod tests {
     #[test]
     fn author_permissions_respects_overwrites() {
         // Author of the message, with a random ID that won't collide with defaults.
-        let author = User { id: UserId::new(50778944701071), ..Default::default() };
+        let author = User {
+            id: UserId::new(50778944701071),
+            ..Default::default()
+        };
 
         // Channel with the message, with SEND_MESSAGES on.
         let channel = GuildChannel {
@@ -976,16 +988,20 @@ mod tests {
         // Guild with the author and channel cached, default (empty) permissions.
         let guild = Guild {
             channels: HashMap::from([(channel.id, channel)]),
-            members: HashMap::from([(
-                author.id,
-                Member { user: author.clone(), ..Default::default() },
-            )]),
+            members: HashMap::from([(author.id, Member {
+                user: author.clone(),
+                ..Default::default()
+            })]),
             ..Default::default()
         };
 
         // Message, tied to the guild and the channel.
-        let message =
-            Message { author, channel_id, guild_id: Some(guild.id), ..Default::default() };
+        let message = Message {
+            author,
+            channel_id,
+            guild_id: Some(guild.id),
+            ..Default::default()
+        };
 
         // Cache, with the guild setup.
         let mut cache = Cache::new();
