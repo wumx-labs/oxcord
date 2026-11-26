@@ -65,9 +65,7 @@ fn compute_channel_nsfw_and_guild_cached(
 impl Framework for oxcord_framework::Framework {
     async fn dispatch(&self, ctx: Context, event: FullEvent) {
         match event {
-            FullEvent::Ready {
-                ..
-            } => {
+            FullEvent::Ready { .. } => {
                 if self.should_initialize_owners() {
                     if let Err(error) = self.initialize_owners(&ctx.http).await {
                         tracing::warn!(error = %error, "oxcord-framework: gagal initialize owners");
@@ -88,9 +86,7 @@ impl Framework for oxcord_framework::Framework {
                     },
                 }
             },
-            FullEvent::Message {
-                new_message,
-            } => {
+            FullEvent::Message { new_message } => {
                 #[cfg(feature = "cache")]
                 let (bot_user_id, member_permissions, app_permissions, is_nsfw, guild_in_cache) = {
                     let bot_id = ctx.cache.current_user().id;
@@ -128,7 +124,7 @@ impl Framework for oxcord_framework::Framework {
                 let Some(result) = self
                     .dispatch_full_message(
                         &new_message,
-                        ctx.http.clone(),
+                        std::sync::Arc::clone(&ctx.http),
                         bot_user_id,
                         member_permissions,
                         app_permissions,
@@ -145,44 +141,36 @@ impl Framework for oxcord_framework::Framework {
                     tracing::warn!(error = %error, "oxcord-framework: prefix command dispatch failed");
                 }
             },
-            FullEvent::MessageUpdate {
-                new: Some(new_message),
-                ..
-            } => {
+            FullEvent::MessageUpdate { new: Some(new_message), .. } => {
                 let prefix_opts = self.prefix_options();
                 let Some(tracker) = &prefix_opts.edit_tracker else {
                     return;
                 };
-                let tracked = tracker.process_message_update(new_message.id);
-                let reuse_message_id = match &tracked {
-                    Some(entry) => {
-                        if prefix_opts.ignore_edits_if_not_yet_responded && entry.bot_response_id.is_none() {
+                let update_entry = tracker.process_message_update(new_message.id);
+                let reuse_message_id = if let Some(entry) = &update_entry {
+                    if prefix_opts.ignore_edits_if_not_yet_responded
+                        && entry.bot_response_id.is_none()
+                    {
+                        return;
+                    }
+                    let cmd = self.commands().iter().find(|c| c.name == entry.command_name);
+                    if !cmd.is_some_and(|c| c.invoke_on_edit) {
+                        return;
+                    }
+                    if cmd.is_some_and(|c| c.reuse_response) { entry.bot_response_id } else { None }
+                } else {
+                    if !prefix_opts.execute_untracked_edits {
+                        return;
+                    }
+                    if let Some(window) = prefix_opts.tracking_initiation_window {
+                        let age_ms = oxcord_model::Timestamp::now()
+                            .timestamp_millis()
+                            .saturating_sub(new_message.id.created_at().timestamp_millis());
+                        if age_ms < 0 || (age_ms as u64) > window.as_millis() as u64 {
                             return;
                         }
-                        let cmd = self.commands().iter().find(|c| c.name == entry.command_name);
-                        if !cmd.is_some_and(|c| c.invoke_on_edit) {
-                            return;
-                        }
-                        if cmd.is_some_and(|c| c.reuse_response) {
-                            entry.bot_response_id
-                        } else {
-                            None
-                        }
-                    },
-                    None => {
-                        if !prefix_opts.execute_untracked_edits {
-                            return;
-                        }
-                        if let Some(window) = prefix_opts.tracking_initiation_window {
-                            let age_ms = oxcord_model::Timestamp::now()
-                                .timestamp_millis()
-                                .saturating_sub(new_message.id.created_at().timestamp_millis());
-                            if age_ms < 0 || (age_ms as u64) > window.as_millis() as u64 {
-                                return;
-                            }
-                        }
-                        None
-                    },
+                    }
+                    None
                 };
 
                 #[cfg(feature = "cache")]
@@ -220,7 +208,7 @@ impl Framework for oxcord_framework::Framework {
                 if let Some(Err(error)) = self
                     .dispatch_full_message(
                         &new_message,
-                        ctx.http.clone(),
+                        std::sync::Arc::clone(&ctx.http),
                         bot_user_id,
                         member_permissions,
                         app_permissions,
@@ -234,11 +222,7 @@ impl Framework for oxcord_framework::Framework {
                     tracing::warn!(error = %error, "oxcord-framework: edited prefix command dispatch failed");
                 }
             },
-            FullEvent::MessageDelete {
-                channel_id,
-                deleted_message_id,
-                ..
-            } => {
+            FullEvent::MessageDelete { channel_id, deleted_message_id, .. } => {
                 let Some(tracker) = &self.prefix_options().edit_tracker else {
                     return;
                 };
@@ -250,16 +234,16 @@ impl Framework for oxcord_framework::Framework {
                         .is_some_and(|c| c.track_deletion);
                     if should_delete {
                         if let Some(bot_msg_id) = entry.bot_response_id {
-                            if let Err(error) = ctx.http.delete_message(channel_id, bot_msg_id, None).await {
+                            if let Err(error) =
+                                ctx.http.delete_message(channel_id, bot_msg_id, None).await
+                            {
                                 tracing::warn!(error = %error, "oxcord-framework: gagal hapus balasan saat pesan asal dihapus");
                             }
                         }
                     }
                 }
             },
-            FullEvent::InteractionCreate {
-                interaction: Interaction::Command(command),
-            } => {
+            FullEvent::InteractionCreate { interaction: Interaction::Command(command) } => {
                 #[cfg(feature = "cache")]
                 let (is_nsfw, guild_in_cache) = compute_channel_nsfw_and_guild_cached(
                     &ctx.cache,
@@ -274,30 +258,33 @@ impl Framework for oxcord_framework::Framework {
                 // Kalau `on_error` dikonfigurasi, error sudah ditangani hook dan ini balik `Ok`;
                 // `warn!` di bawah cuma jalan sebagai fallback kalau hook nggak dipasang.
                 if let Err(error) = self
-                    .dispatch_slash_with_context(&command, ctx.http.clone(), is_nsfw, guild_in_cache, gateway)
+                    .dispatch_slash_with_context(
+                        &command,
+                        std::sync::Arc::clone(&ctx.http),
+                        is_nsfw,
+                        guild_in_cache,
+                        gateway,
+                    )
                     .await
                 {
                     tracing::warn!(error = %error, command = %command.data.name, "oxcord-framework: slash command dispatch failed");
                 }
             },
-            FullEvent::InteractionCreate {
-                interaction: Interaction::Component(component),
-            } => {
+            FullEvent::InteractionCreate { interaction: Interaction::Component(component) } => {
                 self.notify_component(&component);
             },
-            FullEvent::InteractionCreate {
-                interaction: Interaction::Modal(modal),
-            } => {
+            FullEvent::InteractionCreate { interaction: Interaction::Modal(modal) } => {
                 self.notify_modal(&modal);
             },
-            FullEvent::InteractionCreate {
-                interaction: Interaction::Autocomplete(command),
-            } => {
+            FullEvent::InteractionCreate { interaction: Interaction::Autocomplete(command) } => {
                 let interaction_id = command.id;
                 let token = command.token.clone();
                 let gateway: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> =
                     Some(std::sync::Arc::new(ctx.clone()));
-                let suggestions = match self.dispatch_autocomplete(&command, ctx.http.clone(), gateway).await {
+                let suggestions = match self
+                    .dispatch_autocomplete(&command, std::sync::Arc::clone(&ctx.http), gateway)
+                    .await
+                {
                     Ok(suggestions) => suggestions,
                     Err(error) => {
                         tracing::warn!(

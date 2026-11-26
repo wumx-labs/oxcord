@@ -7,13 +7,7 @@ use crate::internal::prelude::*;
 use crate::model::Permissions;
 use crate::model::channel::ChannelType;
 use crate::model::id::{
-    ApplicationId,
-    CommandId,
-    CommandPermissionId,
-    CommandVersionId,
-    GuildId,
-    RoleId,
-    UserId,
+    ApplicationId, CommandId, CommandPermissionId, CommandVersionId, GuildId, RoleId, UserId,
 };
 
 /// The base command model that belongs to an application.
@@ -230,11 +224,7 @@ pub struct CommandOptionChoice {
 impl CommandOptionChoice {
     #[must_use]
     pub fn new(name: impl Into<String>, value: impl Into<Value>) -> Self {
-        Self {
-            name: name.into(),
-            name_localizations: None,
-            value: value.into(),
-        }
+        Self { name: name.into(), name_localizations: None, value: value.into() }
     }
 }
 

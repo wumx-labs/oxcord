@@ -32,9 +32,9 @@ async fn execute_modal_generic<M: Modal>(
     let custom_id = format!("oxcord_modal_{}_{}", interaction_id.get(), ctx.author.id.get());
     let modal = M::create(defaults, custom_id.clone());
 
-    let mut rx = ctx
-        .subscribe_modals()
-        .ok_or_else(|| FrameworkError::Other("interaction bus is not available for modals".to_owned()))?;
+    let mut rx = ctx.subscribe_modals().ok_or_else(|| {
+        FrameworkError::Other("interaction bus is not available for modals".to_owned())
+    })?;
 
     CreateInteractionResponse::Modal(modal)
         .execute(ctx.http(), (interaction_id, token))
@@ -53,8 +53,7 @@ async fn execute_modal_generic<M: Modal>(
                         let parsed = M::parse(interaction.data)?;
                         return Ok(Some(parsed));
                     },
-                    Ok(_) => {},
-                    Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {},
+                    Ok(_) | Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {},
                     Err(tokio::sync::broadcast::error::RecvError::Closed) => return Ok(None),
                 }
             }
@@ -74,18 +73,15 @@ pub async fn execute_modal<M: Modal>(
     defaults: Option<M>,
     timeout: Duration,
 ) -> Result<Option<M>, FrameworkError> {
-    let interaction_id = ctx
-        .http
-        .interaction_id
-        .ok_or_else(|| FrameworkError::Other("execute_modal only works on slash interactions".to_owned()))?;
+    let interaction_id = ctx.http.interaction_id.ok_or_else(|| {
+        FrameworkError::Other("execute_modal only works on slash interactions".to_owned())
+    })?;
     let token = match ctx.invocation {
-        crate::context::InvocationData::Slash {
-            token, ..
-        } => token.as_str(),
-        crate::context::InvocationData::Prefix {
-            ..
-        } => {
-            return Err(FrameworkError::Other("execute_modal only works on slash interactions".to_owned()));
+        crate::context::InvocationData::Slash { token, .. } => token.as_str(),
+        crate::context::InvocationData::Prefix { .. } => {
+            return Err(FrameworkError::Other(
+                "execute_modal only works on slash interactions".to_owned(),
+            ));
         },
     };
     execute_modal_generic(&ctx, interaction_id, token, defaults, timeout).await
@@ -105,9 +101,9 @@ pub async fn execute_modal_on_component_interaction<M: Modal>(
     let custom_id = format!("oxcord_modal_{}_{}", interaction.id.get(), interaction.user.id.get());
     let modal = M::create(defaults, custom_id.clone());
 
-    let mut rx = ctx
-        .subscribe_modals()
-        .ok_or_else(|| FrameworkError::Other("interaction bus is not available for modals".to_owned()))?;
+    let mut rx = ctx.subscribe_modals().ok_or_else(|| {
+        FrameworkError::Other("interaction bus is not available for modals".to_owned())
+    })?;
 
     CreateInteractionResponse::Modal(modal)
         .execute(ctx.http(), (interaction.id, interaction.token.as_str()))
@@ -127,8 +123,7 @@ pub async fn execute_modal_on_component_interaction<M: Modal>(
                         let parsed = M::parse(modal_int.data)?;
                         return Ok(Some(parsed));
                     },
-                    Ok(_) => {},
-                    Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {},
+                    Ok(_) | Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {},
                     Err(tokio::sync::broadcast::error::RecvError::Closed) => return Ok(None),
                 }
             }

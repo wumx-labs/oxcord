@@ -1,18 +1,8 @@
 #[cfg(feature = "model")]
 use crate::builder::{
-    CreateChannel,
-    CreateCommand,
-    CreateSoundboard,
-    CreateSticker,
-    EditAutoModRule,
-    EditCommandPermissions,
-    EditGuild,
-    EditGuildWelcomeScreen,
-    EditGuildWidget,
-    EditMember,
-    EditRole,
-    EditSoundboard,
-    EditSticker,
+    CreateChannel, CreateCommand, CreateSoundboard, CreateSticker, EditAutoModRule,
+    EditCommandPermissions, EditGuild, EditGuildWelcomeScreen, EditGuildWidget, EditMember,
+    EditRole, EditSoundboard, EditSticker,
 };
 #[cfg(all(feature = "cache", feature = "utils", feature = "client"))]
 use crate::cache::Cache;

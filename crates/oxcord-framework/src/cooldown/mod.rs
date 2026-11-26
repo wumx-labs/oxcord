@@ -47,10 +47,7 @@ impl CooldownConfig {
     /// Create a new config.
     #[must_use]
     pub fn new(scope: CooldownScope, duration: Duration) -> Self {
-        Self {
-            scope,
-            duration,
-        }
+        Self { scope, duration }
     }
 
     /// Per-user, 5-second cooldown — the most common case.
@@ -81,10 +78,7 @@ impl CooldownManager {
     /// Create a new manager with the given config.
     #[must_use]
     pub fn new(config: CooldownConfig) -> Self {
-        Self {
-            config,
-            buckets: Arc::new(Mutex::new(HashMap::new())),
-        }
+        Self { config, buckets: Arc::new(Mutex::new(HashMap::new())) }
     }
 
     /// Check whether the caller is on cooldown.

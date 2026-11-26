@@ -5,18 +5,8 @@ use futures::stream::Stream;
 
 #[cfg(feature = "model")]
 use crate::builder::{
-    Builder,
-    CreateAttachment,
-    CreateForumPost,
-    CreateInvite,
-    CreateMessage,
-    CreateStageInstance,
-    CreateThread,
-    CreateWebhook,
-    EditChannel,
-    EditMessage,
-    EditStageInstance,
-    EditThread,
+    Builder, CreateAttachment, CreateForumPost, CreateInvite, CreateMessage, CreateStageInstance,
+    CreateThread, CreateWebhook, EditChannel, EditMessage, EditStageInstance, EditThread,
     GetMessages,
 };
 #[cfg(all(feature = "cache", feature = "model"))]
@@ -1381,10 +1371,7 @@ impl ChannelIdExt for ChannelId {
             sound_id: SoundId,
             source_guild_id: Option<GuildId>,
         }
-        let map = SendSoundboard {
-            sound_id,
-            source_guild_id: guild_id,
-        };
+        let map = SendSoundboard { sound_id, source_guild_id: guild_id };
         http.as_ref().send_soundboard_sound(self, &map).await.map_err(From::from)
     }
 }
@@ -1403,13 +1390,7 @@ pub struct MessagesIter<H: AsRef<Http>> {
 #[cfg(feature = "model")]
 impl<H: AsRef<Http>> MessagesIter<H> {
     fn new(http: H, channel_id: ChannelId) -> MessagesIter<H> {
-        MessagesIter {
-            http,
-            channel_id,
-            buffer: Vec::new(),
-            before: None,
-            tried_fetch: false,
-        }
+        MessagesIter { http, channel_id, buffer: Vec::new(), before: None, tried_fetch: false }
     }
 
     /// Fills the `self.buffer` cache with [`Message`]s.

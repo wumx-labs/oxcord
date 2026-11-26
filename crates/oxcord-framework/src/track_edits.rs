@@ -39,10 +39,7 @@ impl EditTracker {
     /// Buat [`EditTracker`] baru yang menyimpan entri selama `max_duration`.
     #[must_use]
     pub fn for_timespan(max_duration: Duration) -> Self {
-        Self {
-            max_duration,
-            entries: Mutex::new(VecDeque::new()),
-        }
+        Self { max_duration, entries: Mutex::new(VecDeque::new()) }
     }
 
     /// Bersihkan entri yang sudah melewati `max_duration`.

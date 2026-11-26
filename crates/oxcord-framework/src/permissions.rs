@@ -39,6 +39,9 @@ mod tests {
     fn ignores_unknown_names_and_whitespace() {
         assert_eq!(parse_permissions(""), Permissions::empty());
         assert_eq!(parse_permissions("NOT_A_REAL_PERM"), Permissions::empty());
-        assert_eq!(parse_permissions("  SEND_MESSAGES  |  EMBED_LINKS  "), parse_permissions("SEND_MESSAGES|EMBED_LINKS"));
+        assert_eq!(
+            parse_permissions("  SEND_MESSAGES  |  EMBED_LINKS  "),
+            parse_permissions("SEND_MESSAGES|EMBED_LINKS")
+        );
     }
 }

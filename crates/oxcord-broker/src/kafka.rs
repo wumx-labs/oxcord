@@ -74,10 +74,7 @@ impl KafkaBroker {
             .await
             .map_err(|e| BrokerError::Transport(e.to_string()))?;
 
-        Ok(Self {
-            client: Arc::new(client),
-            correlation_seq: Arc::new(AtomicU64::new(1)),
-        })
+        Ok(Self { client: Arc::new(client), correlation_seq: Arc::new(AtomicU64::new(1)) })
     }
 }
 

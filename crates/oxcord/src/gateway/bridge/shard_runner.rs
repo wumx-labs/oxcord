@@ -238,10 +238,7 @@ impl ShardRunner {
         drop(
             self.shard
                 .client
-                .close(Some(CloseFrame {
-                    code: close_code.into(),
-                    reason: Cow::from(""),
-                }))
+                .close(Some(CloseFrame { code: close_code.into(), reason: Cow::from("") }))
                 .await,
         );
 
@@ -288,26 +285,17 @@ impl ShardRunner {
         match msg {
             ShardRunnerMessage::Restart(id) => self.checked_shutdown(id, 4000).await,
             ShardRunnerMessage::Shutdown(id, code) => self.checked_shutdown(id, code).await,
-            ShardRunnerMessage::ChunkGuild {
-                guild_id,
-                limit,
-                presences,
-                filter,
-                nonce,
-            } => self
+            ShardRunnerMessage::ChunkGuild { guild_id, limit, presences, filter, nonce } => self
                 .shard
                 .chunk_guild(guild_id, limit, presences, filter, nonce.as_deref())
                 .await
                 .is_ok(),
-            ShardRunnerMessage::SoundboardSounds {
-                guild_ids,
-            } => self.shard.request_soundboard_sounds(&guild_ids).await.is_ok(),
+            ShardRunnerMessage::SoundboardSounds { guild_ids } => {
+                self.shard.request_soundboard_sounds(&guild_ids).await.is_ok()
+            },
             ShardRunnerMessage::Close(code, reason) => {
                 let reason = reason.unwrap_or_default();
-                let close = CloseFrame {
-                    code: code.into(),
-                    reason: Cow::from(reason),
-                };
+                let close = CloseFrame { code: code.into(), reason: Cow::from(reason) };
                 self.shard.client.close(Some(close)).await.is_ok()
             },
             ShardRunnerMessage::Message(msg) => self.shard.client.send(msg).await.is_ok(),
@@ -323,16 +311,12 @@ impl ShardRunner {
                 self.shard.set_status(status);
                 self.shard.update_presence().await.is_ok()
             },
-            ShardRunnerMessage::UpdateVoiceState {
-                guild_id,
-                channel_id,
-                self_mute,
-                self_deaf,
-            } => self
-                .shard
-                .update_voice_state(guild_id, channel_id, self_mute, self_deaf)
-                .await
-                .is_ok(),
+            ShardRunnerMessage::UpdateVoiceState { guild_id, channel_id, self_mute, self_deaf } => {
+                self.shard
+                    .update_voice_state(guild_id, channel_id, self_mute, self_deaf)
+                    .await
+                    .is_ok()
+            },
         }
     }
 

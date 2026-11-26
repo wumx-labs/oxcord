@@ -63,34 +63,18 @@ pub mod track_edits;
 
 pub use choice_parameter::{ChoiceParameter, ChoiceParameterInfo};
 pub use command::{
-    AutocompleteFn,
-    AutocompleteHandler,
-    CheckFn,
-    Command,
-    CommandCategory,
-    CommandFn,
-    CommandHandler,
-    CommandKind,
-    CommandOptionSpec,
-    ContextMenuAction,
-    MessageContextMenuFn,
+    AutocompleteFn, AutocompleteHandler, CheckFn, Command, CommandCategory, CommandFn,
+    CommandHandler, CommandKind, CommandOptionSpec, ContextMenuAction, MessageContextMenuFn,
     UserContextMenuFn,
 };
 pub use context::{
-    Context,
-    ErrorContext,
-    FrameworkArgument,
-    FrameworkHttp,
-    InteractionBus,
-    InvocationData,
-    Reply,
-    ReplyCallback,
-    ReplyHandle,
+    Context, ErrorContext, FrameworkArgument, FrameworkHttp, InteractionBus, InvocationData, Reply,
+    ReplyCallback, ReplyHandle,
 };
 pub use cooldown::{CooldownConfig, CooldownManager, CooldownScope};
 pub use error::FrameworkError;
 pub use framework::{CommandHook, ErrorHook, Framework, FrameworkBuilder, FrameworkOptions};
-pub use modal::{execute_modal, execute_modal_on_component_interaction, Modal};
+pub use modal::{Modal, execute_modal, execute_modal_on_component_interaction};
 pub use permissions::parse_permissions;
 pub use prefix::{DynamicPrefixFn, NonCommandMessageFn, PrefixOptions};
 pub use track_edits::{EditTracker, TrackedCommand};

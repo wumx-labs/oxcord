@@ -290,12 +290,9 @@ fn parse_cmd<'a>(
                 stream.take_while_char(char::is_whitespace);
             }
 
-            check_discrepancy(ctx, msg, config, &cmd.options).await.map_err(|e| {
-                ParseError::Dispatch {
-                    error: e,
-                    command_name: n,
-                }
-            })?;
+            check_discrepancy(ctx, msg, config, &cmd.options)
+                .await
+                .map_err(|e| ParseError::Dispatch { error: e, command_name: n })?;
 
             if map.is_empty() {
                 return Ok(cmd);
@@ -329,12 +326,9 @@ fn parse_group<'a>(
                 stream.take_while_char(char::is_whitespace);
             }
 
-            check_discrepancy(ctx, msg, config, &group.options).await.map_err(|e| {
-                ParseError::Dispatch {
-                    error: e,
-                    command_name: n,
-                }
-            })?;
+            check_discrepancy(ctx, msg, config, &group.options)
+                .await
+                .map_err(|e| ParseError::Dispatch { error: e, command_name: n })?;
 
             if map.is_empty() {
                 return Ok((group, commands));
@@ -361,10 +355,7 @@ async fn handle_command<'a>(
     group: &'static CommandGroup,
 ) -> Result<Invoke, ParseError> {
     match parse_cmd(stream, ctx, msg, config, map).await {
-        Ok(command) => Ok(Invoke::Command {
-            group,
-            command,
-        }),
+        Ok(command) => Ok(Invoke::Command { group, command }),
         Err(err) => match group.options.default_command {
             Some(command) => {
                 check_discrepancy(ctx, msg, config, &command.options).await.map_err(|e| {
@@ -374,10 +365,7 @@ async fn handle_command<'a>(
                     }
                 })?;
 
-                Ok(Invoke::Command {
-                    group,
-                    command,
-                })
+                Ok(Invoke::Command { group, command })
             },
             None => Err(err),
         },
@@ -461,14 +449,10 @@ pub async fn command(
             Map::Prefixless(subgroups, commands) => {
                 fn command_name_if_recognised(res: &Result<Invoke, ParseError>) -> Option<&str> {
                     match res {
-                        Ok(Invoke::Command {
-                            command, ..
-                        }) => Some(command.options.names[0]),
+                        Ok(Invoke::Command { command, .. }) => Some(command.options.names[0]),
                         Ok(Invoke::Help(name)) => Some(name), // unreachable; fallback just in case
                         Err(ParseError::UnrecognisedCommand(_)) => None,
-                        Err(ParseError::Dispatch {
-                            command_name, ..
-                        }) => Some(command_name),
+                        Err(ParseError::Dispatch { command_name, .. }) => Some(command_name),
                     }
                 }
 
@@ -478,10 +462,7 @@ pub async fn command(
 
                 if let Some(command_name) = command_name_if_recognised(&res) {
                     check_discrepancy(ctx, msg, config, &group.options).await.map_err(|e| {
-                        ParseError::Dispatch {
-                            error: e,
-                            command_name: command_name.to_owned(),
-                        }
+                        ParseError::Dispatch { error: e, command_name: command_name.to_owned() }
                     })?;
                     return res;
                 }
@@ -490,10 +471,7 @@ pub async fn command(
 
                 if let Some(command_name) = command_name_if_recognised(&res) {
                     check_discrepancy(ctx, msg, config, &group.options).await.map_err(|e| {
-                        ParseError::Dispatch {
-                            error: e,
-                            command_name: command_name.to_owned(),
-                        }
+                        ParseError::Dispatch { error: e, command_name: command_name.to_owned() }
                     })?;
                     return res;
                 }

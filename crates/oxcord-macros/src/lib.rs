@@ -42,22 +42,8 @@ use quote::quote;
 use syn::parse::{Parse, ParseStream, Result as SynResult};
 use syn::punctuated::Punctuated;
 use syn::{
-    Expr,
-    ExprLit,
-    FnArg,
-    GenericArgument,
-    Ident,
-    ItemFn,
-    Lit,
-    LitStr,
-    Meta,
-    MetaList,
-    MetaNameValue,
-    Pat,
-    PathArguments,
-    Token,
-    Type,
-    parse_macro_input,
+    Expr, ExprLit, FnArg, GenericArgument, Ident, ItemFn, Lit, LitStr, Meta, MetaList,
+    MetaNameValue, Pat, PathArguments, Token, Type, parse_macro_input,
 };
 
 /// If `ty` is `Option<Inner>`, returns `Inner`. Otherwise `None`.
@@ -121,10 +107,7 @@ impl Parse for CommandAttrs {
                 },
                 Meta::NameValue(MetaNameValue {
                     path,
-                    value:
-                        Expr::Lit(ExprLit {
-                            lit: Lit::Str(s), ..
-                        }),
+                    value: Expr::Lit(ExprLit { lit: Lit::Str(s), .. }),
                     ..
                 }) => {
                     let key = path.get_ident().map(|i| i.to_string()).unwrap_or_default();
@@ -134,7 +117,9 @@ impl Parse for CommandAttrs {
                         "category" => attrs.category = Some(s.value()),
                         "cooldown_scope" => attrs.cooldown_scope = Some(s.value()),
                         "required_permissions" => attrs.required_permissions = Some(s.value()),
-                        "required_bot_permissions" => attrs.required_bot_permissions = Some(s.value()),
+                        "required_bot_permissions" => {
+                            attrs.required_bot_permissions = Some(s.value())
+                        },
                         other => {
                             return Err(syn::Error::new(
                                 s.span(),
@@ -145,10 +130,7 @@ impl Parse for CommandAttrs {
                 },
                 Meta::NameValue(MetaNameValue {
                     path,
-                    value:
-                        Expr::Lit(ExprLit {
-                            lit: Lit::Int(n), ..
-                        }),
+                    value: Expr::Lit(ExprLit { lit: Lit::Int(n), .. }),
                     ..
                 }) => {
                     let key = path.get_ident().map(|i| i.to_string()).unwrap_or_default();
@@ -164,11 +146,7 @@ impl Parse for CommandAttrs {
                         },
                     }
                 },
-                Meta::List(MetaList {
-                    path,
-                    tokens,
-                    ..
-                }) => {
+                Meta::List(MetaList { path, tokens, .. }) => {
                     let key = path.get_ident().map(|i| i.to_string()).unwrap_or_default();
                     if key == "aliases" {
                         // parse as comma-separated string literals
@@ -297,14 +275,20 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     for (position, input) in func.sig.inputs.iter().skip(1).enumerate() {
         let FnArg::Typed(pat_type) = input else {
-            return syn::Error::new_spanned(input, "command parameters must be simple `name: Type` bindings")
-                .to_compile_error()
-                .into();
+            return syn::Error::new_spanned(
+                input,
+                "command parameters must be simple `name: Type` bindings",
+            )
+            .to_compile_error()
+            .into();
         };
         let Pat::Ident(pat_ident) = pat_type.pat.as_ref() else {
-            return syn::Error::new_spanned(&pat_type.pat, "command parameters must be simple identifiers")
-                .to_compile_error()
-                .into();
+            return syn::Error::new_spanned(
+                &pat_type.pat,
+                "command parameters must be simple identifiers",
+            )
+            .to_compile_error()
+            .into();
         };
         let arg_ident = &pat_ident.ident;
         let arg_name_str = arg_ident.to_string();
@@ -407,9 +391,12 @@ pub fn derive_choice_parameter(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as syn::DeriveInput);
     let enum_ident = &input.ident;
     let syn::Data::Enum(data_enum) = &input.data else {
-        return syn::Error::new_spanned(&input.ident, "#[derive(ChoiceParameter)] hanya mendukung enum")
-            .to_compile_error()
-            .into();
+        return syn::Error::new_spanned(
+            &input.ident,
+            "#[derive(ChoiceParameter)] hanya mendukung enum",
+        )
+        .to_compile_error()
+        .into();
     };
 
     let mut list_entries = Vec::new();

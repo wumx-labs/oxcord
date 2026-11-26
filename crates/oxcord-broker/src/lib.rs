@@ -40,11 +40,7 @@ pub mod nats;
 pub mod kafka;
 
 pub use envelope::{
-    BrokerMessage,
-    HEADER_CORRELATION_ID,
-    HEADER_EVENT_NAME,
-    HEADER_REPLY_TO,
-    HEADER_SHARD_ID,
+    BrokerMessage, HEADER_CORRELATION_ID, HEADER_EVENT_NAME, HEADER_REPLY_TO, HEADER_SHARD_ID,
 };
 pub use error::{BrokerError, Result};
 pub use in_process::InProcessBroker;
@@ -78,10 +74,7 @@ mod tests {
 
         let mut sub = broker.subscribe(topic).await.expect("subscribe failed");
 
-        let payload = PingPayload {
-            nonce: 12345,
-            msg: "Guild Created".into(),
-        };
+        let payload = PingPayload { nonce: 12345, msg: "Guild Created".into() };
 
         let msg = BrokerMessage::from_json(topic, &payload)
             .expect("from_json failed")

@@ -29,11 +29,7 @@ pub struct BrokerMessage {
 impl BrokerMessage {
     /// Creates a new message envelope with empty headers.
     pub fn new(topic: impl Into<String>, payload: impl Into<Vec<u8>>) -> Self {
-        Self {
-            topic: topic.into(),
-            payload: payload.into(),
-            headers: HashMap::new(),
-        }
+        Self { topic: topic.into(), payload: payload.into(), headers: HashMap::new() }
     }
 
     /// Serializes a Rust type into JSON as the message payload.

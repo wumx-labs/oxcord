@@ -8,20 +8,14 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use oxcord_builders::{CreateAllowedMentions, CreateCommand, CreateCommandOption};
+use oxcord_model::Permissions;
 use oxcord_model::application::{
-    CommandDataOptionValue,
-    CommandInteraction,
-    CommandType,
-    ComponentInteraction,
-    MembershipState,
-    ModalInteraction,
-    ResolvedTarget,
-    TeamMemberRole,
+    CommandDataOptionValue, CommandInteraction, CommandType, ComponentInteraction, MembershipState,
+    ModalInteraction, ResolvedTarget, TeamMemberRole,
 };
 use oxcord_model::channel::{ChannelType, Message, MessageType};
 use oxcord_model::id::{GuildId, MessageId, UserId};
 use oxcord_model::user::User;
-use oxcord_model::Permissions;
 use oxcord_rest::Http;
 
 /// Whether a channel type counts as a thread, for the
@@ -50,10 +44,9 @@ fn find_focused_option(
 ) -> Option<&oxcord_model::application::CommandDataOption> {
     for opt in options {
         match &opt.value {
-            CommandDataOptionValue::Autocomplete {
-                ..
-            } => return Some(opt),
-            CommandDataOptionValue::SubCommand(inner) | CommandDataOptionValue::SubCommandGroup(inner) => {
+            CommandDataOptionValue::Autocomplete { .. } => return Some(opt),
+            CommandDataOptionValue::SubCommand(inner)
+            | CommandDataOptionValue::SubCommandGroup(inner) => {
                 if let Some(found) = find_focused_option(inner) {
                     return Some(found);
                 }
@@ -89,8 +82,11 @@ fn command_as_subcommand_option(cmd: &Command) -> Option<CreateCommandOption> {
         return None;
     }
 
-    let kind =
-        if cmd.subcommands.is_empty() { oxcord_model::application::CommandOptionType::SubCommand } else { oxcord_model::application::CommandOptionType::SubCommandGroup };
+    let kind = if cmd.subcommands.is_empty() {
+        oxcord_model::application::CommandOptionType::SubCommand
+    } else {
+        oxcord_model::application::CommandOptionType::SubCommandGroup
+    };
     let mut builder = CreateCommandOption::new(kind, &cmd.name, &cmd.description);
     for (locale, name) in &cmd.name_localizations {
         builder = builder.name_localized(locale, name);
@@ -121,14 +117,16 @@ use crate::error::FrameworkError;
 use crate::prefix::PrefixOptions;
 
 /// Bentuk callback async buat [`FrameworkOptions::on_error`].
-pub type ErrorHook =
-    Arc<dyn Fn(FrameworkError, ErrorContext) -> Pin<Box<dyn Future<Output = ()> + Send>> + Send + Sync>;
+pub type ErrorHook = Arc<
+    dyn Fn(FrameworkError, ErrorContext) -> Pin<Box<dyn Future<Output = ()> + Send>> + Send + Sync,
+>;
 
 /// Bentuk callback async buat [`FrameworkOptions::pre_command`] dan [`FrameworkOptions::post_command`].
 pub type CommandHook =
     Arc<dyn for<'a> Fn(Context<'a>) -> Pin<Box<dyn Future<Output = ()> + Send + 'a>> + Send + Sync>;
 
 /// Global framework configuration.
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Default)]
 pub struct FrameworkOptions {
     /// All registered commands.
@@ -260,7 +258,10 @@ impl Framework {
     ///
     /// Mengembalikan [`FrameworkError::Http`] jika request ke Discord gagal.
     pub async fn initialize_owners(&self, http: &Http) -> Result<(), FrameworkError> {
-        let app_info = http.get_current_application_info().await.map_err(|e| FrameworkError::Http(e.to_string()))?;
+        let app_info = http
+            .get_current_application_info()
+            .await
+            .map_err(|e| FrameworkError::Http(e.to_string()))?;
         let mut owners = self.dispatcher.owners().write();
         if let Some(owner) = app_info.owner {
             owners.insert(owner.id);
@@ -272,7 +273,9 @@ impl Framework {
                     continue;
                 }
                 let allowed = match &self.options.initialized_team_roles {
-                    Some(roles) => roles.iter().any(|r| format!("{r:?}") == format!("{:?}", member.role)),
+                    Some(roles) => {
+                        roles.iter().any(|r| format!("{r:?}") == format!("{:?}", member.role))
+                    },
                     None => !matches!(member.role, TeamMemberRole::ReadOnly),
                 };
                 if allowed {
@@ -373,6 +376,7 @@ impl Framework {
     /// `gateway` adalah context gateway mentah dari pemanggil (di `oxcord`:
     /// `Arc::new(ctx.clone())` dari `oxcord::client::Context`), yang nanti bisa diambil
     /// command lewat [`Context::gateway_context`]. `None` kalau nggak ada.
+    #[allow(clippy::too_many_arguments)]
     pub async fn dispatch_message(
         &self,
         author: &User,
@@ -384,14 +388,11 @@ impl Framework {
         app_permissions: Option<Permissions>,
         gateway: Option<Arc<dyn Any + Send + Sync>>,
     ) -> Option<Result<(), FrameworkError>> {
-        let Some((matched_prefix, rest)) =
-            (match self.strip_any_prefix(content, guild_id, author.id, None).await {
-                Ok(val) => val,
+        let (matched_prefix, rest) =
+            match self.strip_any_prefix(content, guild_id, author.id, None).await {
+                Ok(val) => val?,
                 Err(e) => return Some(Err(e)),
-            })
-        else {
-            return None;
-        };
+            };
         let mut parts = rest.splitn(2, char::is_whitespace);
         let command_name = parts.next().unwrap_or("").trim();
         if command_name.is_empty() {
@@ -405,10 +406,11 @@ impl Framework {
             member_permissions,
             app_permissions,
         };
-        let framework_http = Arc::new(FrameworkHttp::for_prefix(http, channel_id).with_reply_defaults(
-            self.options.reply_callback.clone(),
-            self.options.allowed_mentions.clone(),
-        ));
+        let framework_http =
+            Arc::new(FrameworkHttp::for_prefix(http, channel_id).with_reply_defaults(
+                self.options.reply_callback.clone(),
+                self.options.allowed_mentions.clone(),
+            ));
         let inv = Invocation {
             command_name,
             author,
@@ -452,11 +454,16 @@ impl Framework {
         if msg.author.bot && !is_self && self.options.prefix_options.ignore_bots {
             return None;
         }
-        if self.options.prefix_options.ignore_thread_creation && msg.kind == MessageType::ThreadCreated {
+        if self.options.prefix_options.ignore_thread_creation
+            && msg.kind == MessageType::ThreadCreated
+        {
             return None;
         }
 
-        let stripped = match self.strip_any_prefix(&msg.content, msg.guild_id, msg.author.id, bot_user_id).await {
+        let stripped = match self
+            .strip_any_prefix(&msg.content, msg.guild_id, msg.author.id, bot_user_id)
+            .await
+        {
             Ok(val) => val,
             Err(e) => return Some(Err(e)),
         };
@@ -476,9 +483,7 @@ impl Framework {
         let Some((matched_prefix, command_name, cmd, args)) = parsed else {
             if let Some(non_cmd) = &self.options.prefix_options.non_command_message {
                 if let Err(e) = non_cmd(msg.clone(), self.options.user_data.clone()).await {
-                    return Some(Err(FrameworkError::NonCommandMessage {
-                        error: Box::new(e),
-                    }));
+                    return Some(Err(FrameworkError::NonCommandMessage { error: Box::new(e) }));
                 }
             }
             return None;
@@ -492,7 +497,10 @@ impl Framework {
         };
         let mut framework_http = FrameworkHttp::for_prefix(http, msg.channel_id)
             .with_message_id(msg.id)
-            .with_reply_defaults(self.options.reply_callback.clone(), self.options.allowed_mentions.clone())
+            .with_reply_defaults(
+                self.options.reply_callback.clone(),
+                self.options.allowed_mentions.clone(),
+            )
             .with_edit_tracker(self.options.prefix_options.edit_tracker.clone());
         if let Some(reuse_id) = reuse_message_id {
             framework_http = framework_http.with_reuse_message_id(reuse_id);
@@ -543,6 +551,10 @@ impl Framework {
 
     /// Sama seperti [`Self::dispatch_slash`], dengan info tambahan `is_nsfw` dan `guild_in_cache`
     /// yang dihitung bridge dari gateway cache.
+    ///
+    /// # Errors
+    ///
+    /// Mengembalikan [`FrameworkError`] jika command gagal dijalankan, permission/check gagal, atau terjadi error HTTP.
     pub async fn dispatch_slash_with_context(
         &self,
         command: &CommandInteraction,
@@ -556,19 +568,32 @@ impl Framework {
             token: command.token.clone(),
             guild_id: command.guild_id,
             options: command.data.options.clone(),
-            member_permissions: adjust_for_thread(command.member.as_ref().and_then(|m| m.permissions), is_thread),
+            member_permissions: adjust_for_thread(
+                command.member.as_ref().and_then(|m| m.permissions),
+                is_thread,
+            ),
             app_permissions: adjust_for_thread(command.app_permissions, is_thread),
             is_thread,
         };
         let framework_http = Arc::new(
             FrameworkHttp::for_slash(http, command.id, command.application_id, command.channel_id)
-                .with_reply_defaults(self.options.reply_callback.clone(), self.options.allowed_mentions.clone()),
+                .with_reply_defaults(
+                    self.options.reply_callback.clone(),
+                    self.options.allowed_mentions.clone(),
+                ),
         );
 
         // Tangani context-menu command (`CommandType::User` / `CommandType::Message`).
         if matches!(command.data.kind, CommandType::User | CommandType::Message) {
             return self
-                .dispatch_context_menu(command, &data, framework_http, is_nsfw, guild_in_cache, gateway)
+                .dispatch_context_menu(
+                    command,
+                    &data,
+                    framework_http,
+                    is_nsfw,
+                    guild_in_cache,
+                    gateway,
+                )
                 .await;
         }
 
@@ -625,8 +650,12 @@ impl Framework {
         };
 
         let result = match (cmd.context_menu_action, command.data.target()) {
-            (Some(ContextMenuAction::User(f)), Some(ResolvedTarget::User(user, _))) => f(ctx.clone(), user.clone()).await,
-            (Some(ContextMenuAction::Message(f)), Some(ResolvedTarget::Message(msg))) => f(ctx.clone(), msg.clone()).await,
+            (Some(ContextMenuAction::User(f)), Some(ResolvedTarget::User(user, _))) => {
+                f(ctx.clone(), user.clone()).await
+            },
+            (Some(ContextMenuAction::Message(f)), Some(ResolvedTarget::Message(msg))) => {
+                f(ctx.clone(), msg.clone()).await
+            },
             _ => Err(FrameworkError::CommandStructureMismatch {
                 description: "context menu command target did not match command type",
             }),
@@ -657,7 +686,9 @@ impl Framework {
         let mut out = Vec::new();
         for cmd in &self.options.commands {
             // 1. Registrasi slash command biasa (jika bukan prefix-only dan punya handler/subcommands).
-            if !matches!(cmd.kind, CommandKind::Prefix) && (cmd.handler.is_some() || !cmd.subcommands.is_empty()) {
+            if !matches!(cmd.kind, CommandKind::Prefix)
+                && (cmd.handler.is_some() || !cmd.subcommands.is_empty())
+            {
                 let mut builder = CreateCommand::new(&cmd.name).description(&cmd.description);
                 for (locale, name) in &cmd.name_localizations {
                     builder = builder.name_localized(locale, name);
@@ -741,7 +772,9 @@ impl Framework {
     /// Returns [`FrameworkError::Http`] if the request to Discord fails.
     pub async fn register_global_commands(&self, http: &Http) -> Result<(), FrameworkError> {
         let commands = self.build_global_commands();
-        http.create_global_commands(&commands).await.map_err(|e| FrameworkError::Http(e.to_string()))?;
+        http.create_global_commands(&commands)
+            .await
+            .map_err(|e| FrameworkError::Http(e.to_string()))?;
         Ok(())
     }
 
@@ -750,7 +783,11 @@ impl Framework {
     /// # Errors
     ///
     /// Mengembalikan [`FrameworkError::Http`] jika request ke Discord gagal.
-    pub async fn register_guild_commands(&self, http: &Http, guild_id: GuildId) -> Result<(), FrameworkError> {
+    pub async fn register_guild_commands(
+        &self,
+        http: &Http,
+        guild_id: GuildId,
+    ) -> Result<(), FrameworkError> {
         let commands = self.build_global_commands();
         http.create_guild_commands(guild_id, &commands)
             .await
@@ -774,12 +811,12 @@ impl Framework {
         gateway: Option<Arc<dyn Any + Send + Sync>>,
     ) -> Result<Vec<String>, FrameworkError> {
         let Some(focused) = find_focused_option(&command.data.options) else {
-            return Err(FrameworkError::Other("autocomplete interaction has no focused option".to_owned()));
+            return Err(FrameworkError::Other(
+                "autocomplete interaction has no focused option".to_owned(),
+            ));
         };
         let partial = match &focused.value {
-            CommandDataOptionValue::Autocomplete {
-                value, ..
-            } => value.clone(),
+            CommandDataOptionValue::Autocomplete { value, .. } => value.clone(),
             _ => unreachable!("filtered above"),
         };
 
@@ -788,12 +825,19 @@ impl Framework {
             token: command.token.clone(),
             guild_id: command.guild_id,
             options: command.data.options.clone(),
-            member_permissions: adjust_for_thread(command.member.as_ref().and_then(|m| m.permissions), is_thread),
+            member_permissions: adjust_for_thread(
+                command.member.as_ref().and_then(|m| m.permissions),
+                is_thread,
+            ),
             app_permissions: adjust_for_thread(command.app_permissions, is_thread),
             is_thread,
         };
-        let framework_http =
-            Arc::new(FrameworkHttp::for_slash(http, command.id, command.application_id, command.channel_id));
+        let framework_http = Arc::new(FrameworkHttp::for_slash(
+            http,
+            command.id,
+            command.application_id,
+            command.channel_id,
+        ));
         self.dispatcher
             .dispatch_autocomplete(
                 &command.data.name,
@@ -873,7 +917,10 @@ impl FrameworkBuilder {
     #[must_use]
     pub fn on_error<F>(mut self, hook: F) -> Self
     where
-        F: Fn(FrameworkError, ErrorContext) -> Pin<Box<dyn Future<Output = ()> + Send>> + Send + Sync + 'static,
+        F: Fn(FrameworkError, ErrorContext) -> Pin<Box<dyn Future<Output = ()> + Send>>
+            + Send
+            + Sync
+            + 'static,
     {
         self.options.on_error = Some(Arc::new(hook));
         self
@@ -960,9 +1007,6 @@ impl FrameworkBuilder {
     #[must_use]
     pub fn build(self) -> Framework {
         let dispatcher = Dispatcher::new(&self.options);
-        Framework {
-            options: self.options,
-            dispatcher,
-        }
+        Framework { options: self.options, dispatcher }
     }
 }

@@ -45,10 +45,8 @@ impl<F: Future> Future for CatchUnwindFuture<F> {
 fn extract_panic_payload(payload: &Box<dyn Any + Send + 'static>) -> Option<String> {
     if let Some(s) = payload.downcast_ref::<&str>() {
         Some((*s).to_owned())
-    } else if let Some(s) = payload.downcast_ref::<String>() {
-        Some(s.clone())
     } else {
-        None
+        payload.downcast_ref::<String>().cloned()
     }
 }
 
@@ -80,6 +78,7 @@ pub struct Invocation<'a> {
 }
 
 /// Routes invocations to registered commands.
+#[allow(clippy::struct_excessive_bools)]
 pub struct Dispatcher {
     commands: Vec<Command>,
     owners: Arc<RwLock<HashSet<UserId>>>,
@@ -126,7 +125,10 @@ impl Dispatcher {
         }
     }
 
-    fn register_command_cooldowns(cmd: &Command, cooldowns: &dashmap::DashMap<String, CooldownManager>) {
+    fn register_command_cooldowns(
+        cmd: &Command,
+        cooldowns: &dashmap::DashMap<String, CooldownManager>,
+    ) {
         if let Some(config) = cmd.cooldown.clone() {
             cooldowns.insert(cmd.name.clone(), CooldownManager::new(config));
         }
@@ -169,16 +171,17 @@ impl Dispatcher {
         // handler, producing a clear "no handler" error below) if no branch
         // matches.
         let mut resolved_data = inv.data.clone();
-        let cmd = Self::resolve_subcommand_with_case(top, &mut resolved_data, self.case_insensitive_commands);
+        let cmd = Self::resolve_subcommand_with_case(
+            top,
+            &mut resolved_data,
+            self.case_insensitive_commands,
+        );
         let inv_data = &resolved_data;
 
         let guild_id = match inv_data {
-            InvocationData::Slash {
-                guild_id, ..
-            }
-            | InvocationData::Prefix {
-                guild_id, ..
-            } => *guild_id,
+            InvocationData::Slash { guild_id, .. } | InvocationData::Prefix { guild_id, .. } => {
+                *guild_id
+            },
         };
 
         // Context dibentuk DI AWAL (sebelum pre-flight check apa pun), supaya hook `on_error`
@@ -210,7 +213,12 @@ impl Dispatcher {
     /// Serahkan error ke hook `on_error` per-command kalau ada, kalau nggak ada fallback ke
     /// `FrameworkOptions::on_error` global. Kalau keduanya nggak ada, kembalikan lagi biar
     /// pemanggil (bridge) yang nge-log.
-    async fn report_error(&self, error: FrameworkError, cmd: &Command, ctx: &Context<'_>) -> Result<(), FrameworkError> {
+    async fn report_error(
+        &self,
+        error: FrameworkError,
+        cmd: &Command,
+        ctx: &Context<'_>,
+    ) -> Result<(), FrameworkError> {
         let hook = cmd.on_error.as_ref().or(self.on_error.as_ref());
         match hook {
             Some(hook) => {
@@ -273,16 +281,10 @@ impl Dispatcher {
             // --- Pre-flight: permissions ---
             if cmd.required_permissions.is_some() || cmd.required_bot_permissions.is_some() {
                 let (member_permissions, app_permissions) = match inv_data {
-                    InvocationData::Slash {
-                        member_permissions,
-                        app_permissions,
-                        ..
-                    }
-                    | InvocationData::Prefix {
-                        member_permissions,
-                        app_permissions,
-                        ..
-                    } => (*member_permissions, *app_permissions),
+                    InvocationData::Slash { member_permissions, app_permissions, .. }
+                    | InvocationData::Prefix { member_permissions, app_permissions, .. } => {
+                        (*member_permissions, *app_permissions)
+                    },
                 };
                 if let Some(required) = cmd.required_permissions {
                     let Some(have) = member_permissions else {
@@ -290,9 +292,7 @@ impl Dispatcher {
                     };
                     let missing = required - have;
                     if !missing.is_empty() {
-                        return Err(FrameworkError::MissingUserPermissions {
-                            missing,
-                        });
+                        return Err(FrameworkError::MissingUserPermissions { missing });
                     }
                 }
                 if let Some(required) = cmd.required_bot_permissions {
@@ -301,9 +301,7 @@ impl Dispatcher {
                     };
                     let missing = required - have;
                     if !missing.is_empty() {
-                        return Err(FrameworkError::MissingBotPermissions {
-                            missing,
-                        });
+                        return Err(FrameworkError::MissingBotPermissions { missing });
                     }
                 }
             }
@@ -352,9 +350,9 @@ impl Dispatcher {
         debug!(command = %cmd.name, "dispatching command");
         let result = match CatchUnwindFuture(AssertUnwindSafe(handler.call(ctx.clone()))).await {
             Ok(res) => res,
-            Err(panic_payload) => Err(FrameworkError::CommandPanic {
-                payload: extract_panic_payload(&panic_payload),
-            }),
+            Err(panic_payload) => {
+                Err(FrameworkError::CommandPanic { payload: extract_panic_payload(&panic_payload) })
+            },
         };
 
         if result.is_ok() {
@@ -383,9 +381,7 @@ impl Dispatcher {
                 return cmd;
             }
             match data {
-                InvocationData::Slash {
-                    options, ..
-                } => {
+                InvocationData::Slash { options, .. } => {
                     let Some(opt) = options.first() else {
                         return cmd;
                     };
@@ -400,9 +396,7 @@ impl Dispatcher {
                     *options = inner;
                     cmd = sub;
                 },
-                InvocationData::Prefix {
-                    args, ..
-                } => {
+                InvocationData::Prefix { args, .. } => {
                     let mut parts = args.trim_start().splitn(2, char::is_whitespace);
                     let Some(candidate) = parts.next().filter(|s| !s.is_empty()) else {
                         return cmd;
@@ -414,9 +408,9 @@ impl Dispatcher {
                             target == candidate
                         }
                     };
-                    let Some(sub) =
-                        cmd.subcommands.iter().find(|s| matches_name(&s.name) || s.aliases.iter().any(|a| matches_name(a)))
-                    else {
+                    let Some(sub) = cmd.subcommands.iter().find(|s| {
+                        matches_name(&s.name) || s.aliases.iter().any(|a| matches_name(a))
+                    }) else {
                         return cmd;
                     };
                     *args = parts.next().unwrap_or("").trim_start().to_owned();
@@ -434,6 +428,7 @@ impl Dispatcher {
     /// Returns [`FrameworkError::UnknownCommand`] if no such command is
     /// registered, or [`FrameworkError::Other`] if that command has no
     /// autocomplete handler for `option_name`.
+    #[allow(clippy::too_many_arguments)]
     pub async fn dispatch_autocomplete<'a>(
         &self,
         command_name: &str,
@@ -456,12 +451,9 @@ impl Dispatcher {
             )));
         };
         let guild_id = match data {
-            InvocationData::Slash {
-                guild_id, ..
-            }
-            | InvocationData::Prefix {
-                guild_id, ..
-            } => *guild_id,
+            InvocationData::Slash { guild_id, .. } | InvocationData::Prefix { guild_id, .. } => {
+                *guild_id
+            },
         };
         let ctx = Context {
             author,
@@ -492,7 +484,8 @@ impl Dispatcher {
     pub fn find_command(&self, name: &str) -> Option<&Command> {
         self.commands.iter().find(|c| {
             if self.case_insensitive_commands {
-                c.name.eq_ignore_ascii_case(name) || c.aliases.iter().any(|a| a.eq_ignore_ascii_case(name))
+                c.name.eq_ignore_ascii_case(name)
+                    || c.aliases.iter().any(|a| a.eq_ignore_ascii_case(name))
             } else {
                 c.name == name || c.aliases.iter().any(|a| a == name)
             }
@@ -529,12 +522,8 @@ mod tests {
         let resolved = Dispatcher::resolve_subcommand(&cmd, &mut data);
         assert_eq!(resolved.name, "set");
         match data {
-            InvocationData::Prefix {
-                args, ..
-            } => assert_eq!(args, "foo bar"),
-            InvocationData::Slash {
-                ..
-            } => panic!("expected Prefix"),
+            InvocationData::Prefix { args, .. } => assert_eq!(args, "foo bar"),
+            InvocationData::Slash { .. } => panic!("expected Prefix"),
         }
     }
 
@@ -563,12 +552,8 @@ mod tests {
         let resolved = Dispatcher::resolve_subcommand(&cmd, &mut data);
         assert_eq!(resolved.name, "set");
         match data {
-            InvocationData::Prefix {
-                args, ..
-            } => assert_eq!(args, "!"),
-            InvocationData::Slash {
-                ..
-            } => panic!("expected Prefix"),
+            InvocationData::Prefix { args, .. } => assert_eq!(args, "!"),
+            InvocationData::Slash { .. } => panic!("expected Prefix"),
         }
     }
 
@@ -597,7 +582,9 @@ mod tests {
 
     use crate::cooldown::{CooldownConfig, CooldownScope};
 
-    fn ok_handler(_ctx: Context<'_>) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
+    fn ok_handler(
+        _ctx: Context<'_>,
+    ) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
         Box::pin(async { Ok(()) })
     }
 
@@ -618,7 +605,10 @@ mod tests {
             member_permissions: None,
             app_permissions: None,
         };
-        let http = Arc::new(FrameworkHttp::for_prefix(Arc::new(Http::new("test-token")), ChannelId::new(1)));
+        let http = Arc::new(FrameworkHttp::for_prefix(
+            Arc::new(Http::new("test-token")),
+            ChannelId::new(1),
+        ));
         dispatcher
             .dispatch(Invocation {
                 command_name: "ping",
@@ -646,12 +636,12 @@ mod tests {
                 let seen = Arc::clone(&seen_in_hook);
                 Box::pin(async move {
                     let label = match error {
-                        FrameworkError::Cooldown {
-                            ..
-                        } => format!("cooldown:{}", ectx.command_name),
+                        FrameworkError::Cooldown { .. } => {
+                            format!("cooldown:{}", ectx.command_name)
+                        },
                         other => format!("other:{other}"),
                     };
-                    seen.lock().unwrap().push(label);
+                    seen.lock().expect("mutex").push(label);
                 })
             })),
             ..Default::default()
@@ -660,18 +650,15 @@ mod tests {
 
         // Pemanggilan pertama lolos, yang kedua kena cooldown -> hook dipanggil.
         assert!(invoke_ping(&dispatcher).await.is_ok());
-        assert!(seen.lock().unwrap().is_empty());
+        assert!(seen.lock().expect("mutex").is_empty());
         // Hook sudah nangani error-nya, jadi dispatch balikin Ok (nggak dobel handle di bridge).
         assert!(invoke_ping(&dispatcher).await.is_ok());
-        assert_eq!(*seen.lock().unwrap(), vec!["cooldown:ping".to_owned()]);
+        assert_eq!(*seen.lock().expect("mutex"), vec!["cooldown:ping".to_owned()]);
     }
 
     #[tokio::test]
     async fn without_on_error_hook_the_error_is_returned_as_before() {
-        let options = FrameworkOptions {
-            commands: vec![cooldown_command()],
-            ..Default::default()
-        };
+        let options = FrameworkOptions { commands: vec![cooldown_command()], ..Default::default() };
         let dispatcher = Dispatcher::new(&options);
         assert!(invoke_ping(&dispatcher).await.is_ok());
         assert!(matches!(invoke_ping(&dispatcher).await, Err(FrameworkError::Cooldown { .. })));
@@ -686,7 +673,10 @@ mod tests {
         is_nsfw: Option<bool>,
         guild_in_cache: Option<bool>,
     ) -> Invocation<'a> {
-        let http = Arc::new(FrameworkHttp::for_prefix(Arc::new(Http::new("test-token")), ChannelId::new(1)));
+        let http = Arc::new(FrameworkHttp::for_prefix(
+            Arc::new(Http::new("test-token")),
+            ChannelId::new(1),
+        ));
         Invocation {
             command_name,
             author,
@@ -704,11 +694,13 @@ mod tests {
 
     #[tokio::test]
     async fn dm_only_allows_dm_and_rejects_guild() {
-        let cmd = Command::builder("secret").kind(CommandKind::Both).dm_only(true).handler(ok_handler).build();
-        let dispatcher = Dispatcher::new(&FrameworkOptions {
-            commands: vec![cmd],
-            ..Default::default()
-        });
+        let cmd = Command::builder("secret")
+            .kind(CommandKind::Both)
+            .dm_only(true)
+            .handler(ok_handler)
+            .build();
+        let dispatcher =
+            Dispatcher::new(&FrameworkOptions { commands: vec![cmd], ..Default::default() });
         let author = oxcord_model::user::User::default();
 
         let dm_data = InvocationData::Prefix {
@@ -717,7 +709,9 @@ mod tests {
             member_permissions: None,
             app_permissions: None,
         };
-        assert!(dispatcher.dispatch(make_inv("secret", &author, &dm_data, None, None)).await.is_ok());
+        assert!(
+            dispatcher.dispatch(make_inv("secret", &author, &dm_data, None, None)).await.is_ok()
+        );
 
         let guild_data = InvocationData::Prefix {
             args: String::new(),
@@ -733,11 +727,13 @@ mod tests {
 
     #[tokio::test]
     async fn nsfw_only_requires_nsfw_true() {
-        let cmd = Command::builder("spicy").kind(CommandKind::Both).nsfw_only(true).handler(ok_handler).build();
-        let dispatcher = Dispatcher::new(&FrameworkOptions {
-            commands: vec![cmd],
-            ..Default::default()
-        });
+        let cmd = Command::builder("spicy")
+            .kind(CommandKind::Both)
+            .nsfw_only(true)
+            .handler(ok_handler)
+            .build();
+        let dispatcher =
+            Dispatcher::new(&FrameworkOptions { commands: vec![cmd], ..Default::default() });
         let author = oxcord_model::user::User::default();
         let data = InvocationData::Prefix {
             args: String::new(),
@@ -754,14 +750,20 @@ mod tests {
             dispatcher.dispatch(make_inv("spicy", &author, &data, Some(false), None)).await,
             Err(FrameworkError::NsfwOnly)
         ));
-        assert!(dispatcher.dispatch(make_inv("spicy", &author, &data, Some(true), None)).await.is_ok());
+        assert!(
+            dispatcher.dispatch(make_inv("spicy", &author, &data, Some(true), None)).await.is_ok()
+        );
     }
 
-    fn check_pass(_ctx: Context<'_>) -> Pin<Box<dyn Future<Output = Result<bool, FrameworkError>> + Send + '_>> {
+    fn check_pass(
+        _ctx: Context<'_>,
+    ) -> Pin<Box<dyn Future<Output = Result<bool, FrameworkError>> + Send + '_>> {
         Box::pin(async { Ok(true) })
     }
 
-    fn check_fail(_ctx: Context<'_>) -> Pin<Box<dyn Future<Output = Result<bool, FrameworkError>> + Send + '_>> {
+    fn check_fail(
+        _ctx: Context<'_>,
+    ) -> Pin<Box<dyn Future<Output = Result<bool, FrameworkError>> + Send + '_>> {
         Box::pin(async { Ok(false) })
     }
 
@@ -773,8 +775,11 @@ mod tests {
             .check(check_fail)
             .handler(ok_handler)
             .build();
-        let cmd_pass =
-            Command::builder("c2").kind(CommandKind::Both).check(check_pass).handler(ok_handler).build();
+        let cmd_pass = Command::builder("c2")
+            .kind(CommandKind::Both)
+            .check(check_pass)
+            .handler(ok_handler)
+            .build();
 
         let dispatcher_global_fail = Dispatcher::new(&FrameworkOptions {
             commands: vec![cmd_pass.clone()],
@@ -802,7 +807,12 @@ mod tests {
             dispatcher_local_fail.dispatch(make_inv("c1", &author, &data, None, None)).await,
             Err(FrameworkError::CommandCheckFailed(None))
         ));
-        assert!(dispatcher_local_fail.dispatch(make_inv("c2", &author, &data, None, None)).await.is_ok());
+        assert!(
+            dispatcher_local_fail
+                .dispatch(make_inv("c2", &author, &data, None, None))
+                .await
+                .is_ok()
+        );
     }
 
     #[tokio::test]
@@ -825,10 +835,8 @@ mod tests {
             ..Default::default()
         });
 
-        let mut owner_user = oxcord_model::user::User::default();
-        owner_user.id = UserId::new(999);
-        let mut normal_user = oxcord_model::user::User::default();
-        normal_user.id = UserId::new(111);
+        let owner_user = oxcord_model::user::User { id: UserId::new(999), ..Default::default() };
+        let normal_user = oxcord_model::user::User { id: UserId::new(111), ..Default::default() };
 
         let dm_data = InvocationData::Prefix {
             args: String::new(),
@@ -837,7 +845,12 @@ mod tests {
             app_permissions: None,
         };
 
-        assert!(dispatcher.dispatch(make_inv("admin", &owner_user, &dm_data, Some(false), None)).await.is_ok());
+        assert!(
+            dispatcher
+                .dispatch(make_inv("admin", &owner_user, &dm_data, Some(false), None))
+                .await
+                .is_ok()
+        );
         assert!(matches!(
             dispatcher.dispatch(make_inv("admin", &normal_user, &dm_data, Some(false), None)).await,
             Err(FrameworkError::GuildOnly)
@@ -847,11 +860,13 @@ mod tests {
     #[tokio::test]
     async fn subcommand_required_rejects_bare_group_and_allows_subcommand() {
         let sub = Command::builder("set").kind(CommandKind::Both).handler(ok_handler).build();
-        let grp = Command::builder("cfg").kind(CommandKind::Both).subcommand(sub).subcommand_required(true).build();
-        let dispatcher = Dispatcher::new(&FrameworkOptions {
-            commands: vec![grp],
-            ..Default::default()
-        });
+        let grp = Command::builder("cfg")
+            .kind(CommandKind::Both)
+            .subcommand(sub)
+            .subcommand_required(true)
+            .build();
+        let dispatcher =
+            Dispatcher::new(&FrameworkOptions { commands: vec![grp], ..Default::default() });
         let author = oxcord_model::user::User::default();
 
         let bare = InvocationData::Prefix {
@@ -874,11 +889,15 @@ mod tests {
         assert!(dispatcher.dispatch(make_inv("cfg", &author, &with_sub, None, None)).await.is_ok());
     }
 
-    fn err_handler(_ctx: Context<'_>) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
+    fn err_handler(
+        _ctx: Context<'_>,
+    ) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
         Box::pin(async { Err(FrameworkError::Other("boom".to_owned())) })
     }
 
-    fn panic_handler(_ctx: Context<'_>) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
+    fn panic_handler(
+        _ctx: Context<'_>,
+    ) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
         Box::pin(async {
             panic!("handler exploded");
         })
@@ -899,30 +918,37 @@ mod tests {
             .on_error(move |err, ectx| {
                 let l = Arc::clone(&log_cmd_err);
                 Box::pin(async move {
-                    l.lock().unwrap().push(format!("cmd_err:{}:{err}", ectx.command_name));
+                    l.lock().expect("mutex").push(format!("cmd_err:{}:{err}", ectx.command_name));
                 })
             })
             .build();
-        let panic_cmd = Command::builder("boom").kind(CommandKind::Both).handler(panic_handler).build();
+        let panic_cmd =
+            Command::builder("boom").kind(CommandKind::Both).handler(panic_handler).build();
 
         let dispatcher = Dispatcher::new(&FrameworkOptions {
             commands: vec![ok_cmd, fail_cmd, panic_cmd],
             pre_command: Some(Arc::new(move |ctx| {
                 let l = Arc::clone(&log_pre);
                 Box::pin(async move {
-                    l.lock().unwrap().push(format!("pre:{}", ctx.command().unwrap().name));
+                    l.lock()
+                        .expect("mutex")
+                        .push(format!("pre:{}", ctx.command().expect("command").name));
                 })
             })),
             post_command: Some(Arc::new(move |ctx| {
                 let l = Arc::clone(&log_post);
                 Box::pin(async move {
-                    l.lock().unwrap().push(format!("post:{}", ctx.command().unwrap().name));
+                    l.lock()
+                        .expect("mutex")
+                        .push(format!("post:{}", ctx.command().expect("command").name));
                 })
             })),
             on_error: Some(Arc::new(move |err, ectx| {
                 let l = Arc::clone(&log_global_err);
                 Box::pin(async move {
-                    l.lock().unwrap().push(format!("global_err:{}:{err}", ectx.command_name));
+                    l.lock()
+                        .expect("mutex")
+                        .push(format!("global_err:{}:{err}", ectx.command_name));
                 })
             })),
             ..Default::default()
@@ -940,7 +966,7 @@ mod tests {
         assert!(dispatcher.dispatch(make_inv("fail", &author, &data, None, None)).await.is_ok());
         assert!(dispatcher.dispatch(make_inv("boom", &author, &data, None, None)).await.is_ok());
 
-        let entries = log.lock().unwrap().clone();
+        let entries = log.lock().expect("mutex").clone();
         assert_eq!(
             entries,
             vec![
@@ -984,8 +1010,18 @@ mod tests {
         ));
 
         // Guild ada di cache, manual_cooldowns = true -> lolos berkali-kali
-        assert!(dispatcher.dispatch(make_inv("mc", &author, &guild_data, None, Some(true))).await.is_ok());
-        assert!(dispatcher.dispatch(make_inv("mc", &author, &guild_data, None, Some(true))).await.is_ok());
+        assert!(
+            dispatcher
+                .dispatch(make_inv("mc", &author, &guild_data, None, Some(true)))
+                .await
+                .is_ok()
+        );
+        assert!(
+            dispatcher
+                .dispatch(make_inv("mc", &author, &guild_data, None, Some(true)))
+                .await
+                .is_ok()
+        );
     }
 
     #[tokio::test]
@@ -993,7 +1029,9 @@ mod tests {
         use crate::prefix::PrefixOptions;
         use crate::track_edits::EditTracker;
 
-        fn inspect_handler(ctx: Context<'_>) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
+        fn inspect_handler(
+            ctx: Context<'_>,
+        ) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
             Box::pin(async move {
                 assert_eq!(ctx.command_custom_data::<&'static str>(), Some(&"meta-v1"));
                 ctx.set_invocation_data(42usize).await;
@@ -1032,24 +1070,40 @@ mod tests {
             ..Default::default()
         };
         let res = fw
-            .dispatch_full_message(&msg, Arc::new(Http::new("test-token")), None, None, None, None, None, None, None)
+            .dispatch_full_message(
+                &msg,
+                Arc::new(Http::new("test-token")),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
             .await;
         assert!(matches!(res, Some(Ok(()))));
 
-        let tracked = tracker.process_message_update(msg.id);
-        assert!(tracked.is_some());
+        let update_entry = tracker.process_message_update(msg.id);
+        assert!(update_entry.is_some());
         tracker.set_bot_response(msg.id, oxcord_model::id::MessageId::new(67890));
-        assert_eq!(tracker.find_bot_response(msg.id), Some(oxcord_model::id::MessageId::new(67890)));
+        assert_eq!(
+            tracker.find_bot_response(msg.id),
+            Some(oxcord_model::id::MessageId::new(67890))
+        );
         assert!(tracker.process_message_delete(msg.id).is_some());
         assert!(tracker.find_bot_response(msg.id).is_none());
     }
 
     #[test]
     fn build_global_commands_includes_metadata_and_context_menu() {
-        use oxcord_model::application::{CommandType, InstallationContext, InteractionContext};
         use oxcord_model::Permissions;
+        use oxcord_model::application::{CommandType, InstallationContext, InteractionContext};
 
-        fn cm_user(_ctx: Context<'_>, _u: oxcord_model::user::User) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
+        fn cm_user(
+            _ctx: Context<'_>,
+            _u: oxcord_model::user::User,
+        ) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + '_>> {
             Box::pin(async { Ok(()) })
         }
 
@@ -1070,20 +1124,17 @@ mod tests {
             .build();
 
         let fw = crate::Framework::builder()
-            .options(FrameworkOptions {
-                commands: vec![slash, cm],
-                ..Default::default()
-            })
+            .options(FrameworkOptions { commands: vec![slash, cm], ..Default::default() })
             .build();
 
         let built = fw.build_global_commands();
         assert_eq!(built.len(), 2);
-        let json0 = serde_json::to_value(&built[0]).unwrap();
+        let json0 = serde_json::to_value(&built[0]).expect("serialize");
         assert_eq!(json0["nsfw"], true);
         assert_eq!(json0["name_localizations"]["id"], "info-id");
         assert_eq!(json0["description_localizations"]["id"], "Perintah info");
-        let json1 = serde_json::to_value(&built[1]).unwrap();
+        let json1 = serde_json::to_value(&built[1]).expect("serialize");
         assert_eq!(json1["name"], "User Info");
-        assert_eq!(json1["type"], serde_json::to_value(CommandType::User).unwrap());
+        assert_eq!(json1["type"], serde_json::to_value(CommandType::User).expect("serialize"));
     }
 }

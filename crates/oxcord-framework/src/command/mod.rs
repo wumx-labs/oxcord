@@ -62,21 +62,24 @@ pub type AutocompleteFn = for<'a> fn(
 >;
 
 /// Tipe fungsi async buat check per-command atau global `command_check`.
-pub type CheckFn = for<'a> fn(
-    Context<'a>,
-) -> Pin<Box<dyn Future<Output = Result<bool, FrameworkError>> + Send + 'a>>;
+pub type CheckFn =
+    for<'a> fn(
+        Context<'a>,
+    ) -> Pin<Box<dyn Future<Output = Result<bool, FrameworkError>> + Send + 'a>>;
 
 /// Tipe fungsi async buat context-menu command bertipe User.
-pub type UserContextMenuFn = for<'a> fn(
-    Context<'a>,
-    User,
-) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + 'a>>;
+pub type UserContextMenuFn =
+    for<'a> fn(
+        Context<'a>,
+        User,
+    ) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + 'a>>;
 
 /// Tipe fungsi async buat context-menu command bertipe Message.
-pub type MessageContextMenuFn = for<'a> fn(
-    Context<'a>,
-    Message,
-) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + 'a>>;
+pub type MessageContextMenuFn =
+    for<'a> fn(
+        Context<'a>,
+        Message,
+    ) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send + 'a>>;
 
 /// Aksi yang dijalankan saat context-menu command (klik kanan user/pesan) dipanggil.
 #[derive(Clone, Copy)]
@@ -150,6 +153,7 @@ pub struct CommandOptionSpec {
 }
 
 /// A registered command and its metadata.
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Clone)]
 pub struct Command {
     /// The primary name used to invoke the command.
@@ -258,6 +262,7 @@ impl Command {
 }
 
 /// Fluent builder for [`Command`].
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Default)]
 pub struct CommandBuilder {
     name: String,
@@ -300,11 +305,7 @@ impl CommandBuilder {
     /// Create a new builder with the given name.
     #[must_use]
     pub fn new(name: impl Into<String>) -> Self {
-        Self {
-            name: name.into(),
-            kind: CommandKind::Slash,
-            ..Default::default()
-        }
+        Self { name: name.into(), kind: CommandKind::Slash, ..Default::default() }
     }
 
     /// Set the command description.
@@ -434,7 +435,10 @@ impl CommandBuilder {
     #[must_use]
     pub fn on_error<F>(mut self, hook: F) -> Self
     where
-        F: Fn(FrameworkError, crate::context::ErrorContext) -> Pin<Box<dyn Future<Output = ()> + Send>>
+        F: Fn(
+                FrameworkError,
+                crate::context::ErrorContext,
+            ) -> Pin<Box<dyn Future<Output = ()> + Send>>
             + Send
             + Sync
             + 'static,
@@ -539,7 +543,11 @@ impl CommandBuilder {
 
     /// Tambah satu lokalisasi deskripsi command.
     #[must_use]
-    pub fn description_localization(mut self, locale: impl Into<String>, desc: impl Into<String>) -> Self {
+    pub fn description_localization(
+        mut self,
+        locale: impl Into<String>,
+        desc: impl Into<String>,
+    ) -> Self {
         self.description_localizations.push((locale.into(), desc.into()));
         self
     }
@@ -550,7 +558,8 @@ impl CommandBuilder {
         mut self,
         locs: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
     ) -> Self {
-        self.description_localizations = locs.into_iter().map(|(l, d)| (l.into(), d.into())).collect();
+        self.description_localizations =
+            locs.into_iter().map(|(l, d)| (l.into(), d.into())).collect();
         self
     }
 

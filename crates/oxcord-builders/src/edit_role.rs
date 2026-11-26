@@ -177,11 +177,7 @@ pub struct CreateRoleColours {
 
 impl CreateRoleColours {
     pub fn new(primary_colour: Colour) -> Self {
-        Self {
-            primary_color: primary_colour,
-            secondary_color: None,
-            tertiary_color: None,
-        }
+        Self { primary_color: primary_colour, secondary_color: None, tertiary_color: None }
     }
 
     /// Sets the secondary colour for this role.

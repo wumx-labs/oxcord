@@ -89,10 +89,7 @@ impl GlobalLimiter {
         let remaining = remaining.unwrap_or(1);
         let reset_at = reset_after_secs.map(|s| Instant::now() + Duration::from_secs_f64(s));
 
-        self.buckets.insert(bucket.clone(), BucketState {
-            remaining,
-            reset_at,
-        });
+        self.buckets.insert(bucket.clone(), BucketState { remaining, reset_at });
         debug!(bucket = %bucket, remaining = %remaining, "bucket updated");
     }
 

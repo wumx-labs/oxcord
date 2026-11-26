@@ -26,29 +26,15 @@ pub use crypto::{AEAD_TAG_SIZE, CipherAlgorithm, NONCE_COUNTER_SIZE, VoiceCrypto
 pub use driver::VoiceDriver;
 pub use error::{Result, VoiceError};
 pub use ip_discovery::{
-    IP_DISCOVERY_PACKET_SIZE,
-    create_ip_discovery_request,
-    parse_ip_discovery_response,
+    IP_DISCOVERY_PACKET_SIZE, create_ip_discovery_request, parse_ip_discovery_response,
     perform_ip_discovery,
 };
 // Re-export voice model definitions
 pub use oxcord_voice_model::constants::{GATEWAY_VERSION, GATEWAY_VERSION_V8};
 pub use oxcord_voice_model::{
-    CloseCode,
-    EncryptionMode,
-    Event,
-    Opcode,
-    ProtocolData,
-    SpeakingState,
+    CloseCode, EncryptionMode, Event, Opcode, ProtocolData, SpeakingState,
 };
 pub use rtp::{
-    CHANNELS,
-    DISCORD_OPUS_PAYLOAD_TYPE,
-    FRAME_DURATION_MS,
-    OPUS_SILENCE_FRAME,
-    RTP_HEADER_SIZE,
-    RtpHeader,
-    RtpPacketizer,
-    SAMPLE_RATE,
-    SAMPLES_PER_FRAME,
+    CHANNELS, DISCORD_OPUS_PAYLOAD_TYPE, FRAME_DURATION_MS, OPUS_SILENCE_FRAME, RTP_HEADER_SIZE,
+    RtpHeader, RtpPacketizer, SAMPLE_RATE, SAMPLES_PER_FRAME,
 };

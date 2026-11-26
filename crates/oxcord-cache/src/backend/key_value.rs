@@ -126,10 +126,7 @@ impl<KV: KeyValueStore> KeyValueStateBackend<KV> {
 
     /// Creates a new `KeyValueStateBackend` with a custom namespace prefix.
     pub fn with_prefix(store: KV, prefix: impl Into<String>) -> Self {
-        Self {
-            store: Arc::new(store),
-            prefix: prefix.into(),
-        }
+        Self { store: Arc::new(store), prefix: prefix.into() }
     }
 
     fn key_guild(&self, id: GuildId) -> String {

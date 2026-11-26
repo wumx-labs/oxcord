@@ -12,17 +12,8 @@ use crate::model::application::{CommandOptionType, CommandType};
 use crate::model::channel::{Attachment, Message, PartialChannel};
 use crate::model::guild::{Member, PartialMember, Role};
 use crate::model::id::{
-    ApplicationId,
-    AttachmentId,
-    ChannelId,
-    CommandId,
-    GenericId,
-    GuildId,
-    InteractionId,
-    MessageId,
-    RoleId,
-    TargetId,
-    UserId,
+    ApplicationId, AttachmentId, ChannelId, CommandId, GenericId, GuildId, InteractionId,
+    MessageId, RoleId, TargetId, UserId,
 };
 use crate::model::monetization::Entitlement;
 use crate::model::user::User;
@@ -146,15 +137,8 @@ impl CommandData {
                     | CommandDataOptionValue::SubCommandGroup(opts) => {
                         return find_option(opts);
                     },
-                    CommandDataOptionValue::Autocomplete {
-                        kind,
-                        value,
-                    } => {
-                        return Some(AutocompleteOption {
-                            name: &opt.name,
-                            kind: *kind,
-                            value,
-                        });
+                    CommandDataOptionValue::Autocomplete { kind, value } => {
+                        return Some(AutocompleteOption { name: &opt.name, kind: *kind, value });
                     },
                     _ => {},
                 }
@@ -180,12 +164,8 @@ impl CommandData {
                     CommandDataOptionValue::SubCommandGroup(opts) => {
                         ResolvedValue::SubCommandGroup(resolve_options(opts, resolved))
                     },
-                    CommandDataOptionValue::Autocomplete {
-                        kind,
-                        value,
-                    } => ResolvedValue::Autocomplete {
-                        kind: *kind,
-                        value,
+                    CommandDataOptionValue::Autocomplete { kind, value } => {
+                        ResolvedValue::Autocomplete { kind: *kind, value }
                     },
                     CommandDataOptionValue::Boolean(v) => ResolvedValue::Boolean(*v),
                     CommandDataOptionValue::Integer(v) => ResolvedValue::Integer(*v),
@@ -222,10 +202,7 @@ impl CommandData {
                     },
                 };
 
-                options.push(ResolvedOption {
-                    name: &opt.name,
-                    value,
-                });
+                options.push(ResolvedOption { name: &opt.name, value });
             }
             options
         }
@@ -390,9 +367,8 @@ pub(crate) fn option_from_raw(raw: RawCommandDataOption) -> Result<CommandDataOp
     }
 
     let value = match raw.kind {
-        _ if raw.focused == Some(true) => CommandDataOptionValue::Autocomplete {
-            kind: raw.kind,
-            value: value!(),
+        _ if raw.focused == Some(true) => {
+            CommandDataOptionValue::Autocomplete { kind: raw.kind, value: value!() }
         },
         CommandOptionType::Boolean => CommandDataOptionValue::Boolean(value!()),
         CommandOptionType::Integer => CommandDataOptionValue::Integer(value!()),
@@ -418,10 +394,7 @@ pub(crate) fn option_from_raw(raw: RawCommandDataOption) -> Result<CommandDataOp
         CommandOptionType::Unknown(unknown) => CommandDataOptionValue::Unknown(unknown),
     };
 
-    Ok(CommandDataOption {
-        name: raw.name,
-        value,
-    })
+    Ok(CommandDataOption { name: raw.name, value })
 }
 
 pub(crate) fn option_to_raw(option: &CommandDataOption) -> Result<RawCommandDataOption> {
@@ -434,10 +407,7 @@ pub(crate) fn option_to_raw(option: &CommandDataOption) -> Result<RawCommandData
     };
 
     match &option.value {
-        CommandDataOptionValue::Autocomplete {
-            kind: _,
-            value,
-        } => {
+        CommandDataOptionValue::Autocomplete { kind: _, value } => {
             raw.value = Some(json::to_value(value)?);
             raw.focused = Some(true);
         },
@@ -498,9 +468,7 @@ impl CommandDataOptionValue {
     #[must_use]
     pub fn kind(&self) -> CommandOptionType {
         match self {
-            Self::Autocomplete {
-                kind, ..
-            } => *kind,
+            Self::Autocomplete { kind, .. } => *kind,
             Self::Boolean(_) => CommandOptionType::Boolean,
             Self::Integer(_) => CommandOptionType::Integer,
             Self::Number(_) => CommandOptionType::Number,
@@ -548,9 +516,7 @@ impl CommandDataOptionValue {
     pub fn as_str(&self) -> Option<&str> {
         match self {
             Self::String(s) => Some(s),
-            Self::Autocomplete {
-                value, ..
-            } => Some(value),
+            Self::Autocomplete { value, .. } => Some(value),
             _ => None,
         }
     }
@@ -678,14 +644,8 @@ mod tests {
                 name: "boolean".into(),
                 value: CommandDataOptionValue::Boolean(true),
             },
-            CommandDataOption {
-                name: "integer".into(),
-                value: CommandDataOptionValue::Integer(1),
-            },
-            CommandDataOption {
-                name: "number".into(),
-                value: CommandDataOptionValue::Number(2.0),
-            },
+            CommandDataOption { name: "integer".into(), value: CommandDataOptionValue::Integer(1) },
+            CommandDataOption { name: "number".into(), value: CommandDataOptionValue::Number(2.0) },
             CommandDataOption {
                 name: "string".into(),
                 value: CommandDataOptionValue::String("foobar".into()),

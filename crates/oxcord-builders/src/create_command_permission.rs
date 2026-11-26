@@ -18,9 +18,7 @@ pub struct EditCommandPermissions {
 
 impl EditCommandPermissions {
     pub fn new(permissions: Vec<CreateCommandPermission>) -> Self {
-        Self {
-            permissions,
-        }
+        Self { permissions }
     }
 }
 

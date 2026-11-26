@@ -13,11 +13,7 @@ use ed25519_dalek::Verifier as _;
 #[cfg(feature = "builder")]
 use crate::builder::{CreateAutocompleteResponse, CreateInteractionResponse};
 use crate::model::application::{
-    CommandInteraction,
-    ComponentInteraction,
-    Interaction,
-    ModalInteraction,
-    PingInteraction,
+    CommandInteraction, ComponentInteraction, Interaction, ModalInteraction, PingInteraction,
 };
 
 /// Fast hex parser for fixed-size byte buffers without allocations.
@@ -273,21 +269,13 @@ impl InteractionResponseOutput {
     /// Constructs a JSON 200 OK response.
     #[must_use]
     pub fn json(body: Vec<u8>) -> Self {
-        Self {
-            status: 200,
-            content_type: "application/json",
-            body,
-        }
+        Self { status: 200, content_type: "application/json", body }
     }
 
     /// Constructs an empty 204 No Content response.
     #[must_use]
     pub fn no_content() -> Self {
-        Self {
-            status: 204,
-            content_type: "text/plain",
-            body: Vec::new(),
-        }
+        Self { status: 204, content_type: "text/plain", body: Vec::new() }
     }
 }
 

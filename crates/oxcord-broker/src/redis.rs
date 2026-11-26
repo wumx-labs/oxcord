@@ -52,11 +52,7 @@ impl RedisBroker {
             .await
             .map_err(|e| BrokerError::Transport(e.to_string()))?;
 
-        Ok(Self {
-            client,
-            conn,
-            correlation_seq: Arc::new(AtomicU64::new(1)),
-        })
+        Ok(Self { client, conn, correlation_seq: Arc::new(AtomicU64::new(1)) })
     }
 }
 
@@ -81,10 +77,7 @@ impl Broker for RedisBroker {
 
         let stream = pubsub.into_on_message();
 
-        Ok(Box::new(RedisSubscription {
-            topic: topic.to_string(),
-            stream: Mutex::new(stream),
-        }))
+        Ok(Box::new(RedisSubscription { topic: topic.to_string(), stream: Mutex::new(stream) }))
     }
 
     async fn request(&self, topic: &str, payload: &[u8], timeout: Duration) -> Result<Vec<u8>> {

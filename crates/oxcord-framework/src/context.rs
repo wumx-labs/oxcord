@@ -7,22 +7,16 @@ use std::time::Instant;
 
 use oxcord_builders::create_poll::Ready as PollReady;
 use oxcord_builders::{
-    Builder,
-    CreateActionRow,
-    CreateAllowedMentions,
-    CreateAttachment,
-    CreateEmbed,
-    CreateInteractionResponse,
-    CreateInteractionResponseMessage,
-    CreateMessage,
-    CreatePoll,
-    EditInteractionResponse,
-    EditMessage,
+    Builder, CreateActionRow, CreateAllowedMentions, CreateAttachment, CreateEmbed,
+    CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, CreatePoll,
+    EditInteractionResponse, EditMessage,
 };
 use oxcord_model::application::{CommandDataOption, CommandDataOptionValue, CommandOptionType};
 use oxcord_model::channel::{Channel, GuildChannel};
 use oxcord_model::guild::{Member, PartialGuild};
-use oxcord_model::id::{ApplicationId, ChannelId, GuildId, InteractionId, MessageId, RoleId, UserId};
+use oxcord_model::id::{
+    ApplicationId, ChannelId, GuildId, InteractionId, MessageId, RoleId, UserId,
+};
 use oxcord_model::user::User;
 use oxcord_model::{Permissions, Timestamp};
 use oxcord_rest::Http;
@@ -146,7 +140,10 @@ impl FrameworkHttp {
 
     /// Set `edit_tracker` untuk mencatat ID balasan bot otomatis saat `Context::send()` dipanggil.
     #[must_use]
-    pub fn with_edit_tracker(mut self, tracker: Option<Arc<crate::track_edits::EditTracker>>) -> Self {
+    pub fn with_edit_tracker(
+        mut self,
+        tracker: Option<Arc<crate::track_edits::EditTracker>>,
+    ) -> Self {
         self.edit_tracker = tracker;
         self
     }
@@ -236,7 +233,9 @@ impl FrameworkArgument for bool {
     fn from_option(value: &CommandDataOptionValue) -> Result<Self, FrameworkError> {
         match value {
             CommandDataOptionValue::Boolean(b) => Ok(*b),
-            other => Err(FrameworkError::Other(format!("expected Boolean, got {:?}", other.kind()))),
+            other => {
+                Err(FrameworkError::Other(format!("expected Boolean, got {:?}", other.kind())))
+            },
         }
     }
 
@@ -257,12 +256,16 @@ impl FrameworkArgument for i64 {
     fn from_option(value: &CommandDataOptionValue) -> Result<Self, FrameworkError> {
         match value {
             CommandDataOptionValue::Integer(i) => Ok(*i),
-            other => Err(FrameworkError::Other(format!("expected Integer, got {:?}", other.kind()))),
+            other => {
+                Err(FrameworkError::Other(format!("expected Integer, got {:?}", other.kind())))
+            },
         }
     }
 
     fn from_token(token: &str) -> Result<Self, FrameworkError> {
-        token.parse::<Self>().map_err(|_| FrameworkError::Other(format!("'{token}' is not a valid integer")))
+        token
+            .parse::<Self>()
+            .map_err(|_| FrameworkError::Other(format!("'{token}' is not a valid integer")))
     }
 
     fn option_type() -> CommandOptionType {
@@ -274,13 +277,16 @@ impl FrameworkArgument for f64 {
     fn from_option(value: &CommandDataOptionValue) -> Result<Self, FrameworkError> {
         match value {
             CommandDataOptionValue::Number(n) => Ok(*n),
+            #[allow(clippy::cast_precision_loss)]
             CommandDataOptionValue::Integer(i) => Ok(*i as Self),
             other => Err(FrameworkError::Other(format!("expected Number, got {:?}", other.kind()))),
         }
     }
 
     fn from_token(token: &str) -> Result<Self, FrameworkError> {
-        token.parse::<Self>().map_err(|_| FrameworkError::Other(format!("'{token}' is not a valid number")))
+        token
+            .parse::<Self>()
+            .map_err(|_| FrameworkError::Other(format!("'{token}' is not a valid number")))
     }
 
     fn option_type() -> CommandOptionType {
@@ -298,10 +304,9 @@ impl FrameworkArgument for UserId {
 
     fn from_token(token: &str) -> Result<Self, FrameworkError> {
         let digits = token.trim_start_matches("<@!").trim_start_matches("<@").trim_end_matches('>');
-        digits
-            .parse::<u64>()
-            .map(Self::new)
-            .map_err(|_| FrameworkError::Other(format!("'{token}' is not a valid user mention or id")))
+        digits.parse::<u64>().map(Self::new).map_err(|_| {
+            FrameworkError::Other(format!("'{token}' is not a valid user mention or id"))
+        })
     }
 
     fn option_type() -> CommandOptionType {
@@ -313,16 +318,17 @@ impl FrameworkArgument for ChannelId {
     fn from_option(value: &CommandDataOptionValue) -> Result<Self, FrameworkError> {
         match value {
             CommandDataOptionValue::Channel(id) => Ok(*id),
-            other => Err(FrameworkError::Other(format!("expected Channel, got {:?}", other.kind()))),
+            other => {
+                Err(FrameworkError::Other(format!("expected Channel, got {:?}", other.kind())))
+            },
         }
     }
 
     fn from_token(token: &str) -> Result<Self, FrameworkError> {
         let digits = token.trim_start_matches("<#").trim_end_matches('>');
-        digits
-            .parse::<u64>()
-            .map(Self::new)
-            .map_err(|_| FrameworkError::Other(format!("'{token}' is not a valid channel mention or id")))
+        digits.parse::<u64>().map(Self::new).map_err(|_| {
+            FrameworkError::Other(format!("'{token}' is not a valid channel mention or id"))
+        })
     }
 
     fn option_type() -> CommandOptionType {
@@ -340,10 +346,9 @@ impl FrameworkArgument for RoleId {
 
     fn from_token(token: &str) -> Result<Self, FrameworkError> {
         let digits = token.trim_start_matches("<@&").trim_end_matches('>');
-        digits
-            .parse::<u64>()
-            .map(Self::new)
-            .map_err(|_| FrameworkError::Other(format!("'{token}' is not a valid role mention or id")))
+        digits.parse::<u64>().map(Self::new).map_err(|_| {
+            FrameworkError::Other(format!("'{token}' is not a valid role mention or id"))
+        })
     }
 
     fn option_type() -> CommandOptionType {
@@ -353,6 +358,7 @@ impl FrameworkArgument for RoleId {
 
 /// Something that can be turned into a [`Reply`] — plain text, or a
 /// pre-built [`Reply`] itself (for embeds, or text + embed together).
+#[allow(clippy::struct_field_names)]
 pub struct Reply {
     content: Option<String>,
     embeds: Vec<CreateEmbed>,
@@ -493,12 +499,8 @@ impl ReplyHandle {
     #[must_use]
     pub fn message_id(&self) -> Option<MessageId> {
         match &self.target {
-            ReplyTarget::Prefix {
-                message_id, ..
-            } => Some(*message_id),
-            ReplyTarget::Slash {
-                ..
-            } => None,
+            ReplyTarget::Prefix { message_id, .. } => Some(*message_id),
+            ReplyTarget::Slash { .. } => None,
         }
     }
 
@@ -509,11 +511,10 @@ impl ReplyHandle {
     /// Returns [`FrameworkError::Http`] if the Discord API call fails.
     pub async fn edit(&self, reply: impl Into<Reply>) -> Result<(), FrameworkError> {
         let reply = reply.into();
-        let allowed_mentions = reply.allowed_mentions.or_else(|| self.http.default_allowed_mentions.clone());
+        let allowed_mentions =
+            reply.allowed_mentions.or_else(|| self.http.default_allowed_mentions.clone());
         match &self.target {
-            ReplyTarget::Slash {
-                token,
-            } => {
+            ReplyTarget::Slash { token } => {
                 let mut builder = EditInteractionResponse::new();
                 if let Some(content) = reply.content {
                     builder = builder.content(content);
@@ -536,10 +537,7 @@ impl ReplyHandle {
                     .map(|_| ())
                     .map_err(|e| FrameworkError::Http(e.to_string()))
             },
-            ReplyTarget::Prefix {
-                channel_id,
-                message_id,
-            } => {
+            ReplyTarget::Prefix { channel_id, message_id } => {
                 let mut builder = EditMessage::new();
                 if let Some(content) = reply.content {
                     builder = builder.content(content);
@@ -571,7 +569,8 @@ impl ReplyHandle {
 #[derive(Debug)]
 pub struct InteractionBus {
     /// Channel broadcast untuk `ComponentInteraction` yang masuk dari gateway.
-    pub component_tx: tokio::sync::broadcast::Sender<oxcord_model::application::ComponentInteraction>,
+    pub component_tx:
+        tokio::sync::broadcast::Sender<oxcord_model::application::ComponentInteraction>,
     /// Channel broadcast untuk `ModalInteraction` yang masuk dari gateway.
     pub modal_tx: tokio::sync::broadcast::Sender<oxcord_model::application::ModalInteraction>,
 }
@@ -582,10 +581,7 @@ impl InteractionBus {
     pub fn new() -> Self {
         let (component_tx, _) = tokio::sync::broadcast::channel(128);
         let (modal_tx, _) = tokio::sync::broadcast::channel(64);
-        Self {
-            component_tx,
-            modal_tx,
-        }
+        Self { component_tx, modal_tx }
     }
 }
 
@@ -677,13 +673,13 @@ impl Context<'_> {
         if let Some(cb) = &self.http.reply_callback {
             reply = cb(self.clone(), reply);
         }
-        let ephemeral = reply.ephemeral.unwrap_or_else(|| self.command.is_some_and(|c| c.ephemeral));
-        let allowed_mentions = reply.allowed_mentions.or_else(|| self.http.default_allowed_mentions.clone());
+        let ephemeral =
+            reply.ephemeral.unwrap_or_else(|| self.command.is_some_and(|c| c.ephemeral));
+        let allowed_mentions =
+            reply.allowed_mentions.or_else(|| self.http.default_allowed_mentions.clone());
 
         match self.invocation {
-            InvocationData::Slash {
-                token, ..
-            } => {
+            InvocationData::Slash { token, .. } => {
                 let interaction_id = self.http.interaction_id.ok_or_else(|| {
                     FrameworkError::Other("slash invocation missing interaction id".to_owned())
                 })?;
@@ -712,14 +708,10 @@ impl Context<'_> {
                     .map_err(|e| FrameworkError::Http(e.to_string()))?;
                 Ok(ReplyHandle {
                     http: Arc::clone(&self.http),
-                    target: ReplyTarget::Slash {
-                        token: token.clone(),
-                    },
+                    target: ReplyTarget::Slash { token: token.clone() },
                 })
             },
-            InvocationData::Prefix {
-                ..
-            } => {
+            InvocationData::Prefix { .. } => {
                 // Kalau `reuse_response` aktif dan ada balasan lama dari `EditTracker`, edit pesan itu aja.
                 if let Some(reuse_id) = self.http.reuse_message_id {
                     let mut edit = EditMessage::new();
@@ -778,7 +770,9 @@ impl Context<'_> {
                     .execute(&*self.http.http, (self.channel_id, self.guild_id))
                     .await
                     .map_err(|e| FrameworkError::Http(e.to_string()))?;
-                if let (Some(user_msg_id), Some(tracker)) = (self.http.message_id, &self.http.edit_tracker) {
+                if let (Some(user_msg_id), Some(tracker)) =
+                    (self.http.message_id, &self.http.edit_tracker)
+                {
                     tracker.set_bot_response(user_msg_id, sent.id);
                 }
                 Ok(ReplyHandle {
@@ -808,9 +802,7 @@ impl Context<'_> {
     /// (slash invocations only).
     pub async fn defer(&self, ephemeral: bool) -> Result<(), FrameworkError> {
         match self.invocation {
-            InvocationData::Slash {
-                token, ..
-            } => {
+            InvocationData::Slash { token, .. } => {
                 let interaction_id = self.http.interaction_id.ok_or_else(|| {
                     FrameworkError::Other("slash invocation missing interaction id".to_owned())
                 })?;
@@ -821,9 +813,7 @@ impl Context<'_> {
                     .map_err(|e| FrameworkError::Http(e.to_string()))?;
                 Ok(())
             },
-            InvocationData::Prefix {
-                ..
-            } => {
+            InvocationData::Prefix { .. } => {
                 let _ = self.http.http.broadcast_typing(self.channel_id).await;
                 Ok(())
             },
@@ -961,7 +951,8 @@ impl Context<'_> {
     #[must_use]
     pub fn subscribe_components(
         &self,
-    ) -> Option<tokio::sync::broadcast::Receiver<oxcord_model::application::ComponentInteraction>> {
+    ) -> Option<tokio::sync::broadcast::Receiver<oxcord_model::application::ComponentInteraction>>
+    {
         self.interaction_bus.as_ref().map(|b| b.component_tx.subscribe())
     }
 
@@ -991,15 +982,13 @@ impl Context<'_> {
     /// value of the wrong kind.
     pub fn option<T: FrameworkArgument>(&self, name: &str) -> Result<Option<T>, FrameworkError> {
         match self.invocation {
-            InvocationData::Slash {
-                options, ..
-            } => match options.iter().find(|o| o.name == name) {
-                Some(opt) => T::from_option(&opt.value).map(Some),
-                None => Ok(None),
+            InvocationData::Slash { options, .. } => {
+                match options.iter().find(|o| o.name == name) {
+                    Some(opt) => T::from_option(&opt.value).map(Some),
+                    None => Ok(None),
+                }
             },
-            InvocationData::Prefix {
-                ..
-            } => Ok(None),
+            InvocationData::Prefix { .. } => Ok(None),
         }
     }
 
@@ -1010,12 +999,8 @@ impl Context<'_> {
     #[must_use]
     pub fn raw_args(&self) -> &str {
         match self.invocation {
-            InvocationData::Prefix {
-                args, ..
-            } => args.as_str(),
-            InvocationData::Slash {
-                ..
-            } => "",
+            InvocationData::Prefix { args, .. } => args.as_str(),
+            InvocationData::Slash { .. } => "",
         }
     }
 
@@ -1028,15 +1013,11 @@ impl Context<'_> {
     /// Returns [`FrameworkError::Other`] if the token cannot be parsed as `T`.
     pub fn arg<T: FrameworkArgument>(&self, index: usize) -> Result<Option<T>, FrameworkError> {
         match self.invocation {
-            InvocationData::Prefix {
-                args, ..
-            } => match args.split_whitespace().nth(index) {
+            InvocationData::Prefix { args, .. } => match args.split_whitespace().nth(index) {
                 Some(token) => T::from_token(token).map(Some),
                 None => Ok(None),
             },
-            InvocationData::Slash {
-                ..
-            } => Ok(None),
+            InvocationData::Slash { .. } => Ok(None),
         }
     }
 
@@ -1051,14 +1032,14 @@ impl Context<'_> {
     ///
     /// Returns [`FrameworkError::Other`] if the value could not be converted
     /// to `T`.
-    pub fn extract<T: FrameworkArgument>(&self, name: &str, index: usize) -> Result<Option<T>, FrameworkError> {
+    pub fn extract<T: FrameworkArgument>(
+        &self,
+        name: &str,
+        index: usize,
+    ) -> Result<Option<T>, FrameworkError> {
         match self.invocation {
-            InvocationData::Slash {
-                ..
-            } => self.option(name),
-            InvocationData::Prefix {
-                ..
-            } => self.arg(index),
+            InvocationData::Slash { .. } => self.option(name),
+            InvocationData::Prefix { .. } => self.arg(index),
         }
     }
 }

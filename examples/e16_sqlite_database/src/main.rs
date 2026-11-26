@@ -54,8 +54,7 @@ impl EventHandler for Bot {
             msg.channel_id.say(&ctx, response).await.unwrap();
         } else if msg.content.trim() == "~todo list" {
             // "SELECT" will return the task of all rows where user_Id column = user_id in todo.
-            let todos =
-                sqlx::query!("SELECT task FROM todo WHERE user_id = ? ORDER BY rowid", user_id)
+            let todos = sqlx::query!("SELECT task FROM todo WHERE user_id = ? ORDER BY rowid", user_id)
                     .fetch_all(&self.database) // < All matched data will be sent to todos
                     .await
                     .unwrap();
@@ -89,9 +88,7 @@ async fn main() {
     // Run migrations, which updates the database's schema to the latest version.
     sqlx::migrate!("./migrations").run(&database).await.expect("Couldn't run database migrations");
 
-    let bot = Bot {
-        database,
-    };
+    let bot = Bot { database };
 
     let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::DIRECT_MESSAGES

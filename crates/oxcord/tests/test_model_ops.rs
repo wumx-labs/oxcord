@@ -7,11 +7,7 @@ use oxcord::model::prelude::*;
 fn gen_member() -> Member {
     Member {
         nick: Some("aaaa".to_string()),
-        user: User {
-            name: "test".into(),
-            discriminator: NonZeroU16::new(1432),
-            ..User::default()
-        },
+        user: User { name: "test".into(), discriminator: NonZeroU16::new(1432), ..User::default() },
         ..Default::default()
     }
 }
@@ -19,10 +15,7 @@ fn gen_member() -> Member {
 fn gen_guild() -> Guild {
     let m = gen_member();
 
-    Guild {
-        members: HashMap::from([(m.user.id, m)]),
-        ..Default::default()
-    }
+    Guild { members: HashMap::from([(m.user.id, m)]), ..Default::default() }
 }
 
 #[test]
@@ -69,11 +62,8 @@ fn test_user_avatar_and_tag() {
 
 #[test]
 fn default_avatars() {
-    let mut user = User {
-        discriminator: None,
-        id: UserId::new(737323631117598811),
-        ..Default::default()
-    };
+    let mut user =
+        User { discriminator: None, id: UserId::new(737323631117598811), ..Default::default() };
 
     // New username system
     assert!(user.default_avatar_url().ends_with("5.png"));

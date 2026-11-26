@@ -93,19 +93,28 @@ async fn fruit_autocomplete(
     _ctx: oxcord_framework::Context<'_>,
     partial: String,
 ) -> oxcord_framework::Result<Vec<String>> {
-    Ok(FRUITS.iter().filter(|f| f.starts_with(partial.as_str())).map(|f| (*f).to_owned()).take(25).collect())
+    Ok(FRUITS
+        .iter()
+        .filter(|f| f.starts_with(partial.as_str()))
+        .map(|f| (*f).to_owned())
+        .take(25)
+        .collect())
 }
 
 fn fruit_command() -> oxcord_framework::Command {
     fn handler<'a>(
         ctx: oxcord_framework::Context<'a>,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = oxcord_framework::Result<()>> + Send + 'a>> {
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = oxcord_framework::Result<()>> + Send + 'a>,
+    > {
         Box::pin(fruit(ctx))
     }
     fn autocomplete<'a>(
         ctx: oxcord_framework::Context<'a>,
         partial: String,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = oxcord_framework::Result<Vec<String>>> + Send + 'a>> {
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = oxcord_framework::Result<Vec<String>>> + Send + 'a>,
+    > {
         Box::pin(fruit_autocomplete(ctx, partial))
     }
 
@@ -158,7 +167,9 @@ async fn main() {
     }
 
     let token = std::env::var("DISCORD_TOKEN").expect("Expected DISCORD_TOKEN in environment");
-    let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::DIRECT_MESSAGES | GatewayIntents::MESSAGE_CONTENT;
+    let intents = GatewayIntents::GUILD_MESSAGES
+        | GatewayIntents::DIRECT_MESSAGES
+        | GatewayIntents::MESSAGE_CONTENT;
 
     // This is the fix: `framework` (an `oxcord_framework::Framework`) now
     // satisfies `oxcord::framework::Framework` directly, so it plugs straight

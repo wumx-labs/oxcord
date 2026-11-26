@@ -39,16 +39,12 @@ impl Default for StateEngine {
 impl StateEngine {
     /// Creates a new `StateEngine` with the specified [`StateBackend`].
     pub fn new<B: StateBackend + 'static>(backend: B) -> Self {
-        Self {
-            backend: Arc::new(backend),
-        }
+        Self { backend: Arc::new(backend) }
     }
 
     /// Creates a new `StateEngine` wrapped with an `Arc<dyn StateBackend>`.
     pub fn from_arc(backend: Arc<dyn StateBackend>) -> Self {
-        Self {
-            backend,
-        }
+        Self { backend }
     }
 
     /// Returns a reference to the underlying [`StateBackend`].

@@ -348,13 +348,7 @@ pub struct MessageReference {
 impl MessageReference {
     #[must_use]
     pub fn new(kind: MessageReferenceKind, channel_id: ChannelId) -> Self {
-        Self {
-            kind,
-            channel_id,
-            message_id: None,
-            guild_id: None,
-            fail_if_not_exists: None,
-        }
+        Self { kind, channel_id, message_id: None, guild_id: None, fail_if_not_exists: None }
     }
 
     #[must_use]

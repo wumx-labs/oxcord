@@ -36,6 +36,7 @@ pub type NonCommandMessageFn = Arc<
 >;
 
 /// Opsi lengkap untuk prefix (text) command, setara `poise::PrefixFrameworkOptions`.
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Clone)]
 pub struct PrefixOptions {
     /// Prefix tambahan selain `FrameworkOptions::prefix` utama.

@@ -18,10 +18,7 @@ pub struct CreateGuildTemplate {
 impl CreateGuildTemplate {
     /// Creates a new builder with the given template name.
     pub fn new(name: impl Into<String>) -> Self {
-        Self {
-            name: name.into(),
-            description: None,
-        }
+        Self { name: name.into(), description: None }
     }
 
     /// Sets the name of the template.

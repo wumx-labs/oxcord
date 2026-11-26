@@ -5,15 +5,8 @@ use serde::Serialize;
 
 use super::create_poll::Ready;
 use super::{
-    Builder,
-    CreateActionRow,
-    CreateAllowedMentions,
-    CreateAttachment,
-    CreateComponent,
-    CreateEmbed,
-    CreatePoll,
-    EditAttachments,
-    check_overflow,
+    Builder, CreateActionRow, CreateAllowedMentions, CreateAttachment, CreateComponent,
+    CreateEmbed, CreatePoll, EditAttachments, check_overflow,
 };
 use crate::internal::prelude::*;
 
@@ -85,17 +78,20 @@ impl serde::Serialize for CreateInteractionResponse {
         use serde::ser::SerializeMap as _;
 
         let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("type", &match self {
-            Self::Pong => 1,
-            Self::Message(_) => 4,
-            Self::Defer(_) => 5,
-            Self::Acknowledge => 6,
-            Self::UpdateMessage(_) => 7,
-            Self::Autocomplete(_) => 8,
-            Self::Modal(_) => 9,
-            Self::PremiumRequired => 10,
-            Self::LaunchActivity => 12,
-        })?;
+        map.serialize_entry(
+            "type",
+            &match self {
+                Self::Pong => 1,
+                Self::Message(_) => 4,
+                Self::Defer(_) => 5,
+                Self::Acknowledge => 6,
+                Self::UpdateMessage(_) => 7,
+                Self::Autocomplete(_) => 8,
+                Self::Modal(_) => 9,
+                Self::PremiumRequired => 10,
+                Self::LaunchActivity => 12,
+            },
+        )?;
 
         match self {
             Self::Autocomplete(x) => map.serialize_entry("data", &x)?,

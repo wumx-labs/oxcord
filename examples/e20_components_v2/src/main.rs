@@ -3,15 +3,8 @@ use std::env;
 use dotenv::dotenv;
 use oxcord::async_trait;
 use oxcord::builder::{
-    CreateButton,
-    CreateContainer,
-    CreateInteractionResponse,
-    CreateInteractionResponseMessage,
-    CreateMessage,
-    CreateSection,
-    CreateSeparator,
-    CreateTextDisplay,
-    CreateThumbnail,
+    CreateButton, CreateContainer, CreateInteractionResponse, CreateInteractionResponseMessage,
+    CreateMessage, CreateSection, CreateSeparator, CreateTextDisplay, CreateThumbnail,
 };
 use oxcord::model::application::{Interaction, SeparatorSpacing};
 use oxcord::model::channel::Message;

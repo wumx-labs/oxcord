@@ -123,13 +123,7 @@ impl VoiceConnection {
         // Note: For full duplex WS, the heartbeat loop can run via shared sender
         // or during ws loop. Here we provide clean connection container.
 
-        Ok(Self {
-            ws,
-            driver,
-            ready,
-            session,
-            shutdown_tx: Some(shutdown_tx),
-        })
+        Ok(Self { ws, driver, ready, session, shutdown_tx: Some(shutdown_tx) })
     }
 
     /// Returns a reference to the [`VoiceDriver`] for audio transmission.
