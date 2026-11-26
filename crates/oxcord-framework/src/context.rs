@@ -2,6 +2,7 @@
 
 use std::any::Any;
 use std::borrow::Cow;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -113,6 +114,9 @@ pub struct FrameworkHttp {
     pub(crate) edit_tracker: Option<Arc<crate::track_edits::EditTracker>>,
     /// The real HTTP handle used to talk to Discord.
     pub(crate) http: Arc<Http>,
+    /// `true` setelah [`Context::defer`] pada slash command: `send` pertama setelahnya
+    /// mengedit respons asli (state "thinking…") alih-alih membuat respons baru.
+    pub(crate) deferred: AtomicBool,
 }
 
 impl FrameworkHttp {
@@ -134,6 +138,7 @@ impl FrameworkHttp {
             default_allowed_mentions: None,
             edit_tracker: None,
             http,
+            deferred: AtomicBool::new(false),
         }
     }
 
@@ -150,6 +155,7 @@ impl FrameworkHttp {
             default_allowed_mentions: None,
             edit_tracker: None,
             http,
+            deferred: AtomicBool::new(false),
         }
     }
 
@@ -726,6 +732,38 @@ impl Context<'_> {
             InvocationData::Slash {
                 token, ..
             } => {
+                // Setelah `defer()`: balasan pertama mengisi state "thinking…" lewat edit respons asli.
+                if self.http.deferred.swap(false, Ordering::SeqCst) {
+                    let mut builder = EditInteractionResponse::new();
+                    if let Some(content) = reply.content {
+                        builder = builder.content(content);
+                    }
+                    if !reply.embeds.is_empty() {
+                        builder = builder.embeds(reply.embeds);
+                    }
+                    for attachment in reply.attachments {
+                        builder = builder.new_attachment(attachment);
+                    }
+                    if let Some(v2) = reply.components_v2 {
+                        builder = builder.components_v2(v2);
+                    }
+                    if let Some(components) = reply.components {
+                        builder = builder.components(components);
+                    }
+                    if let Some(am) = allowed_mentions {
+                        builder = builder.allowed_mentions(am);
+                    }
+                    builder
+                        .execute(&*self.http.http, token.as_str())
+                        .await
+                        .map_err(|e| FrameworkError::Http(e.to_string()))?;
+                    return Ok(ReplyHandle {
+                        http: Arc::clone(&self.http),
+                        target: ReplyTarget::Slash {
+                            token: token.clone(),
+                        },
+                    });
+                }
                 let interaction_id = self.http.interaction_id.ok_or_else(|| {
                     FrameworkError::Other("slash invocation missing interaction id".to_owned())
                 })?;
@@ -872,6 +910,7 @@ impl Context<'_> {
                     .execute(&*self.http.http, (interaction_id, token.as_str()))
                     .await
                     .map_err(|e| FrameworkError::Http(e.to_string()))?;
+                self.http.deferred.store(true, Ordering::SeqCst);
                 Ok(())
             },
             InvocationData::Prefix {

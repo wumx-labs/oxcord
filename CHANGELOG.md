@@ -5,6 +5,16 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## oxcord-framework 0.2.2
+
+- fix(framework): `Context::send` setelah `Context::defer` pada slash command sekarang mengedit
+  respons asli (state "thinking…") alih-alih membuat respons baru yang ditolak Discord
+  (`Interaction has already been acknowledged`).
+- feat(framework): `PrefixOptions::noprefix` (`NoPrefixFn`) — callback "boleh tanpa prefix" per
+  pengguna, dicoba terakhir setelah semua prefix lain gagal cocok (setara `stripped_dynamic_prefix`
+  poise yang mengembalikan string kosong). Catatan: menambah field publik ke `PrefixOptions`;
+  pemakai yang membuat struct itu tanpa `..Default::default()` perlu menambahkan field ini.
+
 ## oxcord 0.2.1 / oxcord-framework 0.2.1 / oxcord-builders 0.1.2
 
 - fix(framework): registrasi slash global tidak lagi gagal pada aplikasi yang punya Entry Point

@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-framework"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["NoxlyDev"]
 description = "A high-level, poise-style command framework for Oxcord: unified slash + prefix commands, argument extraction, cooldowns, and autocomplete."
 readme = "README.md"

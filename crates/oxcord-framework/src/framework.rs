@@ -355,6 +355,13 @@ impl Framework {
             }
         }
 
+        // Terakhir: pengguna noprefix boleh memanggil command tanpa awalan.
+        if let Some(noprefix) = &self.options.prefix_options.noprefix {
+            if noprefix(guild_id, author_id, bot_user_id, self.options.user_data.clone()).await {
+                return Ok(Some((&content[..0], content)));
+            }
+        }
+
         Ok(None)
     }
 
@@ -1047,5 +1054,46 @@ impl FrameworkBuilder {
             options: self.options,
             dispatcher,
         }
+    }
+}
+
+#[cfg(test)]
+mod noprefix_tests {
+    use std::sync::Arc;
+
+    use oxcord_model::id::UserId;
+
+    use super::*;
+
+    fn framework() -> Framework {
+        let noprefix: crate::prefix::NoPrefixFn = Arc::new(|_, author, _, _| {
+            Box::pin(async move { author == UserId::new(7) })
+        });
+        Framework::builder()
+            .options(FrameworkOptions {
+                prefix: Some("!".to_owned()),
+                prefix_options: PrefixOptions {
+                    noprefix: Some(noprefix),
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .build()
+    }
+
+    #[tokio::test]
+    async fn noprefix_user_matches_without_prefix_and_others_do_not() {
+        let fw = framework();
+        let hit = fw.strip_any_prefix("ping now", None, UserId::new(7), None).await.unwrap();
+        assert_eq!(hit, Some(("", "ping now")));
+        let miss = fw.strip_any_prefix("ping now", None, UserId::new(8), None).await.unwrap();
+        assert_eq!(miss, None);
+    }
+
+    #[tokio::test]
+    async fn normal_prefix_wins_over_noprefix() {
+        let fw = framework();
+        let hit = fw.strip_any_prefix("!ping", None, UserId::new(7), None).await.unwrap();
+        assert_eq!(hit, Some(("!", "ping")));
     }
 }

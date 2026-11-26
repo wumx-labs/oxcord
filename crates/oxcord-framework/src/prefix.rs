@@ -25,6 +25,22 @@ pub type DynamicPrefixFn = Arc<
         + Sync,
 >;
 
+/// Callback "boleh tanpa prefix" (noprefix): `(guild_id, author_id, bot_id, user_data)` -> `true` bila
+/// pesan author ini boleh langsung berupa nama command tanpa awalan.
+///
+/// Dicoba paling akhir, setelah semua prefix biasa gagal cocok (setara `stripped_dynamic_prefix`
+/// yang mengembalikan string kosong di poise).
+pub type NoPrefixFn = Arc<
+    dyn Fn(
+            Option<GuildId>,
+            UserId,
+            Option<UserId>,
+            Option<Arc<dyn Any + Send + Sync>>,
+        ) -> Pin<Box<dyn Future<Output = bool> + Send>>
+        + Send
+        + Sync,
+>;
+
 /// Callback yang dipanggil untuk setiap pesan yang bukan command prefix.
 pub type NonCommandMessageFn = Arc<
     dyn Fn(
@@ -43,6 +59,8 @@ pub struct PrefixOptions {
     pub additional_prefixes: Vec<String>,
     /// Callback untuk menentukan prefix dinamis (misalnya per-guild dari database).
     pub dynamic_prefix: Option<DynamicPrefixFn>,
+    /// Callback noprefix: pengguna tertentu boleh memanggil command tanpa awalan.
+    pub noprefix: Option<NoPrefixFn>,
     /// Jika `true`, mention bot (`<@BOT_ID>` atau `<@!BOT_ID>`) dianggap sebagai prefix yang sah.
     pub mention_as_prefix: bool,
     /// Jika `true`, pencocokan nama command & alias prefix tidak membedakan huruf besar/kecil.
@@ -70,6 +88,7 @@ impl Default for PrefixOptions {
         Self {
             additional_prefixes: Vec::new(),
             dynamic_prefix: None,
+            noprefix: None,
             mention_as_prefix: false,
             case_insensitive_commands: false,
             ignore_bots: true,
@@ -89,6 +108,7 @@ impl std::fmt::Debug for PrefixOptions {
         f.debug_struct("PrefixOptions")
             .field("additional_prefixes", &self.additional_prefixes)
             .field("dynamic_prefix", &self.dynamic_prefix.is_some())
+            .field("noprefix", &self.noprefix.is_some())
             .field("mention_as_prefix", &self.mention_as_prefix)
             .field("case_insensitive_commands", &self.case_insensitive_commands)
             .field("ignore_bots", &self.ignore_bots)

@@ -92,7 +92,7 @@ pub use error::FrameworkError;
 pub use framework::{CommandHook, ErrorHook, Framework, FrameworkBuilder, FrameworkOptions};
 pub use modal::{Modal, execute_modal, execute_modal_on_component_interaction};
 pub use permissions::parse_permissions;
-pub use prefix::{DynamicPrefixFn, NonCommandMessageFn, PrefixOptions};
+pub use prefix::{DynamicPrefixFn, NoPrefixFn, NonCommandMessageFn, PrefixOptions};
 pub use track_edits::{EditTracker, TrackedCommand};
 
 /// Convenience result type for command handlers.
