@@ -12,7 +12,7 @@ It scales seamlessly from a single-process weekend bot to massive enterprise bot
 
 ## Core Philosophy & Architecture
 - **Zero Lock Contention**: State cache built on concurrent lock-free data structures.
-- **Modular Architecture**: 12 independent crates (use only what you need, from pure models to distributed brokers).
+- **Modular Architecture**: 14 independent crates (use only what you need, from pure models to distributed brokers).
 - **Distributed by Design**: Native pluggable message brokers (`oxcord-broker`) supporting In-Process, NATS, Kafka, and Redis Pub/Sub.
 - **Full Discord Feature Parity**: Components v2, Application Commands, Voice v4/v8, Polls, AutoMod, Onboarding, and Webhooks.
 
@@ -77,8 +77,8 @@ Full detailed text for all sections below is compiled in [llms-full.txt](https:/
 - [`oxcord-voice`](https://docs.rs/oxcord-voice): Voice gateway driver, RTP audio streaming, Opus encoder integration, and encryption
 - [`oxcord-voice-model`](https://docs.rs/oxcord-voice-model): Voice gateway v4/v8 data protocol models and encryption payload structures
 - [`oxcord-broker`](https://docs.rs/oxcord-broker): Distributed microservices message broker supporting In-Process, Redis Pub/Sub, Kafka, and NATS
-- [`oxcord-framework`](https://docs.rs/oxcord-framework): High-level poise-equivalent unified slash + prefix command framework with cooldowns and autocomplete
-- [`oxcord-macros`](https://docs.rs/oxcord-macros): Procedural macros (#[command]) for oxcord-framework declarative commands
+- [`oxcord-framework`](https://docs.rs/oxcord-framework): High-level poise-equivalent unified slash + prefix command framework with cooldowns, autocomplete, modals, edit tracking, checks, and builtins
+- [`oxcord-macros`](https://docs.rs/oxcord-macros): Procedural macros (#[command], #[derive(ChoiceParameter)]) for oxcord-framework declarative commands
 - [`oxcord-command-attr`](https://docs.rs/oxcord-command-attr): Procedural attribute macros (`#[command]`, `#[group]`, `#[check]`) for legacy text command routing
 - [`oxcord-proxy`](https://docs.rs/oxcord-proxy): Standalone reverse-proxy binary for centralized REST API Discord rate-limiting
 - [`oxcord-gateway-daemon`](https://docs.rs/oxcord-gateway-daemon): Standalone daemon binary for distributed multi-server gateway sharder nodes
