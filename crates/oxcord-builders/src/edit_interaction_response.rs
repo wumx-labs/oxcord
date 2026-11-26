@@ -6,6 +6,7 @@ use super::{
     CreateActionRow,
     CreateAllowedMentions,
     CreateAttachment,
+    CreateComponent,
     CreateEmbed,
     EditAttachments,
     EditWebhookMessage,
@@ -73,6 +74,12 @@ impl EditInteractionResponse {
         Self(self.0.components(components))
     }
     super::button_and_select_menu_convenience_methods!(self.0.components);
+
+    /// Sets Components V2 for this message, automatically setting the
+    /// [`MessageFlags::IS_COMPONENTS_V2`] flag.
+    pub fn components_v2(self, components: Vec<CreateComponent>) -> Self {
+        Self(self.0.components_v2(components))
+    }
 
     /// Sets the flags for the message.
     pub fn flags(self, flags: MessageFlags) -> Self {

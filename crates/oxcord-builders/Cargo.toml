@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-builders"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["NoxlyDev"]
 description = "Type-safe builder patterns for Discord API objects in the Oxcord library."
 readme = "../../README.md"

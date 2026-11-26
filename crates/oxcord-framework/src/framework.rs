@@ -781,8 +781,32 @@ impl Framework {
     ///
     /// Returns [`FrameworkError::Http`] if the request to Discord fails.
     pub async fn register_global_commands(&self, http: &Http) -> Result<(), FrameworkError> {
-        let commands = self.build_global_commands();
-        http.create_global_commands(&commands)
+        let mut payload: Vec<serde_json::Value> = self
+            .build_global_commands()
+            .iter()
+            .map(serde_json::to_value)
+            .collect::<Result<_, _>>()
+            .map_err(|e| FrameworkError::Other(e.to_string()))?;
+        // Bulk overwrite menghapus semua command yang tidak ikut dikirim, tapi Discord menolak
+        // bila Entry Point command aplikasi (Activity) ikut terhapus. Jadi command bertipe
+        // `PrimaryEntryPoint` yang sudah ada dibawa lagi apa adanya (hanya field yang boleh dikirim).
+        let existing = http
+            .get_global_commands()
+            .await
+            .map_err(|e| FrameworkError::Http(e.to_string()))?;
+        for cmd in existing
+            .iter()
+            .filter(|c| c.kind == oxcord_model::application::CommandType::PrimaryEntryPoint)
+        {
+            payload.push(serde_json::json!({
+                "id": cmd.id,
+                "name": cmd.name,
+                "description": cmd.description,
+                "type": cmd.kind,
+                "handler": cmd.handler,
+            }));
+        }
+        http.create_global_commands(&payload)
             .await
             .map_err(|e| FrameworkError::Http(e.to_string()))?;
         Ok(())

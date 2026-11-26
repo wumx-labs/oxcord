@@ -11,6 +11,7 @@ use oxcord_builders::{
     CreateActionRow,
     CreateAllowedMentions,
     CreateAttachment,
+    CreateComponent,
     CreateEmbed,
     CreateInteractionResponse,
     CreateInteractionResponseMessage,
@@ -379,6 +380,7 @@ pub struct Reply {
     ephemeral: Option<bool>,
     attachments: Vec<CreateAttachment>,
     components: Option<Vec<CreateActionRow>>,
+    components_v2: Option<Vec<CreateComponent>>,
     allowed_mentions: Option<CreateAllowedMentions>,
     poll: Option<CreatePoll<PollReady>>,
     reply: bool,
@@ -394,6 +396,7 @@ impl Reply {
             ephemeral: None,
             attachments: Vec::new(),
             components: None,
+            components_v2: None,
             allowed_mentions: None,
             poll: None,
             reply: false,
@@ -466,6 +469,15 @@ impl Reply {
     #[must_use]
     pub fn poll(mut self, poll: CreatePoll<PollReady>) -> Self {
         self.poll = Some(poll);
+        self
+    }
+
+    /// Kirim sebagai pesan Components V2 (Container, TextDisplay, Section, dst.). Otomatis
+    /// menyalakan flag `IS_COMPONENTS_V2`; Discord melarang `content`/`embeds` di pesan V2,
+    /// jadi keduanya diabaikan saat V2 dipakai.
+    #[must_use]
+    pub fn components_v2(mut self, components: Vec<CreateComponent>) -> Self {
+        self.components_v2 = Some(components);
         self
     }
 
@@ -545,6 +557,9 @@ impl ReplyHandle {
                 for attachment in reply.attachments {
                     builder = builder.new_attachment(attachment);
                 }
+                if let Some(v2) = reply.components_v2 {
+                    builder = builder.components_v2(v2);
+                }
                 if let Some(components) = reply.components {
                     builder = builder.components(components);
                 }
@@ -570,6 +585,9 @@ impl ReplyHandle {
                 }
                 for attachment in reply.attachments {
                     builder = builder.new_attachment(attachment);
+                }
+                if let Some(v2) = reply.components_v2 {
+                    builder = builder.components_v2(v2);
                 }
                 if let Some(components) = reply.components {
                     builder = builder.components(components);
@@ -721,6 +739,9 @@ impl Context<'_> {
                 if !reply.attachments.is_empty() {
                     message = message.files(reply.attachments);
                 }
+                if let Some(v2) = reply.components_v2 {
+                    message = message.components_v2(v2);
+                }
                 if let Some(components) = reply.components {
                     message = message.components(components);
                 }
@@ -756,6 +777,9 @@ impl Context<'_> {
                     for attachment in reply.attachments {
                         edit = edit.new_attachment(attachment);
                     }
+                    if let Some(v2) = reply.components_v2 {
+                        edit = edit.components_v2(v2);
+                    }
                     if let Some(components) = reply.components {
                         edit = edit.components(components);
                     }
@@ -783,6 +807,9 @@ impl Context<'_> {
                 }
                 if !reply.attachments.is_empty() {
                     message = message.files(reply.attachments);
+                }
+                if let Some(v2) = reply.components_v2 {
+                    message = message.components_v2(v2);
                 }
                 if let Some(components) = reply.components {
                     message = message.components(components);

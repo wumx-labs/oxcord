@@ -7,6 +7,7 @@ use super::{
     CreateActionRow,
     CreateAllowedMentions,
     CreateAttachment,
+    CreateComponent,
     CreateEmbed,
     EditAttachments,
     check_overflow,
@@ -29,6 +30,9 @@ pub struct EditWebhookMessage {
     allowed_mentions: Option<CreateAllowedMentions>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) components: Option<Vec<CreateActionRow>>,
+    /// Components V2; ikut dikirim sebagai `components` (hanya salah satu dari v1/v2 yang terisi).
+    #[serde(rename = "components", skip_serializing_if = "Option::is_none")]
+    components_v2: Option<Vec<CreateComponent>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) attachments: Option<EditAttachments>,
 
@@ -129,6 +133,17 @@ impl EditWebhookMessage {
         self
     }
     super::button_and_select_menu_convenience_methods!(self.components);
+
+    /// Sets Components V2 for this message, automatically setting the
+    /// [`MessageFlags::IS_COMPONENTS_V2`] flag. Menggantikan `components` v1.
+    pub fn components_v2(mut self, components: Vec<CreateComponent>) -> Self {
+        let mut flags = self.flags.unwrap_or_default();
+        flags |= MessageFlags::IS_COMPONENTS_V2;
+        self.flags = Some(flags);
+        self.components = None;
+        self.components_v2 = Some(components);
+        self
+    }
 
     /// Sets the flags for the message.
     pub fn flags(mut self, flags: MessageFlags) -> Self {

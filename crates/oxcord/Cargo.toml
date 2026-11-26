@@ -1,6 +1,6 @@
 [package]
 name = "oxcord"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["NoxlyDev"]
 description = "A modern, scalable Rust library for the Discord API (from small bots to very large ones)."
 readme = "../../README.md"
@@ -53,13 +53,13 @@ typesize = { version = "0.1.2", optional = true, features = ["url", "time", "ser
 oxcord-model = { version = "0.1.0", path = "../oxcord-model" }
 oxcord-rest = { version = "0.1.0", path = "../oxcord-rest", optional = true }
 oxcord-gateway = { version = "0.1.0", path = "../oxcord-gateway", optional = true }
-oxcord-builders = { version = "0.1.0", path = "../oxcord-builders", optional = true }
+oxcord-builders = { version = "0.1.2", path = "../oxcord-builders", optional = true }
 oxcord-cache = { version = "0.1.0", path = "../oxcord-cache", optional = true }
 command_attr = { package = "oxcord-command-attr", version = "0.5.4", path = "../oxcord-command-attr", optional = true }
 oxcord-voice-model = { version = "0.2.1", path = "../oxcord-voice-model", optional = true }
 oxcord-voice = { version = "0.1.0", path = "../oxcord-voice", optional = true }
 oxcord-broker = { version = "0.1.0", path = "../oxcord-broker", optional = true }
-oxcord-framework = { version = "0.2.0", path = "../oxcord-framework", optional = true }
+oxcord-framework = { version = "0.2.1", path = "../oxcord-framework", optional = true }
 
 [dev-dependencies.http_crate]
 version = "0.2"
