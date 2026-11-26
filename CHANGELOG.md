@@ -5,6 +5,22 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## oxcord 0.2.2 / oxcord-framework 0.2.3 / oxcord-macros 0.2.1 / oxcord-rest 0.1.1
+
+- feat(macros): atribut `param("nama", "deskripsi"[, "required"|"optional"])` pada `#[command]` untuk
+  menimpa deskripsi opsi slash dan status wajibnya (sebelumnya deskripsi selalu "x parameter" dan
+  `Option<T>` selalu tidak wajib).
+- feat(framework): pilihan tetap (choices) kini dikirim ke Discord. `FrameworkArgument::choices()`
+  (bawaan kosong), `CommandOptionSpec::choices`, dan `#[derive(ChoiceParameter)]` mengisinya; varian
+  boleh diberi label dengan `#[choice("Label")]` (nilai yang dikirim balik tetap nama varian).
+  `ChoiceParameterInfo` mendapat field `value`. Catatan: menambah field publik ke
+  `CommandOptionSpec` dan `ChoiceParameterInfo`; pemakai yang membuat struct itu dengan literal
+  perlu menambahkan field baru (kode hasil makro otomatis ikut).
+- feat(framework): `ReplyHandle::delete()` (slash: respons asli; prefix: pesan balasan) dan
+  `Context::message_id()` (ID pesan pemanggil untuk prefix command, mis. untuk membaca balasan).
+- feat(rest): `Http::ban_user_seconds` menghapus pesan pengguna per detik (Discord menerima
+  0–604800); `ban_user` tetap ada dan memanggilnya.
+
 ## oxcord-framework 0.2.2
 
 - fix(framework): `Context::send` setelah `Context::defer` pada slash command sekarang mengedit

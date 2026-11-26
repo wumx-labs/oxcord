@@ -150,6 +150,8 @@ pub struct CommandOptionSpec {
     /// Whether Discord should require the user to supply this option.
     /// `false` for `Option<T>` parameters.
     pub required: bool,
+    /// Fixed `(display name, value)` choices offered by Discord; empty means free-form.
+    pub choices: Vec<(String, String)>,
 }
 
 /// A registered command and its metadata.

@@ -345,7 +345,20 @@ impl Http {
         delete_message_days: u8,
         reason: Option<&str>,
     ) -> Result<()> {
-        let delete_message_seconds = u32::from(delete_message_days) * 86400;
+        self.ban_user_seconds(guild_id, user_id, u32::from(delete_message_days) * 86400, reason)
+            .await
+    }
+
+    /// Like [`Self::ban_user`] but deletes the user's recent messages by **seconds** (Discord
+    /// accepts `0..=604800`); larger values are clamped to 7 days.
+    pub async fn ban_user_seconds(
+        &self,
+        guild_id: GuildId,
+        user_id: UserId,
+        delete_message_seconds: u32,
+        reason: Option<&str>,
+    ) -> Result<()> {
+        let delete_message_seconds = delete_message_seconds.min(604_800);
 
         self.wind(204, Request {
             body: None,

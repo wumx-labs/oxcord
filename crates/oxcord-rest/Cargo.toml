@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-rest"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["NoxlyDev"]
 description = "Discord REST API client and rate limiter for the Oxcord library."
 readme = "../../README.md"

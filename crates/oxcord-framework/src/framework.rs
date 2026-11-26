@@ -71,9 +71,13 @@ fn command_options_as_slash(cmd: &Command) -> Vec<CreateCommandOption> {
     cmd.options
         .iter()
         .map(|opt| {
-            CreateCommandOption::new(opt.kind, &opt.name, &opt.description)
+            let mut builder = CreateCommandOption::new(opt.kind, &opt.name, &opt.description)
                 .required(opt.required)
-                .set_autocomplete(cmd.autocomplete.contains_key(&opt.name))
+                .set_autocomplete(cmd.autocomplete.contains_key(&opt.name));
+            for (name, value) in &opt.choices {
+                builder = builder.add_string_choice(name.clone(), value.clone());
+            }
+            builder
         })
         .collect()
 }

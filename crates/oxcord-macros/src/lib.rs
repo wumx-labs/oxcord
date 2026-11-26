@@ -20,6 +20,7 @@
 //! | `cooldown_secs = N` | integer | Per-command cooldown duration |
 //! | `cooldown_scope = "..."` | string | `"global"`, `"user"` (default), `"guild"`, `"channel"`, or `"member"` |
 //! | `required_permissions = "A \| B"` | string | Permissions the invoking user must have (slash only — see [`oxcord_framework::Command::required_permissions`]) |
+//! | `param("name", "description"[, "required" \| "optional"])` | list | Override a slash option's description (and, optionally, whether Discord requires it; prefix parsing still follows the `Option<T>` type). Repeat per parameter |
 //! | `required_bot_permissions = "A \| B"` | string | Permissions the bot must have (slash only — see [`oxcord_framework::Command::required_bot_permissions`]) |
 //!
 //! Any parameter after `ctx` becomes a typed command argument: extracted from
@@ -96,6 +97,14 @@ struct CommandAttrs {
     cooldown_scope: Option<String>,
     required_permissions: Option<String>,
     required_bot_permissions: Option<String>,
+    /// `param("nama", "deskripsi"[, "required" | "optional"])`: menimpa deskripsi dan status wajib opsi.
+    params: Vec<ParamOverride>,
+}
+
+struct ParamOverride {
+    name: String,
+    description: String,
+    required: Option<bool>,
 }
 
 impl Parse for CommandAttrs {
@@ -172,7 +181,34 @@ impl Parse for CommandAttrs {
                     ..
                 }) => {
                     let key = path.get_ident().map(|i| i.to_string()).unwrap_or_default();
-                    if key == "aliases" {
+                    if key == "param" {
+                        let lits = syn::parse2::<AliasArgs>(tokens.clone())?.0;
+                        let (name, description) = match (lits.first(), lits.get(1)) {
+                            (Some(n), Some(d)) => (n.clone(), d.clone()),
+                            _ => {
+                                return Err(syn::Error::new(
+                                    path.get_ident().map_or(Span::call_site(), |i| i.span()),
+                                    "param(...) needs a name and a description",
+                                ));
+                            },
+                        };
+                        let required = match lits.get(2).map(String::as_str) {
+                            None => None,
+                            Some("required") => Some(true),
+                            Some("optional") => Some(false),
+                            Some(other) => {
+                                return Err(syn::Error::new(
+                                    path.get_ident().map_or(Span::call_site(), |i| i.span()),
+                                    format!("param(...) third value must be \"required\" or \"optional\", got `{other}`"),
+                                ));
+                            },
+                        };
+                        attrs.params.push(ParamOverride {
+                            name,
+                            description,
+                            required,
+                        });
+                    } else if key == "aliases" {
                         // parse as comma-separated string literals
                         let lits = syn::parse2::<AliasArgs>(tokens.clone())?;
                         attrs.aliases = lits.0;
@@ -316,7 +352,9 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
         };
         let arg_ident = &pat_ident.ident;
         let arg_name_str = arg_ident.to_string();
-        let arg_description = format!("{arg_name_str} parameter");
+        let over = attrs.params.iter().find(|p| p.name == arg_name_str);
+        let arg_description = over
+            .map_or_else(|| format!("{arg_name_str} parameter"), |p| p.description.clone());
         let ty = pat_type.ty.as_ref();
 
         let (stmt, option_ty, required) = if let Some(inner) = option_inner(ty) {
@@ -347,6 +385,8 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
             };
             (stmt, quote! { #ty }, true)
         };
+        // Hanya memengaruhi pendaftaran slash; jalur prefix tetap memakai tipe `Option`/non-`Option`.
+        let required = over.and_then(|p| p.required).unwrap_or(required);
         extract_stmts.push(stmt);
         call_idents.push(arg_ident.clone());
         option_specs.push(quote! {
@@ -355,6 +395,7 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
                 description: ::std::string::ToString::to_string(#arg_description),
                 kind: <#option_ty as ::oxcord_framework::FrameworkArgument>::option_type(),
                 required: #required,
+                choices: <#option_ty as ::oxcord_framework::FrameworkArgument>::choices(),
             }
         });
     }
@@ -410,7 +451,7 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Derive [`oxcord_framework::ChoiceParameter`] dan [`oxcord_framework::FrameworkArgument`]
 /// untuk enum unit yang dipakai sebagai pilihan tetap pada slash command.
-#[proc_macro_derive(ChoiceParameter)]
+#[proc_macro_derive(ChoiceParameter, attributes(choice))]
 pub fn derive_choice_parameter(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as syn::DeriveInput);
     let enum_ident = &input.ident;
@@ -439,9 +480,20 @@ pub fn derive_choice_parameter(input: TokenStream) -> TokenStream {
         }
         let var_ident = &variant.ident;
         let var_name = var_ident.to_string();
+        // `#[choice("Label")]` mengganti nama yang tampil di Discord; nilai tetap nama varian.
+        let mut label = var_name.clone();
+        for attr in &variant.attrs {
+            if attr.path().is_ident("choice") {
+                match attr.parse_args::<LitStr>() {
+                    Ok(l) => label = l.value(),
+                    Err(e) => return e.to_compile_error().into(),
+                }
+            }
+        }
         list_entries.push(quote! {
             ::oxcord_framework::ChoiceParameterInfo {
-                name: ::std::borrow::Cow::Borrowed(#var_name),
+                name: ::std::borrow::Cow::Borrowed(#label),
+                value: ::std::borrow::Cow::Borrowed(#var_name),
                 localizations: ::std::vec::Vec::new(),
             }
         });
@@ -513,6 +565,13 @@ pub fn derive_choice_parameter(input: TokenStream) -> TokenStream {
 
             fn option_type() -> ::oxcord_model::application::CommandOptionType {
                 ::oxcord_model::application::CommandOptionType::String
+            }
+
+            fn choices() -> ::std::vec::Vec<(::std::string::String, ::std::string::String)> {
+                <Self as ::oxcord_framework::ChoiceParameter>::list()
+                    .into_iter()
+                    .map(|c| (c.name.into_owned(), c.value.into_owned()))
+                    .collect()
             }
         }
     };

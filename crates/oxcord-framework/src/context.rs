@@ -231,6 +231,13 @@ pub trait FrameworkArgument: Sized {
     /// this Rust type. Used by the `#[oxcord_macros::command]` macro to
     /// build the command's option list for registration.
     fn option_type() -> CommandOptionType;
+
+    /// Fixed choices `(display name, value)` Discord should offer for this parameter. Empty for
+    /// free-form types; `#[derive(ChoiceParameter)]` enums fill it.
+    #[must_use]
+    fn choices() -> Vec<(String, String)> {
+        Vec::new()
+    }
 }
 
 impl FrameworkArgument for String {
@@ -538,6 +545,24 @@ impl ReplyHandle {
                 ..
             } => None,
         }
+    }
+
+    /// Delete the message this handle refers to (for slash commands, the original response).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`FrameworkError::Http`] if the Discord API call fails.
+    pub async fn delete(&self) -> Result<(), FrameworkError> {
+        let result = match &self.target {
+            ReplyTarget::Slash {
+                token,
+            } => self.http.http.delete_original_interaction_response(token).await,
+            ReplyTarget::Prefix {
+                channel_id,
+                message_id,
+            } => self.http.http.delete_message(*channel_id, *message_id, None).await,
+        };
+        result.map_err(|e| FrameworkError::Http(e.to_string()))
     }
 
     /// Edit the message this handle refers to.
@@ -970,6 +995,13 @@ impl Context<'_> {
     #[must_use]
     pub fn command_custom_data<T: Any + Send + Sync + 'static>(&self) -> Option<&T> {
         self.command?.custom_data.as_ref()?.downcast_ref::<T>()
+    }
+
+    /// ID pesan pemanggil untuk prefix command (`None` untuk slash). Berguna untuk mengambil
+    /// pesan itu lewat REST, mis. membaca `referenced_message` pada balasan.
+    #[must_use]
+    pub fn message_id(&self) -> Option<MessageId> {
+        self.http.message_id
     }
 
     /// Timestamp pembuatan invocation di sisi Discord (dari `InteractionId` atau `MessageId`).

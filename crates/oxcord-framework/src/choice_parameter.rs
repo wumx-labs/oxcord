@@ -5,8 +5,10 @@ use std::borrow::Cow;
 /// Informasi satu pilihan pada [`ChoiceParameter`].
 #[derive(Debug, Clone)]
 pub struct ChoiceParameterInfo {
-    /// Nama pilihan yang dikirim ke Discord.
+    /// Nama yang ditampilkan Discord kepada pengguna.
     pub name: Cow<'static, str>,
+    /// Nilai yang dikirim balik ke bot saat dipilih (sama dengan `name` bila tidak diatur).
+    pub value: Cow<'static, str>,
     /// Daftar lokalisasi `(locale, localized_name)`.
     pub localizations: Vec<(Cow<'static, str>, Cow<'static, str>)>,
 }
