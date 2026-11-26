@@ -1,6 +1,6 @@
 [package]
 name = "oxcord"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["NoxlyDev"]
 description = "A modern, scalable Rust library for the Discord API (from small bots to very large ones)."
 readme = "../../README.md"
@@ -59,7 +59,7 @@ command_attr = { package = "oxcord-command-attr", version = "0.5.4", path = "../
 oxcord-voice-model = { version = "0.2.1", path = "../oxcord-voice-model", optional = true }
 oxcord-voice = { version = "0.1.0", path = "../oxcord-voice", optional = true }
 oxcord-broker = { version = "0.1.0", path = "../oxcord-broker", optional = true }
-oxcord-framework = { version = "0.1.0", path = "../oxcord-framework", optional = true }
+oxcord-framework = { version = "0.2.0", path = "../oxcord-framework", optional = true }
 
 [dev-dependencies.http_crate]
 version = "0.2"

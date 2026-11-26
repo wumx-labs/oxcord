@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-framework"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["NoxlyDev"]
 description = "A high-level, poise-style command framework for Oxcord: unified slash + prefix commands, argument extraction, cooldowns, and autocomplete."
 readme = "README.md"
@@ -18,7 +18,7 @@ rust-version.workspace = true
 oxcord-model = { version = "0.1.0", path = "../oxcord-model" }
 oxcord-rest = { version = "0.1.0", path = "../oxcord-rest" }
 oxcord-builders = { version = "0.1.0", path = "../oxcord-builders" }
-oxcord-macros = { version = "0.1.0", path = "../oxcord-macros", optional = true }
+oxcord-macros = { version = "0.2.0", path = "../oxcord-macros", optional = true }
 
 async-trait = { version = "0.1.74", optional = true }
 tracing = { version = "0.1.40", features = ["log"] }
