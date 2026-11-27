@@ -14,7 +14,12 @@ use tokio::net::TcpStream;
 use tokio::time::{Duration, timeout};
 use tokio_tungstenite::tungstenite::protocol::{CloseFrame, WebSocketConfig};
 use tokio_tungstenite::tungstenite::{Error as WsError, Message};
-use tokio_tungstenite::{MaybeTlsStream, WebSocketStream, connect_async_with_config};
+use tokio_tungstenite::{
+    MaybeTlsStream,
+    WebSocketStream,
+    client_async_tls_with_config,
+    connect_async_with_config,
+};
 use tracing::{debug, instrument, trace, warn};
 use url::Url;
 
@@ -129,12 +134,21 @@ fn decompress_payload(bytes: &[u8]) -> Result<Vec<u8>> {
 
 impl WsClient {
     pub async fn connect(url: Url) -> Result<Self> {
-        let config = WebSocketConfig {
-            max_message_size: None,
-            max_frame_size: None,
-            ..Default::default()
+        let config = WebSocketConfig::default().max_message_size(None).max_frame_size(None);
+        // Behind a proxy-only network the websocket must go through `HTTPS_PROXY` like REST does:
+        // open the TCP stream with a CONNECT tunnel, then run TLS and the handshake on top of it.
+        let target = url.host_str().map(str::to_owned);
+        let proxy =
+            target.as_deref().and_then(|h| crate::proxy::proxy_for(|k| std::env::var(k).ok(), h));
+        let (stream, _) = match (proxy, target) {
+            (Some(proxy), Some(host)) => {
+                let port = url.port_or_known_default().unwrap_or(443);
+                debug!("gateway websocket through proxy {}:{}", proxy.host, proxy.port);
+                let tcp = crate::proxy::connect_tunnel(&proxy, &host, port).await?;
+                client_async_tls_with_config(url.as_str(), tcp, Some(config), None).await?
+            },
+            _ => connect_async_with_config(url.as_str(), Some(config), false).await?,
         };
-        let (stream, _) = connect_async_with_config(url, Some(config), false).await?;
 
         Ok(Self(stream))
     }
@@ -156,7 +170,7 @@ impl WsClient {
                     why
                 })?
             },
-            Message::Text(payload) => from_str(&payload).map_err(|why| {
+            Message::Text(payload) => from_str(payload.as_str()).map_err(|why| {
                 warn!("Err deserializing text: {why:?}; text: {payload}");
                 why
             })?,
@@ -170,7 +184,7 @@ impl WsClient {
     }
 
     pub async fn send_json(&mut self, value: &impl serde::Serialize) -> Result<()> {
-        let message = to_string(value).map(Message::Text)?;
+        let message = to_string(value).map(|text| Message::Text(text.into()))?;
 
         self.0.send(message).await?;
         Ok(())
@@ -188,7 +202,7 @@ impl WsClient {
     }
 
     /// Delegate to `WebSocketStream::close`
-    pub async fn close(&mut self, msg: Option<CloseFrame<'_>>) -> Result<()> {
+    pub async fn close(&mut self, msg: Option<CloseFrame>) -> Result<()> {
         self.0.close(msg).await?;
         Ok(())
     }

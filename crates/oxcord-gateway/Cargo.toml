@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-gateway"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["NoxlyDev"]
 description = "Discord WebSocket gateway client and sharding implementation for the Oxcord library."
 readme = "../../README.md"
@@ -18,8 +18,9 @@ rust-version.workspace = true
 oxcord-model = { version = "0.1.0", path = "../oxcord-model" }
 serde = { version = "1.0.192", features = ["derive"] }
 serde_json = "1.0.108"
-tokio = { version = "1.34.0", features = ["sync", "time", "macros", "rt", "net"] }
-tokio-tungstenite = { version = "0.21.0" }
+tokio = { version = "1.34.0", features = ["sync", "time", "macros", "rt", "net", "io-util"] }
+tokio-tungstenite = { version = "0.26" }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"], optional = true }
 flate2 = "1.0.28"
 zstd = { version = "0.13", default-features = false, optional = true }
 futures = { version = "0.3.32", default-features = false, features = ["std"] }
@@ -30,7 +31,7 @@ simd-json = { version = "0.13.4", optional = true }
 
 [features]
 default = ["rustls_backend"]
-rustls_backend = ["tokio-tungstenite/rustls-tls-webpki-roots"]
+rustls_backend = ["tokio-tungstenite/rustls-tls-webpki-roots", "dep:rustls"]
 native_tls_backend = ["tokio-tungstenite/native-tls"]
 simd_json = ["simd-json", "oxcord-model/simd_json"]
 zstd = ["dep:zstd"]

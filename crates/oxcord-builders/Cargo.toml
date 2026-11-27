@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-builders"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["NoxlyDev"]
 description = "Type-safe builder patterns for Discord API objects in the Oxcord library."
 readme = "../../README.md"
@@ -16,7 +16,7 @@ rust-version.workspace = true
 
 [dependencies]
 oxcord-model = { version = "0.1.1", path = "../oxcord-model" }
-oxcord-rest = { version = "0.1.0", path = "../oxcord-rest" }
+oxcord-rest = { version = "0.2.0", path = "../oxcord-rest" }
 serde = { version = "1.0.192", features = ["derive"] }
 serde_json = "1.0.108"
 async-trait = "0.1.74"

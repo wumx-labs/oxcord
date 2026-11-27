@@ -127,6 +127,7 @@ fn fruit_command() -> oxcord_framework::Command {
             description: "Which fruit".to_owned(),
             kind: oxcord::model::application::CommandOptionType::String,
             required: true,
+            choices: Vec::new(),
         })
         .autocomplete_for("name", autocomplete as oxcord_framework::AutocompleteFn)
         .handler(handler as oxcord_framework::CommandFn)

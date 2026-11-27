@@ -333,10 +333,7 @@ impl Shard {
     }
 
     #[instrument(skip(self))]
-    fn handle_gateway_closed(
-        &mut self,
-        data: Option<&CloseFrame<'static>>,
-    ) -> Result<Option<ShardAction>> {
+    fn handle_gateway_closed(&mut self, data: Option<&CloseFrame>) -> Result<Option<ShardAction>> {
         let num = data.map(|d| d.code.into());
         let clean = num == Some(1000);
 

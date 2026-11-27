@@ -33,7 +33,7 @@ impl VoiceWsClient {
         })?;
 
         debug!("Connecting to Voice Gateway: {}", url);
-        let (ws, _response) = connect_async(url).await?;
+        let (ws, _response) = connect_async(url.as_str()).await?;
 
         Ok(Self {
             ws,
@@ -92,7 +92,7 @@ impl VoiceWsClient {
     /// Sends a voice gateway event.
     pub async fn send_event(&mut self, event: &Event) -> Result<()> {
         let json = serde_json::to_string(event)?;
-        self.ws.send(Message::Text(json)).await?;
+        self.ws.send(Message::Text(json.into())).await?;
         Ok(())
     }
 

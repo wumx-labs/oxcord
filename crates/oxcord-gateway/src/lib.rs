@@ -12,6 +12,7 @@ pub(crate) mod internal;
 
 pub mod backoff;
 mod error;
+mod proxy;
 mod shard;
 mod ws;
 
