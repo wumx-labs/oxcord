@@ -54,13 +54,10 @@ fn param_overrides_description_and_required() {
 fn choices_carry_label_and_value() {
     let cmd = demo();
     let notify = cmd.options.iter().find(|o| o.name == "notify").unwrap();
-    assert_eq!(
-        notify.choices,
-        vec![
-            ("Notify with the reason.".to_owned(), "with_reason".to_owned()),
-            ("Don't notify.".to_owned(), "none".to_owned()),
-        ]
-    );
+    assert_eq!(notify.choices, vec![
+        ("Notify with the reason.".to_owned(), "with_reason".to_owned()),
+        ("Don't notify.".to_owned(), "none".to_owned()),
+    ]);
     let plain = cmd.options.iter().find(|o| o.name == "plain").unwrap();
     assert_eq!(plain.choices.len(), 2);
     assert_eq!(plain.choices[0], ("Alpha".to_owned(), "Alpha".to_owned()));

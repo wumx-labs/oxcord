@@ -2,8 +2,8 @@
 
 use std::any::Any;
 use std::borrow::Cow;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Instant;
 
 use oxcord_builders::create_poll::Ready as PollReady;

@@ -199,7 +199,9 @@ impl Parse for CommandAttrs {
                             Some(other) => {
                                 return Err(syn::Error::new(
                                     path.get_ident().map_or(Span::call_site(), |i| i.span()),
-                                    format!("param(...) third value must be \"required\" or \"optional\", got `{other}`"),
+                                    format!(
+                                        "param(...) third value must be \"required\" or \"optional\", got `{other}`"
+                                    ),
                                 ));
                             },
                         };
@@ -353,8 +355,8 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
         let arg_ident = &pat_ident.ident;
         let arg_name_str = arg_ident.to_string();
         let over = attrs.params.iter().find(|p| p.name == arg_name_str);
-        let arg_description = over
-            .map_or_else(|| format!("{arg_name_str} parameter"), |p| p.description.clone());
+        let arg_description =
+            over.map_or_else(|| format!("{arg_name_str} parameter"), |p| p.description.clone());
         let ty = pat_type.ty.as_ref();
 
         let (stmt, option_ty, required) = if let Some(inner) = option_inner(ty) {

@@ -801,10 +801,8 @@ impl Framework {
         // Bulk overwrite menghapus semua command yang tidak ikut dikirim, tapi Discord menolak
         // bila Entry Point command aplikasi (Activity) ikut terhapus. Jadi command bertipe
         // `PrimaryEntryPoint` yang sudah ada dibawa lagi apa adanya (hanya field yang boleh dikirim).
-        let existing = http
-            .get_global_commands()
-            .await
-            .map_err(|e| FrameworkError::Http(e.to_string()))?;
+        let existing =
+            http.get_global_commands().await.map_err(|e| FrameworkError::Http(e.to_string()))?;
         for cmd in existing
             .iter()
             .filter(|c| c.kind == oxcord_model::application::CommandType::PrimaryEntryPoint)
@@ -1070,9 +1068,8 @@ mod noprefix_tests {
     use super::*;
 
     fn framework() -> Framework {
-        let noprefix: crate::prefix::NoPrefixFn = Arc::new(|_, author, _, _| {
-            Box::pin(async move { author == UserId::new(7) })
-        });
+        let noprefix: crate::prefix::NoPrefixFn =
+            Arc::new(|_, author, _, _| Box::pin(async move { author == UserId::new(7) }));
         Framework::builder()
             .options(FrameworkOptions {
                 prefix: Some("!".to_owned()),
@@ -1088,16 +1085,25 @@ mod noprefix_tests {
     #[tokio::test]
     async fn noprefix_user_matches_without_prefix_and_others_do_not() {
         let fw = framework();
-        let hit = fw.strip_any_prefix("ping now", None, UserId::new(7), None).await.unwrap();
+        let hit = fw
+            .strip_any_prefix("ping now", None, UserId::new(7), None)
+            .await
+            .expect("strip_any_prefix");
         assert_eq!(hit, Some(("", "ping now")));
-        let miss = fw.strip_any_prefix("ping now", None, UserId::new(8), None).await.unwrap();
+        let miss = fw
+            .strip_any_prefix("ping now", None, UserId::new(8), None)
+            .await
+            .expect("strip_any_prefix");
         assert_eq!(miss, None);
     }
 
     #[tokio::test]
     async fn normal_prefix_wins_over_noprefix() {
         let fw = framework();
-        let hit = fw.strip_any_prefix("!ping", None, UserId::new(7), None).await.unwrap();
+        let hit = fw
+            .strip_any_prefix("!ping", None, UserId::new(7), None)
+            .await
+            .expect("strip_any_prefix");
         assert_eq!(hit, Some(("!", "ping")));
     }
 }
