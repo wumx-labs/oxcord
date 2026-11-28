@@ -154,6 +154,25 @@ channel_id.send_message(&ctx.http, message).await?;
 
 ---
 
+## 🔁 Migrating from 0.2
+
+0.3 upgrades the TLS stack (reqwest 0.12, tokio-tungstenite 0.26, rustls 0.23). What changes for you:
+
+- `CloseFrame` has no lifetime parameter any more (`GatewayError::Closed(Option<CloseFrame>)`).
+- `Message::Text` and close reasons hold `Utf8Bytes` instead of `String` (use `.as_str()` / `.to_string()`).
+- `WebSocketConfig` is built with its setters (`WebSocketConfig::default().max_message_size(None)`), not with a struct literal.
+- `reqwest` types in the public API (`StatusCode`, `Method`, `HeaderMap`, the error type) come from `http` 1.x.
+- With `rustls_backend`, exactly one crypto provider (`ring`) is selected. An application that installs its
+  own provider with `rustls::crypto::CryptoProvider::install_default` keeps working.
+
+## 🌐 Proxy
+
+The gateway connects through an HTTP proxy when `HTTPS_PROXY` (or `https_proxy`) is set. It opens an HTTP
+CONNECT tunnel, supports Basic auth in the proxy URL, and skips the proxy for hosts matched by `NO_PROXY`
+(see `crates/oxcord-gateway/src/proxy.rs`). Without these variables nothing changes.
+
+---
+
 ## 🎛️ Feature Flags
 
 | Feature | Description | Default |

@@ -180,6 +180,31 @@ jobs:
       - name: Check
         run: cargo check --features full
 
+  crypto-provider:
+    name: Single rustls crypto provider
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Check that aws-lc-rs is not in the dependency tree
+        # rustls 0.23 panics at the first handshake when two crypto providers
+        # (ring and aws-lc-rs) are enabled; oxcord selects only `ring`.
+        shell: bash
+        run: |
+          for args in "--workspace" "--workspace --all-features" "-p oxcord --features full"; do
+            out=$(cargo tree -i aws-lc-rs $args 2>&1 || true)
+            echo "$out"
+            if ! grep -q "did not match any packages" <<<"$out"; then
+              echo "::error::aws-lc-rs found in the dependency tree ($args)"
+              exit 1
+            fi
+          done
+
   doc:
     name: Build docs
     runs-on: ubuntu-latest
