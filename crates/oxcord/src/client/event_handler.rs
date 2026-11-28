@@ -455,6 +455,13 @@ event_handler! {
     /// Provides data about the scheduled event.
     GuildScheduledEventUpdate { event: ScheduledEvent } => async fn guild_scheduled_event_update(&self, ctx: Context);
 
+    /// Dispatched together with [`Self::GuildScheduledEventUpdate`] when a scheduled event is
+    /// updated.
+    ///
+    /// Provides the event before the update (if the cache feature is enabled and the event was
+    /// cached) and the new event.
+    GuildScheduledEventUpdateWithOld { old_if_available: Option<ScheduledEvent>, new: ScheduledEvent } => async fn guild_scheduled_event_update_with_old(&self, ctx: Context);
+
     /// Dispatched when a scheduled event is deleted.
     ///
     /// Provides data about the scheduled event.

@@ -475,14 +475,31 @@ fn update_cache_with_event(
         Event::ThreadMembersUpdate(event) => FullEvent::ThreadMembersUpdate {
             thread_members_update: event,
         },
-        Event::GuildScheduledEventCreate(event) => FullEvent::GuildScheduledEventCreate {
-            event: event.event,
+        Event::GuildScheduledEventCreate(mut event) => {
+            update_cache!(cache, event);
+
+            FullEvent::GuildScheduledEventCreate {
+                event: event.event,
+            }
         },
-        Event::GuildScheduledEventUpdate(event) => FullEvent::GuildScheduledEventUpdate {
-            event: event.event,
+        Event::GuildScheduledEventUpdate(mut event) => {
+            let old = if_cache!(event.update(cache));
+
+            extra_event = Some(FullEvent::GuildScheduledEventUpdateWithOld {
+                old_if_available: old,
+                new: event.event.clone(),
+            });
+
+            FullEvent::GuildScheduledEventUpdate {
+                event: event.event,
+            }
         },
-        Event::GuildScheduledEventDelete(event) => FullEvent::GuildScheduledEventDelete {
-            event: event.event,
+        Event::GuildScheduledEventDelete(mut event) => {
+            update_cache!(cache, event);
+
+            FullEvent::GuildScheduledEventDelete {
+                event: event.event,
+            }
         },
         Event::GuildScheduledEventUserAdd(event) => FullEvent::GuildScheduledEventUserAdd {
             subscribed: event,
@@ -518,4 +535,90 @@ fn update_cache_with_event(
     };
 
     Some((event, extra_event))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::model::id::GuildId;
+
+    fn run(event: Event) -> (FullEvent, Option<FullEvent>) {
+        #[cfg(feature = "cache")]
+        let cache = Cache::default();
+        update_cache_with_event(
+            #[cfg(feature = "cache")]
+            &cache,
+            event,
+        )
+        .expect("known event")
+    }
+
+    fn scheduled_event(id: u64, name: &str) -> serde_json::Value {
+        serde_json::json!({
+            "id": id.to_string(),
+            "guild_id": "1",
+            "name": name,
+            "scheduled_start_time": "2026-01-01T00:00:00.000000+00:00",
+            "privacy_level": 2,
+            "status": 1,
+            "entity_type": 3,
+        })
+    }
+
+    fn update_event(id: u64, name: &str) -> Event {
+        Event::GuildScheduledEventUpdate(serde_json::from_value(scheduled_event(id, name)).unwrap())
+    }
+
+    #[test]
+    fn scheduled_event_update_without_cached_guild_has_no_old() {
+        let (primary, extra) = run(update_event(5, "new"));
+        assert!(matches!(primary, FullEvent::GuildScheduledEventUpdate { .. }));
+        match extra {
+            Some(FullEvent::GuildScheduledEventUpdateWithOld {
+                old_if_available,
+                new,
+            }) => {
+                assert!(old_if_available.is_none());
+                assert_eq!(new.name, "new");
+            },
+            other => panic!("unexpected extra event: {other:?}"),
+        }
+    }
+
+    #[cfg(feature = "cache")]
+    #[test]
+    fn scheduled_event_cache_follows_create_update_delete() {
+        use crate::model::guild::Guild;
+
+        let cache = Cache::default();
+        cache.guilds.insert(GuildId::new(1), Guild {
+            id: GuildId::new(1),
+            ..Default::default()
+        });
+        let events = |cache: &Cache| cache.guild(GuildId::new(1)).unwrap().scheduled_events.clone();
+
+        let create = Event::GuildScheduledEventCreate(
+            serde_json::from_value(scheduled_event(5, "old")).unwrap(),
+        );
+        update_cache_with_event(&cache, create).unwrap();
+        assert_eq!(events(&cache).len(), 1);
+
+        let (_, extra) = update_cache_with_event(&cache, update_event(5, "new")).unwrap();
+        let Some(FullEvent::GuildScheduledEventUpdateWithOld {
+            old_if_available,
+            new,
+        }) = extra
+        else {
+            panic!("missing extra event");
+        };
+        assert_eq!(old_if_available.expect("cached").name, "old");
+        assert_eq!(new.name, "new");
+        assert_eq!(events(&cache)[0].name, "new");
+
+        let delete = Event::GuildScheduledEventDelete(
+            serde_json::from_value(scheduled_event(5, "new")).unwrap(),
+        );
+        update_cache_with_event(&cache, delete).unwrap();
+        assert!(events(&cache).is_empty());
+    }
 }

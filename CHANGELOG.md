@@ -5,6 +5,12 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- feat(cache): scheduled events in `Guild::scheduled_events` are now kept up to date on
+  `GUILD_SCHEDULED_EVENT_CREATE` / `_UPDATE` / `_DELETE` (before, only `GUILD_CREATE` filled them).
+- feat(client): `guild_scheduled_event_update_with_old` (`FullEvent::GuildScheduledEventUpdateWithOld`) is
+  dispatched together with `guild_scheduled_event_update` and carries `old_if_available` from the cache.
+  The existing handler is unchanged.
+
 ## oxcord 0.3.0 / oxcord-framework 0.3.0 / oxcord-builders 0.2.0 / oxcord-rest 0.2.0 / oxcord-gateway 0.2.0 / oxcord-voice 0.2.0 / oxcord-proxy 0.2.0 / oxcord-gateway-daemon 0.2.0
 
 TLS stack upgrade (breaking). The old stack (reqwest 0.11, hyper 0.14, h2 0.3, rustls 0.21 and 0.22,
