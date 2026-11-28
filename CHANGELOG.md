@@ -5,6 +5,8 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## oxcord 0.3.1 / oxcord-gateway 0.2.1 / oxcord-cache 0.1.1 (2026-11-28)
+
 - docs(model,client): `ThreadMembersUpdateEvent` / `thread_members_update` document `id`, `guild_id`,
   `added_members` and `removed_member_ids` (the handler doc named the wrong intent: it is `GUILD_MEMBERS`).
   Tests for the payload.
@@ -26,8 +28,8 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
   set when the update follows a websocket close frame from the gateway (the event may then have
   `new == old`). `Shard::take_last_close()` returns the same data. Note: adds public fields to
   `ShardStageUpdateEvent`; code that builds it with a struct literal must add them.
-
-## oxcord 0.3.0 / oxcord-framework 0.3.0 / oxcord-builders 0.2.0 / oxcord-rest 0.2.0 / oxcord-gateway 0.2.0 / oxcord-voice 0.2.0 / oxcord-proxy 0.2.0 / oxcord-gateway-daemon 0.2.0
+- note: `ShardStageUpdateEvent` gained public fields (`close_code`, `close_reason`), so code that builds it
+  with a struct literal needs to add the new fields. Code that only reads it is unaffected.
 - ci: `crypto-provider` job fails if `aws-lc-rs` appears in the dependency tree (two rustls providers
   make rustls 0.23 panic at the first handshake).
 - docs: README documents `HTTPS_PROXY` / `https_proxy` / `NO_PROXY` for the gateway and has a
