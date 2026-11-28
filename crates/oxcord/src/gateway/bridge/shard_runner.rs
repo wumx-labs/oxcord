@@ -118,8 +118,9 @@ impl ShardRunner {
             let pre = self.shard.stage();
             let (event, action, successful) = self.recv_event().await?;
             let post = self.shard.stage();
+            let close = self.shard.take_last_close();
 
-            if post != pre {
+            if post != pre || close.is_some() {
                 self.update_manager().await;
 
                 for event_handler in self.event_handlers.clone() {
@@ -128,6 +129,8 @@ impl ShardRunner {
                         new: post,
                         old: pre,
                         shard_id: self.shard.shard_info().id,
+                        close_code: close.as_ref().map(|(code, _)| *code),
+                        close_reason: close.as_ref().map(|(_, reason)| reason.clone()),
                     };
                     spawn_named("dispatch::event_handler::shard_stage_update", async move {
                         event_handler.shard_stage_update(context, event).await;

@@ -198,7 +198,14 @@ fn update_cache_with_event(
             }
         },
         Event::GuildEmojisUpdate(mut event) => {
+            let old = if_cache!(cache.guild(event.guild_id).map(|g| g.emojis.clone()));
             update_cache!(cache, event);
+
+            extra_event = Some(FullEvent::GuildEmojisUpdateWithOld {
+                guild_id: event.guild_id,
+                old_if_available: old,
+                current_state: event.emojis.clone(),
+            });
 
             FullEvent::GuildEmojisUpdate {
                 guild_id: event.guild_id,
@@ -269,7 +276,14 @@ fn update_cache_with_event(
             }
         },
         Event::GuildStickersUpdate(mut event) => {
+            let old = if_cache!(cache.guild(event.guild_id).map(|g| g.stickers.clone()));
             update_cache!(cache, event);
+
+            extra_event = Some(FullEvent::GuildStickersUpdateWithOld {
+                guild_id: event.guild_id,
+                old_if_available: old,
+                current_state: event.stickers.clone(),
+            });
 
             FullEvent::GuildStickersUpdate {
                 guild_id: event.guild_id,
@@ -330,9 +344,17 @@ fn update_cache_with_event(
         Event::ReactionRemove(event) => FullEvent::ReactionRemove {
             removed_reaction: event.reaction,
         },
-        Event::ReactionRemoveAll(event) => FullEvent::ReactionRemoveAll {
-            channel_id: event.channel_id,
-            removed_from_message_id: event.message_id,
+        Event::ReactionRemoveAll(event) => {
+            extra_event = Some(FullEvent::ReactionRemoveAllInGuild {
+                guild_id: event.guild_id,
+                channel_id: event.channel_id,
+                removed_from_message_id: event.message_id,
+            });
+
+            FullEvent::ReactionRemoveAll {
+                channel_id: event.channel_id,
+                removed_from_message_id: event.message_id,
+            }
         },
         Event::ReactionRemoveEmoji(event) => FullEvent::ReactionRemoveEmoji {
             removed_reactions: event.reaction,
@@ -475,14 +497,31 @@ fn update_cache_with_event(
         Event::ThreadMembersUpdate(event) => FullEvent::ThreadMembersUpdate {
             thread_members_update: event,
         },
-        Event::GuildScheduledEventCreate(event) => FullEvent::GuildScheduledEventCreate {
-            event: event.event,
+        Event::GuildScheduledEventCreate(mut event) => {
+            update_cache!(cache, event);
+
+            FullEvent::GuildScheduledEventCreate {
+                event: event.event,
+            }
         },
-        Event::GuildScheduledEventUpdate(event) => FullEvent::GuildScheduledEventUpdate {
-            event: event.event,
+        Event::GuildScheduledEventUpdate(mut event) => {
+            let old = if_cache!(event.update(cache));
+
+            extra_event = Some(FullEvent::GuildScheduledEventUpdateWithOld {
+                old_if_available: old,
+                new: event.event.clone(),
+            });
+
+            FullEvent::GuildScheduledEventUpdate {
+                event: event.event,
+            }
         },
-        Event::GuildScheduledEventDelete(event) => FullEvent::GuildScheduledEventDelete {
-            event: event.event,
+        Event::GuildScheduledEventDelete(mut event) => {
+            update_cache!(cache, event);
+
+            FullEvent::GuildScheduledEventDelete {
+                event: event.event,
+            }
         },
         Event::GuildScheduledEventUserAdd(event) => FullEvent::GuildScheduledEventUserAdd {
             subscribed: event,
@@ -518,4 +557,211 @@ fn update_cache_with_event(
     };
 
     Some((event, extra_event))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::model::id::{ChannelId, GuildId, MessageId};
+
+    fn remove_all_event(guild: bool) -> Event {
+        let mut json = serde_json::json!({ "channel_id": "2", "message_id": "3" });
+        if guild {
+            json["guild_id"] = serde_json::json!("1");
+        }
+        Event::ReactionRemoveAll(serde_json::from_value(json).unwrap())
+    }
+
+    fn run(event: Event) -> (FullEvent, Option<FullEvent>) {
+        #[cfg(feature = "cache")]
+        let cache = Cache::default();
+        update_cache_with_event(
+            #[cfg(feature = "cache")]
+            &cache,
+            event,
+        )
+        .expect("known event")
+    }
+
+    #[test]
+    fn reaction_remove_all_carries_guild_id() {
+        let (primary, extra) = run(remove_all_event(true));
+        assert!(matches!(primary, FullEvent::ReactionRemoveAll { .. }));
+        match extra {
+            Some(FullEvent::ReactionRemoveAllInGuild {
+                guild_id,
+                channel_id,
+                removed_from_message_id,
+            }) => {
+                assert_eq!(guild_id, Some(GuildId::new(1)));
+                assert_eq!(channel_id, ChannelId::new(2));
+                assert_eq!(removed_from_message_id, MessageId::new(3));
+            },
+            other => panic!("unexpected extra event: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn reaction_remove_all_in_dm_has_no_guild_id() {
+        let (_, extra) = run(remove_all_event(false));
+        assert!(matches!(
+            extra,
+            Some(FullEvent::ReactionRemoveAllInGuild {
+                guild_id: None,
+                ..
+            })
+        ));
+    }
+
+    fn emoji(id: u64, name: &str) -> serde_json::Value {
+        serde_json::json!({ "id": id.to_string(), "name": name })
+    }
+
+    fn emojis_event(emojis: &[serde_json::Value]) -> Event {
+        Event::GuildEmojisUpdate(
+            serde_json::from_value(serde_json::json!({ "guild_id": "1", "emojis": emojis }))
+                .unwrap(),
+        )
+    }
+
+    #[test]
+    fn emojis_update_has_no_old_state_for_unknown_guild() {
+        let (primary, extra) = run(emojis_event(&[emoji(10, "a")]));
+        assert!(matches!(primary, FullEvent::GuildEmojisUpdate { .. }));
+        match extra {
+            Some(FullEvent::GuildEmojisUpdateWithOld {
+                guild_id,
+                old_if_available,
+                current_state,
+            }) => {
+                assert_eq!(guild_id, GuildId::new(1));
+                assert!(old_if_available.is_none());
+                assert_eq!(current_state.len(), 1);
+            },
+            other => panic!("unexpected extra event: {other:?}"),
+        }
+    }
+
+    #[cfg(feature = "cache")]
+    #[test]
+    fn emojis_update_carries_previous_state_from_cache() {
+        use crate::model::guild::Guild;
+        use crate::model::id::EmojiId;
+
+        let cache = Cache::default();
+        let mut guild = Guild {
+            id: GuildId::new(1),
+            ..Default::default()
+        };
+        guild.emojis.insert(EmojiId::new(10), serde_json::from_value(emoji(10, "old")).unwrap());
+        guild.emojis.insert(EmojiId::new(11), serde_json::from_value(emoji(11, "gone")).unwrap());
+        cache.guilds.insert(guild.id, guild);
+
+        let (_, extra) = update_cache_with_event(
+            &cache,
+            emojis_event(&[emoji(10, "new"), emoji(12, "created")]),
+        )
+        .unwrap();
+        let Some(FullEvent::GuildEmojisUpdateWithOld {
+            old_if_available,
+            current_state,
+            ..
+        }) = extra
+        else {
+            panic!("missing extra event");
+        };
+        let old = old_if_available.expect("guild is cached");
+        assert_eq!(old.len(), 2);
+        assert_eq!(old[&EmojiId::new(10)].name, "old");
+        assert!(old.contains_key(&EmojiId::new(11)));
+        assert!(!old.contains_key(&EmojiId::new(12)));
+        assert_eq!(current_state[&EmojiId::new(10)].name, "new");
+        // The cache now holds the new state.
+        assert_eq!(cache.guild(GuildId::new(1)).unwrap().emojis.len(), 2);
+    }
+
+    #[test]
+    fn stickers_update_dispatches_with_old_event() {
+        let event = Event::GuildStickersUpdate(
+            serde_json::from_value(serde_json::json!({ "guild_id": "1", "stickers": [] })).unwrap(),
+        );
+        let (primary, extra) = run(event);
+        assert!(matches!(primary, FullEvent::GuildStickersUpdate { .. }));
+        assert!(matches!(
+            extra,
+            Some(FullEvent::GuildStickersUpdateWithOld {
+                old_if_available: None,
+                ..
+            })
+        ));
+    }
+
+    fn scheduled_event(id: u64, name: &str) -> serde_json::Value {
+        serde_json::json!({
+            "id": id.to_string(),
+            "guild_id": "1",
+            "name": name,
+            "scheduled_start_time": "2026-01-01T00:00:00.000000+00:00",
+            "privacy_level": 2,
+            "status": 1,
+            "entity_type": 3,
+        })
+    }
+
+    fn update_event(id: u64, name: &str) -> Event {
+        Event::GuildScheduledEventUpdate(serde_json::from_value(scheduled_event(id, name)).unwrap())
+    }
+
+    #[test]
+    fn scheduled_event_update_without_cached_guild_has_no_old() {
+        let (primary, extra) = run(update_event(5, "new"));
+        assert!(matches!(primary, FullEvent::GuildScheduledEventUpdate { .. }));
+        match extra {
+            Some(FullEvent::GuildScheduledEventUpdateWithOld {
+                old_if_available,
+                new,
+            }) => {
+                assert!(old_if_available.is_none());
+                assert_eq!(new.name, "new");
+            },
+            other => panic!("unexpected extra event: {other:?}"),
+        }
+    }
+
+    #[cfg(feature = "cache")]
+    #[test]
+    fn scheduled_event_cache_follows_create_update_delete() {
+        use crate::model::guild::Guild;
+
+        let cache = Cache::default();
+        cache.guilds.insert(GuildId::new(1), Guild {
+            id: GuildId::new(1),
+            ..Default::default()
+        });
+        let events = |cache: &Cache| cache.guild(GuildId::new(1)).unwrap().scheduled_events.clone();
+
+        let create = Event::GuildScheduledEventCreate(
+            serde_json::from_value(scheduled_event(5, "old")).unwrap(),
+        );
+        update_cache_with_event(&cache, create).unwrap();
+        assert_eq!(events(&cache).len(), 1);
+
+        let (_, extra) = update_cache_with_event(&cache, update_event(5, "new")).unwrap();
+        let Some(FullEvent::GuildScheduledEventUpdateWithOld {
+            old_if_available,
+            new,
+        }) = extra
+        else {
+            panic!("missing extra event");
+        };
+        assert_eq!(old_if_available.expect("cached").name, "old");
+        assert_eq!(new.name, "new");
+        assert_eq!(events(&cache)[0].name, "new");
+
+        let delete = Event::GuildScheduledEventDelete(
+            serde_json::from_value(scheduled_event(5, "new")).unwrap(),
+        );
+        update_cache_with_event(&cache, delete).unwrap();
+        assert!(events(&cache).is_empty());
+    }
 }
