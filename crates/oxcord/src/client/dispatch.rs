@@ -198,7 +198,14 @@ fn update_cache_with_event(
             }
         },
         Event::GuildEmojisUpdate(mut event) => {
+            let old = if_cache!(cache.guild(event.guild_id).map(|g| g.emojis.clone()));
             update_cache!(cache, event);
+
+            extra_event = Some(FullEvent::GuildEmojisUpdateWithOld {
+                guild_id: event.guild_id,
+                old_if_available: old,
+                current_state: event.emojis.clone(),
+            });
 
             FullEvent::GuildEmojisUpdate {
                 guild_id: event.guild_id,
@@ -269,7 +276,14 @@ fn update_cache_with_event(
             }
         },
         Event::GuildStickersUpdate(mut event) => {
+            let old = if_cache!(cache.guild(event.guild_id).map(|g| g.stickers.clone()));
             update_cache!(cache, event);
+
+            extra_event = Some(FullEvent::GuildStickersUpdateWithOld {
+                guild_id: event.guild_id,
+                old_if_available: old,
+                current_state: event.stickers.clone(),
+            });
 
             FullEvent::GuildStickersUpdate {
                 guild_id: event.guild_id,
@@ -577,6 +591,89 @@ mod tests {
             extra,
             Some(FullEvent::ReactionRemoveAllInGuild {
                 guild_id: None,
+                ..
+            })
+        ));
+    }
+
+    fn emoji(id: u64, name: &str) -> serde_json::Value {
+        serde_json::json!({ "id": id.to_string(), "name": name })
+    }
+
+    fn emojis_event(emojis: &[serde_json::Value]) -> Event {
+        Event::GuildEmojisUpdate(
+            serde_json::from_value(serde_json::json!({ "guild_id": "1", "emojis": emojis }))
+                .unwrap(),
+        )
+    }
+
+    #[test]
+    fn emojis_update_has_no_old_state_for_unknown_guild() {
+        let (primary, extra) = run(emojis_event(&[emoji(10, "a")]));
+        assert!(matches!(primary, FullEvent::GuildEmojisUpdate { .. }));
+        match extra {
+            Some(FullEvent::GuildEmojisUpdateWithOld {
+                guild_id,
+                old_if_available,
+                current_state,
+            }) => {
+                assert_eq!(guild_id, GuildId::new(1));
+                assert!(old_if_available.is_none());
+                assert_eq!(current_state.len(), 1);
+            },
+            other => panic!("unexpected extra event: {other:?}"),
+        }
+    }
+
+    #[cfg(feature = "cache")]
+    #[test]
+    fn emojis_update_carries_previous_state_from_cache() {
+        use crate::model::guild::Guild;
+        use crate::model::id::EmojiId;
+
+        let cache = Cache::default();
+        let mut guild = Guild {
+            id: GuildId::new(1),
+            ..Default::default()
+        };
+        guild.emojis.insert(EmojiId::new(10), serde_json::from_value(emoji(10, "old")).unwrap());
+        guild.emojis.insert(EmojiId::new(11), serde_json::from_value(emoji(11, "gone")).unwrap());
+        cache.guilds.insert(guild.id, guild);
+
+        let (_, extra) = update_cache_with_event(
+            &cache,
+            emojis_event(&[emoji(10, "new"), emoji(12, "created")]),
+        )
+        .unwrap();
+        let Some(FullEvent::GuildEmojisUpdateWithOld {
+            old_if_available,
+            current_state,
+            ..
+        }) = extra
+        else {
+            panic!("missing extra event");
+        };
+        let old = old_if_available.expect("guild is cached");
+        assert_eq!(old.len(), 2);
+        assert_eq!(old[&EmojiId::new(10)].name, "old");
+        assert!(old.contains_key(&EmojiId::new(11)));
+        assert!(!old.contains_key(&EmojiId::new(12)));
+        assert_eq!(current_state[&EmojiId::new(10)].name, "new");
+        // The cache now holds the new state.
+        assert_eq!(cache.guild(GuildId::new(1)).unwrap().emojis.len(), 2);
+    }
+
+    #[test]
+    fn stickers_update_dispatches_with_old_event() {
+        let event = Event::GuildStickersUpdate(
+            serde_json::from_value(serde_json::json!({ "guild_id": "1", "stickers": [] })).unwrap(),
+        );
+        let (primary, extra) = run(event);
+        assert!(matches!(primary, FullEvent::GuildStickersUpdate { .. }));
+        assert!(matches!(
+            extra,
+            Some(FullEvent::GuildStickersUpdateWithOld {
+                old_if_available: None,
                 ..
             })
         ));

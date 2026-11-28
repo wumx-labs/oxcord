@@ -5,6 +5,11 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- feat(client): `guild_emojis_update_with_old` and `guild_stickers_update_with_old`
+  (`FullEvent::GuildEmojisUpdateWithOld` / `GuildStickersUpdateWithOld`) are dispatched together with the
+  existing update events and add `old_if_available`, the previous map from the cache (`None` without the
+  `cache` feature or when the guild is not cached). Compare it with `current_state` to tell created,
+  deleted and changed items apart. The existing handlers are unchanged.
 - feat(client): `EventHandler::reaction_remove_all_in_guild` / `FullEvent::ReactionRemoveAllInGuild` is
   dispatched together with `reaction_remove_all` and carries `guild_id: Option<GuildId>` (Discord sends it in
   `MESSAGE_REACTION_REMOVE_ALL`). `reaction_remove_all` is unchanged. `reaction_remove_emoji` already
