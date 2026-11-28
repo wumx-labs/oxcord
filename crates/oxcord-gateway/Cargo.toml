@@ -1,6 +1,6 @@
 [package]
 name = "oxcord-gateway"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["NoxlyDev"]
 description = "Discord WebSocket gateway client and sharding implementation for the Oxcord library."
 readme = "../../README.md"
