@@ -298,6 +298,14 @@ event_handler! {
     /// Provides the channel's id and the message's id.
     ReactionRemoveAll { channel_id: ChannelId, removed_from_message_id: MessageId } => async fn reaction_remove_all(&self, ctx: Context);
 
+    /// Dispatched together with [`Self::ReactionRemoveAll`] when all reactions of a message are
+    /// detached from a message.
+    ///
+    /// Provides the guild's id (`None` in DMs) in addition to the channel's id and the message's
+    /// id. Discord sends the guild id in `MESSAGE_REACTION_REMOVE_ALL`; the older
+    /// `reaction_remove_all` handler does not receive it.
+    ReactionRemoveAllInGuild { guild_id: Option<GuildId>, channel_id: ChannelId, removed_from_message_id: MessageId } => async fn reaction_remove_all_in_guild(&self, ctx: Context);
+
     /// Dispatched when all reactions of a message are detached from a message.
     ///
     /// Provides the channel's id and the message's id.

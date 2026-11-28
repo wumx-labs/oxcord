@@ -5,6 +5,11 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- feat(client): `EventHandler::reaction_remove_all_in_guild` / `FullEvent::ReactionRemoveAllInGuild` is
+  dispatched together with `reaction_remove_all` and carries `guild_id: Option<GuildId>` (Discord sends it in
+  `MESSAGE_REACTION_REMOVE_ALL`). `reaction_remove_all` is unchanged. `reaction_remove_emoji` already
+  had it in `Reaction::guild_id`.
+
 ## oxcord 0.3.0 / oxcord-framework 0.3.0 / oxcord-builders 0.2.0 / oxcord-rest 0.2.0 / oxcord-gateway 0.2.0 / oxcord-voice 0.2.0 / oxcord-proxy 0.2.0 / oxcord-gateway-daemon 0.2.0
 
 TLS stack upgrade (breaking). The old stack (reqwest 0.11, hyper 0.14, h2 0.3, rustls 0.21 and 0.22,
