@@ -10,6 +10,14 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
   existing update events and add `old_if_available`, the previous map from the cache (`None` without the
   `cache` feature or when the guild is not cached). Compare it with `current_state` to tell created,
   deleted and changed items apart. The existing handlers are unchanged.
+- feat(client): `EventHandler::reaction_remove_all_in_guild` / `FullEvent::ReactionRemoveAllInGuild` is
+  dispatched together with `reaction_remove_all` and carries `guild_id: Option<GuildId>` (Discord sends it in
+  `MESSAGE_REACTION_REMOVE_ALL`). `reaction_remove_all` is unchanged. `reaction_remove_emoji` already
+  had it in `Reaction::guild_id`.
+- feat(gateway): `ShardStageUpdateEvent` has `close_code: Option<u16>` and `close_reason: Option<String>`,
+  set when the update follows a websocket close frame from the gateway (the event may then have
+  `new == old`). `Shard::take_last_close()` returns the same data. Note: adds public fields to
+  `ShardStageUpdateEvent`; code that builds it with a struct literal must add them.
 
 ## oxcord 0.3.0 / oxcord-framework 0.3.0 / oxcord-builders 0.2.0 / oxcord-rest 0.2.0 / oxcord-gateway 0.2.0 / oxcord-voice 0.2.0 / oxcord-proxy 0.2.0 / oxcord-gateway-daemon 0.2.0
 - ci: `crypto-provider` job fails if `aws-lc-rs` appears in the dependency tree (two rustls providers
