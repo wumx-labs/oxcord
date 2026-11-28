@@ -5,6 +5,12 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- feat(client): `guild_emojis_update_with_old` and `guild_stickers_update_with_old`
+  (`FullEvent::GuildEmojisUpdateWithOld` / `GuildStickersUpdateWithOld`) are dispatched together with the
+  existing update events and add `old_if_available`, the previous map from the cache (`None` without the
+  `cache` feature or when the guild is not cached). Compare it with `current_state` to tell created,
+  deleted and changed items apart. The existing handlers are unchanged.
+
 ## oxcord 0.3.0 / oxcord-framework 0.3.0 / oxcord-builders 0.2.0 / oxcord-rest 0.2.0 / oxcord-gateway 0.2.0 / oxcord-voice 0.2.0 / oxcord-proxy 0.2.0 / oxcord-gateway-daemon 0.2.0
 
 TLS stack upgrade (breaking). The old stack (reqwest 0.11, hyper 0.14, h2 0.3, rustls 0.21 and 0.22,
