@@ -330,9 +330,17 @@ fn update_cache_with_event(
         Event::ReactionRemove(event) => FullEvent::ReactionRemove {
             removed_reaction: event.reaction,
         },
-        Event::ReactionRemoveAll(event) => FullEvent::ReactionRemoveAll {
-            channel_id: event.channel_id,
-            removed_from_message_id: event.message_id,
+        Event::ReactionRemoveAll(event) => {
+            extra_event = Some(FullEvent::ReactionRemoveAllInGuild {
+                guild_id: event.guild_id,
+                channel_id: event.channel_id,
+                removed_from_message_id: event.message_id,
+            });
+
+            FullEvent::ReactionRemoveAll {
+                channel_id: event.channel_id,
+                removed_from_message_id: event.message_id,
+            }
         },
         Event::ReactionRemoveEmoji(event) => FullEvent::ReactionRemoveEmoji {
             removed_reactions: event.reaction,
@@ -518,4 +526,59 @@ fn update_cache_with_event(
     };
 
     Some((event, extra_event))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::model::id::{ChannelId, GuildId, MessageId};
+
+    fn remove_all_event(guild: bool) -> Event {
+        let mut json = serde_json::json!({ "channel_id": "2", "message_id": "3" });
+        if guild {
+            json["guild_id"] = serde_json::json!("1");
+        }
+        Event::ReactionRemoveAll(serde_json::from_value(json).unwrap())
+    }
+
+    fn run(event: Event) -> (FullEvent, Option<FullEvent>) {
+        #[cfg(feature = "cache")]
+        let cache = Cache::default();
+        update_cache_with_event(
+            #[cfg(feature = "cache")]
+            &cache,
+            event,
+        )
+        .expect("known event")
+    }
+
+    #[test]
+    fn reaction_remove_all_carries_guild_id() {
+        let (primary, extra) = run(remove_all_event(true));
+        assert!(matches!(primary, FullEvent::ReactionRemoveAll { .. }));
+        match extra {
+            Some(FullEvent::ReactionRemoveAllInGuild {
+                guild_id,
+                channel_id,
+                removed_from_message_id,
+            }) => {
+                assert_eq!(guild_id, Some(GuildId::new(1)));
+                assert_eq!(channel_id, ChannelId::new(2));
+                assert_eq!(removed_from_message_id, MessageId::new(3));
+            },
+            other => panic!("unexpected extra event: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn reaction_remove_all_in_dm_has_no_guild_id() {
+        let (_, extra) = run(remove_all_event(false));
+        assert!(matches!(
+            extra,
+            Some(FullEvent::ReactionRemoveAllInGuild {
+                guild_id: None,
+                ..
+            })
+        ));
+    }
 }
