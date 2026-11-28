@@ -457,13 +457,14 @@ event_handler! {
     ThreadMemberUpdate { thread_member: ThreadMember } => async fn thread_member_update(&self, ctx: Context);
 
     /// Dispatched when anyone is added to or removed from a thread. If the current user does not
-    /// have the [`GatewayIntents::GUILDS`], then this event will only be sent if the current user
-    /// was added to or removed from the thread.
+    /// have the [`GatewayIntents::GUILD_MEMBERS`], then this event will only be sent if the current
+    /// user was added to or removed from the thread.
     ///
-    /// Provides the added/removed members, the approximate member count of members in the thread,
-    /// the thread Id and its guild Id.
+    /// Provides the added members (`added_members`), the ids of the removed members
+    /// (`removed_member_ids`), the approximate member count of the thread, the thread Id (`id`) and
+    /// its guild Id (`guild_id`). A list is empty when Discord omits it.
     ///
-    /// [`GatewayIntents::GUILDS`]: crate::model::gateway::GatewayIntents::GUILDS
+    /// [`GatewayIntents::GUILD_MEMBERS`]: crate::model::gateway::GatewayIntents::GUILD_MEMBERS
     ThreadMembersUpdate { thread_members_update: ThreadMembersUpdateEvent } => async fn thread_members_update(&self, ctx: Context);
 
     /// Dispatched when a scheduled event is created.

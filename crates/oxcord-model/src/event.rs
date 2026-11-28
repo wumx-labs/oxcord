@@ -1007,7 +1007,16 @@ pub struct ThreadMemberUpdateEvent {
     pub member: ThreadMember,
 }
 
-/// Requires [`GatewayIntents::GUILD_MEMBERS`].
+/// Sent when anyone is added to or removed from a thread.
+///
+/// Requires [`GatewayIntents::GUILD_MEMBERS`] to receive updates about other users; without it
+/// the event is only sent when the current user is added to or removed from the thread.
+///
+/// Carries the thread id (`id`), the guild id (`guild_id`), the approximate `member_count`, the
+/// users that joined (`added_members`) and the ids of the users that left
+/// (`removed_member_ids`). Each of the two lists is empty when Discord omits it, for example
+/// `removed_member_ids` in a payload that only has additions. The `member` field of an added
+/// [`ThreadMember`] is filled by Discord for this event.
 ///
 /// [Discord docs](https://docs.discord.com/developers/events/gateway-events#thread-members-update).
 #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
@@ -1556,5 +1565,43 @@ impl Event {
             Self::MessagePollVoteRemove(_) => "MESSAGE_POLL_VOTE_REMOVE",
             Self::Unknown(_) => "UNKNOWN",
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn thread_members_update_has_guild_id_and_both_lists() {
+        let json = serde_json::json!({
+            "id": "10",
+            "guild_id": "1",
+            "member_count": 3,
+            "added_members": [{
+                "id": "10",
+                "user_id": "20",
+                "join_timestamp": "2026-01-01T00:00:00.000000+00:00",
+                "flags": 0
+            }],
+            "removed_member_ids": ["30", "31"]
+        });
+        let event: ThreadMembersUpdateEvent = serde_json::from_value(json).unwrap();
+
+        assert_eq!(event.id, ChannelId::new(10));
+        assert_eq!(event.guild_id, GuildId::new(1));
+        assert_eq!(event.member_count, 3);
+        assert_eq!(event.added_members.len(), 1);
+        assert_eq!(event.added_members[0].user_id, UserId::new(20));
+        assert_eq!(event.removed_member_ids, vec![UserId::new(30), UserId::new(31)]);
+    }
+
+    #[test]
+    fn thread_members_update_missing_lists_default_to_empty() {
+        let json = serde_json::json!({ "id": "10", "guild_id": "1", "member_count": 1 });
+        let event: ThreadMembersUpdateEvent = serde_json::from_value(json).unwrap();
+
+        assert!(event.added_members.is_empty());
+        assert!(event.removed_member_ids.is_empty());
     }
 }

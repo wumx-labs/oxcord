@@ -5,6 +5,9 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- docs(model,client): `ThreadMembersUpdateEvent` / `thread_members_update` document `id`, `guild_id`,
+  `added_members` and `removed_member_ids` (the handler doc named the wrong intent: it is `GUILD_MEMBERS`).
+  Tests for the payload.
 - feat(cache): scheduled events in `Guild::scheduled_events` are now kept up to date on
   `GUILD_SCHEDULED_EVENT_CREATE` / `_UPDATE` / `_DELETE` (before, only `GUILD_CREATE` filled them).
 - feat(client): `guild_scheduled_event_update_with_old` (`FullEvent::GuildScheduledEventUpdateWithOld`) is
