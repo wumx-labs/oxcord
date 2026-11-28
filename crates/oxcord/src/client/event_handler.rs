@@ -188,6 +188,13 @@ event_handler! {
     /// Provides the guild's id and the new state of the emojis in the guild.
     GuildEmojisUpdate { guild_id: GuildId, current_state: HashMap<EmojiId, Emoji> } => async fn guild_emojis_update(&self, ctx: Context);
 
+    /// Dispatched together with [`Self::GuildEmojisUpdate`] when the emojis are updated.
+    ///
+    /// Provides the guild's id, the emojis before the update (if the cache feature is enabled and
+    /// the guild was cached) and the new state of the emojis in the guild. Comparing the two maps
+    /// tells created, deleted and renamed emojis apart.
+    GuildEmojisUpdateWithOld { guild_id: GuildId, old_if_available: Option<HashMap<EmojiId, Emoji>>, current_state: HashMap<EmojiId, Emoji> } => async fn guild_emojis_update_with_old(&self, ctx: Context);
+
     /// Dispatched when a guild's integration is added, updated or removed.
     ///
     /// Provides the guild's id.
@@ -246,6 +253,12 @@ event_handler! {
     /// Provides the guild's id and the new state of the stickers in the guild.
     GuildStickersUpdate { guild_id: GuildId, current_state: HashMap<StickerId, Sticker> } => async fn guild_stickers_update(&self, ctx: Context);
 
+    /// Dispatched together with [`Self::GuildStickersUpdate`] when the stickers are updated.
+    ///
+    /// Provides the guild's id, the stickers before the update (if the cache feature is enabled
+    /// and the guild was cached) and the new state of the stickers in the guild.
+    GuildStickersUpdateWithOld { guild_id: GuildId, old_if_available: Option<HashMap<StickerId, Sticker>>, current_state: HashMap<StickerId, Sticker> } => async fn guild_stickers_update_with_old(&self, ctx: Context);
+
     /// Dispatched when the guild is updated.
     ///
     /// Provides the guild's old data (if cache feature is enabled and the data is available)
@@ -297,6 +310,14 @@ event_handler! {
     ///
     /// Provides the channel's id and the message's id.
     ReactionRemoveAll { channel_id: ChannelId, removed_from_message_id: MessageId } => async fn reaction_remove_all(&self, ctx: Context);
+
+    /// Dispatched together with [`Self::ReactionRemoveAll`] when all reactions of a message are
+    /// detached from a message.
+    ///
+    /// Provides the guild's id (`None` in DMs) in addition to the channel's id and the message's
+    /// id. Discord sends the guild id in `MESSAGE_REACTION_REMOVE_ALL`; the older
+    /// `reaction_remove_all` handler does not receive it.
+    ReactionRemoveAllInGuild { guild_id: Option<GuildId>, channel_id: ChannelId, removed_from_message_id: MessageId } => async fn reaction_remove_all_in_guild(&self, ctx: Context);
 
     /// Dispatched when all reactions of a message are detached from a message.
     ///
