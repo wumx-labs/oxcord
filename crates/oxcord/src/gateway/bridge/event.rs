@@ -17,4 +17,12 @@ pub struct ShardStageUpdateEvent {
     pub old: ConnectionStage,
     /// The ID of the shard that had its connection stage change.
     pub shard_id: ShardId,
+    /// The websocket close code the gateway sent, when this update follows a disconnect with a
+    /// close frame. `None` otherwise.
+    ///
+    /// When it is `Some`, the event may have `new == old`: the shard was told to close but the
+    /// reconnect has not started yet.
+    pub close_code: Option<u16>,
+    /// The close reason that came with [`Self::close_code`], possibly empty.
+    pub close_reason: Option<String>,
 }

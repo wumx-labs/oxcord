@@ -69,6 +69,9 @@ pub struct Shard {
     session_id: Option<String>,
     info: ShardInfo,
     stage: ConnectionStage,
+    /// Close code and reason of the last websocket close frame, until taken with
+    /// [`Shard::take_last_close`].
+    last_close: Option<(u16, String)>,
     /// Instant of when the shard was started.
     // This acts as a timeout to determine if the shard has - for some reason - not started within
     // a decent amount of time.
@@ -149,6 +152,7 @@ impl Shard {
             last_heartbeat_acknowledged,
             seq,
             stage,
+            last_close: None,
             started: Instant::now(),
             token: token.to_string(),
             session_id,
@@ -273,6 +277,13 @@ impl Shard {
         self.info
     }
 
+    /// Takes the close code and reason of the last websocket close frame received from the
+    /// gateway, if any. Returns `None` when the connection did not end with a close frame (for
+    /// example an I/O error) or when the value was already taken.
+    pub fn take_last_close(&mut self) -> Option<(u16, String)> {
+        self.last_close.take()
+    }
+
     /// Returns the current connection stage of the shard.
     pub fn stage(&self) -> ConnectionStage {
         self.stage
@@ -334,6 +345,7 @@ impl Shard {
 
     #[instrument(skip(self))]
     fn handle_gateway_closed(&mut self, data: Option<&CloseFrame>) -> Result<Option<ShardAction>> {
+        self.last_close = close_info(data);
         let num = data.map(|d| d.code.into());
         let clean = num == Some(1000);
 
@@ -836,4 +848,27 @@ async fn connect(base_url: &str) -> Result<WsClient> {
     })?;
 
     WsClient::connect(url).await
+}
+
+fn close_info(frame: Option<&CloseFrame>) -> Option<(u16, String)> {
+    frame.map(|f| (f.code.into(), f.reason.to_string()))
+}
+
+#[cfg(test)]
+mod close_tests {
+    use super::*;
+
+    #[test]
+    fn close_info_reads_code_and_reason() {
+        let frame = CloseFrame {
+            code: 4004.into(),
+            reason: "Authentication failed".into(),
+        };
+        assert_eq!(close_info(Some(&frame)), Some((4004, "Authentication failed".to_string())));
+    }
+
+    #[test]
+    fn close_info_without_frame_is_none() {
+        assert_eq!(close_info(None), None);
+    }
 }
