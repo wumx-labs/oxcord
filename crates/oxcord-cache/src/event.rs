@@ -14,6 +14,9 @@ use oxcord_model::event::{
     GuildRoleCreateEvent,
     GuildRoleDeleteEvent,
     GuildRoleUpdateEvent,
+    GuildScheduledEventCreateEvent,
+    GuildScheduledEventDeleteEvent,
+    GuildScheduledEventUpdateEvent,
     GuildStickersUpdateEvent,
     GuildUpdateEvent,
     MessageCreateEvent,
@@ -28,7 +31,7 @@ use oxcord_model::event::{
     VoiceStateUpdateEvent,
 };
 use oxcord_model::gateway::ShardInfo;
-use oxcord_model::guild::{Guild, GuildMemberFlags, Member, Role};
+use oxcord_model::guild::{Guild, GuildMemberFlags, Member, Role, ScheduledEvent};
 use oxcord_model::id::ShardId;
 use oxcord_model::user::{CurrentUser, OnlineStatus};
 use oxcord_model::voice::VoiceState;
@@ -73,6 +76,50 @@ impl CacheUpdate for ChannelUpdateEvent {
             .guilds
             .get_mut(&self.channel.guild_id)
             .and_then(|mut g| g.channels.insert(self.channel.id, self.channel.clone()))
+    }
+}
+
+impl CacheUpdate for GuildScheduledEventCreateEvent {
+    type Output = ();
+
+    fn update(&mut self, cache: &Cache) -> Option<()> {
+        if let Some(mut guild) = cache.guilds.get_mut(&self.event.guild_id) {
+            if let Some(existing) =
+                guild.scheduled_events.iter_mut().find(|e| e.id == self.event.id)
+            {
+                *existing = self.event.clone();
+            } else {
+                guild.scheduled_events.push(self.event.clone());
+            }
+        }
+
+        None
+    }
+}
+
+impl CacheUpdate for GuildScheduledEventUpdateEvent {
+    type Output = ScheduledEvent;
+
+    fn update(&mut self, cache: &Cache) -> Option<ScheduledEvent> {
+        let mut guild = cache.guilds.get_mut(&self.event.guild_id)?;
+
+        if let Some(existing) = guild.scheduled_events.iter_mut().find(|e| e.id == self.event.id) {
+            Some(std::mem::replace(existing, self.event.clone()))
+        } else {
+            guild.scheduled_events.push(self.event.clone());
+            None
+        }
+    }
+}
+
+impl CacheUpdate for GuildScheduledEventDeleteEvent {
+    type Output = ScheduledEvent;
+
+    fn update(&mut self, cache: &Cache) -> Option<ScheduledEvent> {
+        let mut guild = cache.guilds.get_mut(&self.event.guild_id)?;
+        let pos = guild.scheduled_events.iter().position(|e| e.id == self.event.id)?;
+
+        Some(guild.scheduled_events.remove(pos))
     }
 }
 
