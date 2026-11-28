@@ -12,6 +12,12 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
   The existing handler is unchanged.
 
 ## oxcord 0.3.0 / oxcord-framework 0.3.0 / oxcord-builders 0.2.0 / oxcord-rest 0.2.0 / oxcord-gateway 0.2.0 / oxcord-voice 0.2.0 / oxcord-proxy 0.2.0 / oxcord-gateway-daemon 0.2.0
+- ci: `crypto-provider` job fails if `aws-lc-rs` appears in the dependency tree (two rustls providers
+  make rustls 0.23 panic at the first handshake).
+- docs: README documents `HTTPS_PROXY` / `https_proxy` / `NO_PROXY` for the gateway and has a
+  "Migrating from 0.2" section.
+
+## oxcord 0.3.0 / oxcord-framework 0.3.0 / oxcord-builders 0.2.0 / oxcord-rest 0.2.0 / oxcord-gateway 0.2.0 / oxcord-voice 0.2.0 / oxcord-proxy 0.2.0 / oxcord-gateway-daemon 0.2.0 (2026-11-28)
 
 TLS stack upgrade (breaking). The old stack (reqwest 0.11, hyper 0.14, h2 0.3, rustls 0.21 and 0.22,
 tokio-tungstenite 0.21) carried nine open security advisories (RUSTSEC-2026-0049, -0098, -0099,
