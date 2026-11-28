@@ -5,6 +5,10 @@ This project mostly adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- docs(model,client): `ThreadMembersUpdateEvent` / `thread_members_update` document `id`, `guild_id`,
+  `added_members` and `removed_member_ids` (the handler doc named the wrong intent: it is `GUILD_MEMBERS`).
+  Tests for the payload.
+
 ## oxcord 0.3.0 / oxcord-framework 0.3.0 / oxcord-builders 0.2.0 / oxcord-rest 0.2.0 / oxcord-gateway 0.2.0 / oxcord-voice 0.2.0 / oxcord-proxy 0.2.0 / oxcord-gateway-daemon 0.2.0
 
 TLS stack upgrade (breaking). The old stack (reqwest 0.11, hyper 0.14, h2 0.3, rustls 0.21 and 0.22,
